@@ -58,6 +58,11 @@ type MockDataStore struct {
 	TutorIDs     []string
 	ChallengeIDs []string
 
+	// Amendment Phase 1: Adaptive Intelligence
+	ProfileIDs    []string
+	PromptLogIDs  []string
+	EvalImportIDs []string
+
 	// Phase 10: History
 	GrowthIDs        []string
 	CohortIDs        []string

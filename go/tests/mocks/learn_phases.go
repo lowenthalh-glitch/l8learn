@@ -31,6 +31,9 @@ func RunAllPhases(client Client) {
 	fmt.Println("=== Phase 4: Learning State ===")
 	runPhase4(client, store)
 
+	fmt.Println("=== Phase 5: Adaptive Intelligence ===")
+	runPhase5(client, store)
+
 	fmt.Printf("\n=== Summary ===\n")
 	fmt.Printf("  Districts:   %d\n", len(store.DistrictIDs))
 	fmt.Printf("  Schools:     %d\n", len(store.SchoolIDs))
@@ -45,6 +48,9 @@ func RunAllPhases(client Client) {
 	fmt.Printf("  Activities:  %d\n", len(store.ActivityIDs))
 	fmt.Printf("  Paths:       %d\n", len(store.PathIDs))
 	fmt.Printf("  Mastery:     %d\n", len(store.MasteryIDs))
+	fmt.Printf("  Profiles:    %d\n", len(store.ProfileIDs))
+	fmt.Printf("  PromptLogs:  %d\n", len(store.PromptLogIDs))
+	fmt.Printf("  EvalImports: %d\n", len(store.EvalImportIDs))
 }
 
 func runPhase1(client Client, store *MockDataStore) {
@@ -151,4 +157,35 @@ func runPhase4(client Client, store *MockDataStore) {
 		store.MasteryIDs = append(store.MasteryIDs, m.MasteryId)
 	}
 	fmt.Printf("  Mastery: %d\n", len(mastery))
+}
+
+func runPhase5(client Client, store *MockDataStore) {
+	// Student Profiles (depends on StudentIDs)
+	profiles := generateProfiles(store)
+	if err := client.Post("/learn/20/Profile", &learn.StudentProfileList{List: profiles}); err != nil { fmt.Printf("  ERROR: %v\n", err) }
+	for _, p := range profiles {
+		store.ProfileIDs = append(store.ProfileIDs, p.ProfileId)
+	}
+	fmt.Printf("  Profiles: %d\n", len(profiles))
+
+	// LLM Config (singleton)
+	config := generateLLMConfig()
+	if err := client.Post("/learn/30/LLMConfig", &learn.LLMConfigList{List: []*learn.LLMConfig{config}}); err != nil { fmt.Printf("  ERROR: %v\n", err) }
+	fmt.Printf("  LLMConfig: 1\n")
+
+	// Prompt Logs (depends on StudentIDs)
+	logs := generatePromptLogs(store)
+	if err := client.Post("/learn/30/PromptLog", &learn.LLMPromptLogList{List: logs}); err != nil { fmt.Printf("  ERROR: %v\n", err) }
+	for _, l := range logs {
+		store.PromptLogIDs = append(store.PromptLogIDs, l.LogId)
+	}
+	fmt.Printf("  PromptLogs: %d\n", len(logs))
+
+	// Eval Imports (depends on StudentIDs, GuardianIDs)
+	evals := generateEvalImports(store)
+	if err := client.Post("/learn/20/EvalImprt", &learn.EvalImportList{List: evals}); err != nil { fmt.Printf("  ERROR: %v\n", err) }
+	for _, e := range evals {
+		store.EvalImportIDs = append(store.EvalImportIDs, e.ImportId)
+	}
+	fmt.Printf("  EvalImports: %d\n", len(evals))
 }
