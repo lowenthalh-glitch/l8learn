@@ -17,7 +17,6 @@ func newContentEffectServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Require(func(v interface{}) string { return v.(*learn.ContentEffect).ContentId }, "ContentId").
 		Require(func(v interface{}) string { return v.(*learn.ContentEffect).ContentType }, "ContentType").
 		Require(func(v interface{}) string { return v.(*learn.ContentEffect).AcademicYear }, "AcademicYear").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.ContentEffect).Subject) }, "Subject", learn.SubjectType_name).
 		Build()
 }
 

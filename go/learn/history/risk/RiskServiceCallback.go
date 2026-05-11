@@ -15,8 +15,6 @@ func newRiskServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.RiskAssessment{}, vnic).
 		Require(func(v interface{}) string { return v.(*learn.RiskAssessment).AssessmentId }, "AssessmentId").
 		Require(func(v interface{}) string { return v.(*learn.RiskAssessment).StudentId }, "StudentId").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.RiskAssessment).Subject) }, "Subject", learn.SubjectType_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.RiskAssessment).RiskLevel) }, "RiskLevel", learn.RiskLevel_name).
 		After(onRiskAssessed).
 		Build()
 }

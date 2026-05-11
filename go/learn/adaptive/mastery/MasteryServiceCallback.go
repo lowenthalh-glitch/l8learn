@@ -16,7 +16,6 @@ func newMasteryServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Require(func(v interface{}) string { return v.(*learn.SkillMastery).MasteryId }, "MasteryId").
 		Require(func(v interface{}) string { return v.(*learn.SkillMastery).StudentId }, "StudentId").
 		Require(func(v interface{}) string { return v.(*learn.SkillMastery).SkillId }, "SkillId").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.SkillMastery).Level) }, "Level", learn.MasteryLevel_name).
 		After(onMasteryChange).
 		Build()
 }

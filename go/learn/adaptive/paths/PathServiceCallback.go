@@ -15,8 +15,6 @@ func newPathServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.LearningPath{}, vnic).
 		Require(func(v interface{}) string { return v.(*learn.LearningPath).PathId }, "PathId").
 		Require(func(v interface{}) string { return v.(*learn.LearningPath).StudentId }, "StudentId").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.LearningPath).Subject) }, "Subject", learn.SubjectType_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.LearningPath).Status) }, "Status", learn.PathStatus_name).
 		After(onPathChange).
 		Build()
 }

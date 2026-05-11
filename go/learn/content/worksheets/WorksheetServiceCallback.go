@@ -16,9 +16,6 @@ func newWorksheetServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Require(func(v interface{}) string { return v.(*learn.Worksheet).WorksheetId }, "WorksheetId").
 		Require(func(v interface{}) string { return v.(*learn.Worksheet).Name }, "Name").
 		Require(func(v interface{}) string { return v.(*learn.Worksheet).TeacherId }, "TeacherId").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Worksheet).Subject) }, "Subject", learn.SubjectType_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Worksheet).Status) }, "Status", learn.WorksheetStatus_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Worksheet).Layout) }, "Layout", learn.WorksheetLayout_name).
 		After(onWorksheetChange).
 		Build()
 }

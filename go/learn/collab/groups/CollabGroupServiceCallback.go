@@ -15,8 +15,6 @@ func newCollabGroupServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.CollabGroup{}, vnic).
 		Require(func(v interface{}) string { return v.(*learn.CollabGroup).GroupId }, "GroupId").
 		Require(func(v interface{}) string { return v.(*learn.CollabGroup).Name }, "Name").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.CollabGroup).Type) }, "Type", learn.GroupType_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.CollabGroup).Status) }, "Status", learn.GroupStatus_name).
 		Build()
 }
 

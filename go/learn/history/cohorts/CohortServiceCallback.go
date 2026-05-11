@@ -16,8 +16,6 @@ func newCohortServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Require(func(v interface{}) string { return v.(*learn.CohortSnapshot).SnapshotId }, "SnapshotId").
 		Require(func(v interface{}) string { return v.(*learn.CohortSnapshot).EntityId }, "EntityId").
 		Require(func(v interface{}) string { return v.(*learn.CohortSnapshot).AcademicYear }, "AcademicYear").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.CohortSnapshot).Level) }, "Level", learn.AggregationLevel_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.CohortSnapshot).Type) }, "Type", learn.SnapshotType_name).
 		Build()
 }
 

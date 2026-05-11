@@ -16,8 +16,6 @@ func newGrowthServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Require(func(v interface{}) string { return v.(*learn.GrowthRecord).GrowthId }, "GrowthId").
 		Require(func(v interface{}) string { return v.(*learn.GrowthRecord).StudentId }, "StudentId").
 		Require(func(v interface{}) string { return v.(*learn.GrowthRecord).AcademicYear }, "AcademicYear").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.GrowthRecord).Subject) }, "Subject", learn.SubjectType_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.GrowthRecord).Rating) }, "Rating", learn.GrowthRating_name).
 		Build()
 }
 

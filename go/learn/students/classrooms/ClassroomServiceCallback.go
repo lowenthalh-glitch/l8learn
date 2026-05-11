@@ -17,6 +17,5 @@ func newClassroomServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Require(func(v interface{}) string { return v.(*learn.Classroom).Name }, "Name").
 		Require(func(v interface{}) string { return v.(*learn.Classroom).PrimaryTeacherId }, "PrimaryTeacherId").
 		Require(func(v interface{}) string { return v.(*learn.Classroom).SchoolId }, "SchoolId").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Classroom).GradeLevel) }, "GradeLevel", learn.GradeLevel_name).
 		Build()
 }

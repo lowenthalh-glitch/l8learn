@@ -16,7 +16,5 @@ func newLessonServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Require(func(v interface{}) string { return v.(*learn.Lesson).LessonId }, "LessonId").
 		Require(func(v interface{}) string { return v.(*learn.Lesson).UnitId }, "UnitId").
 		Require(func(v interface{}) string { return v.(*learn.Lesson).Name }, "Name").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Lesson).Difficulty) }, "Difficulty", learn.DifficultyLevel_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Lesson).Status) }, "Status", learn.ContentStatus_name).
 		Build()
 }

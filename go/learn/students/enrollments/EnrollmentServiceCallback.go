@@ -17,7 +17,6 @@ func newEnrollmentServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Require(func(v interface{}) string { return v.(*learn.Enrollment).StudentId }, "StudentId").
 		Require(func(v interface{}) string { return v.(*learn.Enrollment).SchoolId }, "SchoolId").
 		Require(func(v interface{}) string { return v.(*learn.Enrollment).DistrictId }, "DistrictId").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Enrollment).Status) }, "Status", learn.EnrollmentStatus_name).
 		After(onEnrollmentChange).
 		Build()
 }

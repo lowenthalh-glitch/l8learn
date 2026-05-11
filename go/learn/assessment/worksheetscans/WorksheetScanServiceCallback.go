@@ -16,7 +16,6 @@ func newWorksheetScanServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Require(func(v interface{}) string { return v.(*learn.WorksheetScan).ScanId }, "ScanId").
 		Require(func(v interface{}) string { return v.(*learn.WorksheetScan).WorksheetId }, "WorksheetId").
 		Require(func(v interface{}) string { return v.(*learn.WorksheetScan).TeacherId }, "TeacherId").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.WorksheetScan).Status) }, "Status", learn.ScanStatus_name).
 		After(onScanChange).
 		Build()
 }

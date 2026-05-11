@@ -15,9 +15,6 @@ func newProgressServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.ProgressReport{}, vnic).
 		Require(func(v interface{}) string { return v.(*learn.ProgressReport).ReportId }, "ReportId").
 		Require(func(v interface{}) string { return v.(*learn.ProgressReport).StudentId }, "StudentId").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.ProgressReport).Subject) }, "Subject", learn.SubjectType_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.ProgressReport).Period) }, "Period", learn.ReportPeriod_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.ProgressReport).Engagement) }, "Engagement", learn.EngagementLevel_name).
 		After(onProgressGenerated).
 		Build()
 }

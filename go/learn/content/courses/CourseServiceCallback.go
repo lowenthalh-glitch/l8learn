@@ -15,7 +15,5 @@ func newCourseServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.Course{}, vnic).
 		Require(func(v interface{}) string { return v.(*learn.Course).CourseId }, "CourseId").
 		Require(func(v interface{}) string { return v.(*learn.Course).Name }, "Name").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Course).Subject) }, "Subject", learn.SubjectType_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Course).Status) }, "Status", learn.ContentStatus_name).
 		Build()
 }

@@ -15,8 +15,6 @@ func newRealWorldLessonServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.RealWorldLesson{}, vnic).
 		Require(func(v interface{}) string { return v.(*learn.RealWorldLesson).LessonId }, "LessonId").
 		Require(func(v interface{}) string { return v.(*learn.RealWorldLesson).Name }, "Name").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.RealWorldLesson).Context) }, "Context", learn.RealWorldContext_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.RealWorldLesson).Status) }, "Status", learn.ContentStatus_name).
 		After(onRealWorldComplete).
 		Build()
 }

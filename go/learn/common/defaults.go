@@ -17,4 +17,4 @@ func CreateResources(alias string, logVnet bool) ifs.IResources {
 }
 
 var WaitForSignal = l8c.WaitForSignal
-var OpenDBConection = l8c.OpenDBConection
+var ActivateService = l8c.ActivateService

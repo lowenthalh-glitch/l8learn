@@ -17,9 +17,6 @@ func newAdaptRuleServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.AdaptationRule{}, vnic).
 		Require(func(v interface{}) string { return v.(*learn.AdaptationRule).RuleId }, "RuleId").
 		Require(func(v interface{}) string { return v.(*learn.AdaptationRule).Name }, "Name").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.AdaptationRule).Status) }, "Status", learn.AdaptRuleStatus_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.AdaptationRule).Trigger) }, "Trigger", learn.AdaptTrigger_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.AdaptationRule).Strategy) }, "Strategy", learn.AdaptStrategy_name).
 		Custom(validateTriggerStrategy).
 		Build()
 }

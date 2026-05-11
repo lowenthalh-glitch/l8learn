@@ -17,6 +17,5 @@ func newGuardianServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Require(func(v interface{}) string { return v.(*learn.Guardian).FirstName }, "FirstName").
 		Require(func(v interface{}) string { return v.(*learn.Guardian).LastName }, "LastName").
 		Require(func(v interface{}) string { return v.(*learn.Guardian).Email }, "Email").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Guardian).Relation) }, "Relation", learn.GuardianRelation_name).
 		Build()
 }

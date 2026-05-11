@@ -15,7 +15,6 @@ func newProjectServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.Project{}, vnic).
 		Require(func(v interface{}) string { return v.(*learn.Project).ProjectId }, "ProjectId").
 		Require(func(v interface{}) string { return v.(*learn.Project).Name }, "Name").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Project).Status) }, "Status", learn.ContentStatus_name).
 		After(onProjectUpdate).
 		Build()
 }

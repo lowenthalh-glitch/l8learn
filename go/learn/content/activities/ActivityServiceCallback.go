@@ -18,9 +18,6 @@ func newActivityServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Require(func(v interface{}) string { return v.(*learn.Activity).ActivityId }, "ActivityId").
 		Require(func(v interface{}) string { return v.(*learn.Activity).LessonId }, "LessonId").
 		Require(func(v interface{}) string { return v.(*learn.Activity).Name }, "Name").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Activity).ActivityType) }, "ActivityType", learn.ActivityType_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Activity).Difficulty) }, "Difficulty", learn.DifficultyLevel_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Activity).Status) }, "Status", learn.ContentStatus_name).
 		Custom(validateQuestions).
 		Build()
 }

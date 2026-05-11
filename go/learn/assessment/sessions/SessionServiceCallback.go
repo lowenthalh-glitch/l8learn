@@ -15,7 +15,6 @@ func newSessionServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.LearningSession{}, vnic).
 		Require(func(v interface{}) string { return v.(*learn.LearningSession).SessionId }, "SessionId").
 		Require(func(v interface{}) string { return v.(*learn.LearningSession).StudentId }, "StudentId").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.LearningSession).Status) }, "Status", learn.SessionStatus_name).
 		After(onSessionChange).
 		Build()
 }

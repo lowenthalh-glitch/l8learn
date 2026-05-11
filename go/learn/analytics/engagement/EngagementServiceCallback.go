@@ -15,6 +15,5 @@ func newEngagementServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.EngagementMetric{}, vnic).
 		Require(func(v interface{}) string { return v.(*learn.EngagementMetric).MetricId }, "MetricId").
 		Require(func(v interface{}) string { return v.(*learn.EngagementMetric).StudentId }, "StudentId").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.EngagementMetric).CurrentLevel) }, "CurrentLevel", learn.EngagementLevel_name).
 		Build()
 }

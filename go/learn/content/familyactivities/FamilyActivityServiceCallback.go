@@ -15,8 +15,6 @@ func newFamilyActivityServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.FamilyActivity{}, vnic).
 		Require(func(v interface{}) string { return v.(*learn.FamilyActivity).FamilyActivityId }, "FamilyActivityId").
 		Require(func(v interface{}) string { return v.(*learn.FamilyActivity).Name }, "Name").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.FamilyActivity).ActivityType) }, "ActivityType", learn.ActivityType_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.FamilyActivity).Status) }, "Status", learn.ContentStatus_name).
 		After(onFamilyActivityComplete).
 		Build()
 }

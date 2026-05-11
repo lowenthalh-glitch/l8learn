@@ -15,8 +15,5 @@ func newBenchmarkServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.Benchmark{}, vnic).
 		Require(func(v interface{}) string { return v.(*learn.Benchmark).BenchmarkId }, "BenchmarkId").
 		Require(func(v interface{}) string { return v.(*learn.Benchmark).Name }, "Name").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Benchmark).Type) }, "Type", learn.BenchmarkType_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Benchmark).Subject) }, "Subject", learn.SubjectType_name).
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.Benchmark).Status) }, "Status", learn.ContentStatus_name).
 		Build()
 }

@@ -21,7 +21,6 @@ func newCollabMessageServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Require(func(v interface{}) string { return v.(*learn.CollabMessage).MessageId }, "MessageId").
 		Require(func(v interface{}) string { return v.(*learn.CollabMessage).GroupId }, "GroupId").
 		Require(func(v interface{}) string { return v.(*learn.CollabMessage).SenderId }, "SenderId").
-		Enum(func(v interface{}) int32 { return int32(v.(*learn.CollabMessage).Type) }, "Type", learn.ChatMessageType_name).
 		Custom(moderateMessage).
 		After(onMessageSent).
 		Build()
