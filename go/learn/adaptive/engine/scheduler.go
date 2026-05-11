@@ -22,14 +22,16 @@ import (
 type Scheduler struct {
 	vnic           ifs.IVNic
 	profileUpdater *ProfileUpdater
+	parentCoach    *ParentCoach
 	running        bool
 	stopCh         chan struct{}
 }
 
-func NewScheduler(vnic ifs.IVNic, profileUpdater *ProfileUpdater) *Scheduler {
+func NewScheduler(vnic ifs.IVNic, profileUpdater *ProfileUpdater, parentCoach *ParentCoach) *Scheduler {
 	return &Scheduler{
 		vnic:           vnic,
 		profileUpdater: profileUpdater,
+		parentCoach:    parentCoach,
 		stopCh:         make(chan struct{}),
 	}
 }
@@ -41,10 +43,10 @@ func (s *Scheduler) Start() {
 	}
 	s.running = true
 
-	// Weekly profile update (every 7 days)
 	go s.runWeeklyLoop()
+	go s.runDailyLoop()
 
-	fmt.Println("[Scheduler] Started periodic tasks")
+	fmt.Println("[Scheduler] Started periodic tasks (weekly + daily)")
 }
 
 // Stop gracefully stops the scheduler
@@ -86,4 +88,27 @@ func (s *Scheduler) runWeeklyProfileUpdates() {
 	// 4. Save updated profile
 	// Each call generates a PROFILE_UPDATE prompt logged to PromptLog
 	fmt.Println("[Scheduler] Weekly profile updates complete")
+}
+
+func (s *Scheduler) runDailyLoop() {
+	// Check every hour, run daily tasks once per day (morning)
+	ticker := time.NewTicker(1 * time.Hour)
+	defer ticker.Stop()
+
+	var lastDailyRun time.Time
+
+	for {
+		select {
+		case <-s.stopCh:
+			return
+		case now := <-ticker.C:
+			// Run daily coaching if 24 hours have passed
+			if now.Sub(lastDailyRun) >= 24*time.Hour {
+				if s.parentCoach != nil {
+					s.parentCoach.RunDailyCoaching()
+				}
+				lastDailyRun = now
+			}
+		}
+	}
 }

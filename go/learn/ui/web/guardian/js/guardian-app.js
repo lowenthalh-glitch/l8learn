@@ -81,10 +81,8 @@
         }
         container.innerHTML = html;
 
-        // Load AI coach tip
-        document.getElementById('coach-tip').textContent =
-            "Try asking your children to explain what they learned today — " +
-            "students who explain concepts retain 90% more than those who just practice.";
+        // Load AI coach tip from latest PARENT_COACHING prompt log
+        loadCoachingTip();
     }
 
     function renderChildCard(student) {
@@ -138,6 +136,34 @@
         };
         await GuardianConfig.post('/30/Schedule', schedule);
         loadSchedule();
+    }
+
+    async function loadCoachingTip() {
+        var tipEl = document.getElementById('coach-tip');
+        if (!tipEl) return;
+
+        // Load latest PARENT_COACHING prompt log for any of this guardian's students
+        var query = 'select * from LLMPromptLog where type=5 sort-by timestamp descending limit 1 page 0';
+        var data = await GuardianConfig.get('/30/PromptLog', query);
+        if (data && data.list && data.list.length > 0) {
+            var log = data.list[0];
+            try {
+                var parsed = JSON.parse(log.response);
+                var tipText = parsed.tip || log.response;
+                tipEl.textContent = tipText;
+                if (parsed.activitySuggestion) {
+                    tipEl.textContent += '\n\nActivity: ' + parsed.activitySuggestion;
+                }
+                if (parsed.materials && parsed.materials !== 'none needed') {
+                    tipEl.textContent += '\nMaterials: ' + parsed.materials;
+                }
+            } catch (e) {
+                tipEl.textContent = log.response;
+            }
+        } else {
+            tipEl.textContent = "Try asking your children to explain what they learned today — " +
+                "students who explain concepts retain 90% more than those who just practice.";
+        }
     }
 
     async function loadCompliance() {
