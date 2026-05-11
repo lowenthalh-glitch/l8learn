@@ -5,8 +5,9 @@ go 1.26.1
 require (
 	github.com/saichler/l8bus v0.0.0-20260507121220-fb7db984917c
 	github.com/saichler/l8common v0.0.0-20260505024122-8e5ad212b06b
-	github.com/saichler/l8events v0.0.0-20260326140304-4e54a1195008
 	github.com/saichler/l8types v0.0.0-20260505122705-baebc9fce998
+	github.com/saichler/l8utils v0.0.0-20260505131226-f546f8717d26
+	google.golang.org/protobuf v1.36.11
 )
 
 require (
@@ -19,8 +20,6 @@ require (
 	github.com/saichler/l8reflect v0.0.0-20260510153526-a40cb00e4db2 // indirect
 	github.com/saichler/l8services v0.0.0-20260507104132-1658bd7baa30 // indirect
 	github.com/saichler/l8srlz v0.0.0-20260322124809-505a0d08f95d // indirect
-	github.com/saichler/l8utils v0.0.0-20260505131226-f546f8717d26 // indirect
 	github.com/saichler/l8web v0.0.0-20260508110248-236a0cd55e74 // indirect
 	golang.org/x/sys v0.44.0 // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
 )

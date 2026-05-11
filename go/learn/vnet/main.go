@@ -6,15 +6,16 @@
 package main
 
 import (
+	"os"
+
 	"github.com/saichler/l8bus/go/overlay/vnet"
 	"github.com/saichler/l8learn/go/learn/common"
-	"github.com/saichler/l8types/go/ifs"
 )
 
 func main() {
-	res := common.CreateResources("L8LearnVNet", true)
-	ifs.SetNetworkMode(ifs.NETWORK_K8s)
-	v := vnet.NewVNet(res)
-	v.Start()
-	common.WaitForSignal(res)
+	resources := common.CreateResources("vnet-" + os.Getenv("HOSTNAME"))
+	net := vnet.NewVNet(resources)
+	net.Start()
+	resources.Logger().Info("vnet started!")
+	common.WaitForSignal(resources)
 }

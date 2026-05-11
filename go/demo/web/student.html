@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>L8Learn</title>
+    <link rel="stylesheet" href="student/css/player.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Top Bar: avatar, points, streak -->
+        <header class="player-header">
+            <div class="player-avatar" id="player-avatar"></div>
+            <div class="player-info">
+                <span class="player-name" id="player-name"></span>
+                <div class="player-stats">
+                    <span class="stat-points" id="stat-points">0 pts</span>
+                    <span class="stat-streak" id="stat-streak">0 days</span>
+                </div>
+            </div>
+            <div class="player-progress-ring" id="progress-ring"></div>
+        </header>
+
+        <!-- Activity Area -->
+        <main class="player-main">
+            <!-- Welcome / Activity Loading State -->
+            <div class="player-welcome" id="welcome-screen">
+                <h1 id="welcome-greeting"></h1>
+                <p id="welcome-message"></p>
+                <button class="player-btn-start" id="btn-start">Let's Go!</button>
+            </div>
+
+            <!-- Activity Container (rendered dynamically) -->
+            <div class="player-activity hidden" id="activity-container">
+                <div class="activity-header">
+                    <span class="activity-skill" id="activity-skill"></span>
+                    <span class="activity-progress" id="activity-progress"></span>
+                </div>
+                <div class="activity-content" id="activity-content">
+                    <!-- Question/activity rendered here by JS -->
+                </div>
+                <div class="activity-footer">
+                    <button class="player-btn-hint hidden" id="btn-hint">Need a hint?</button>
+                    <button class="player-btn-submit" id="btn-submit">Check Answer</button>
+                    <button class="player-btn-next hidden" id="btn-next">Next</button>
+                </div>
+            </div>
+
+            <!-- Feedback Overlay (correct/incorrect animation) -->
+            <div class="player-feedback hidden" id="feedback-overlay">
+                <div class="feedback-icon" id="feedback-icon"></div>
+                <div class="feedback-message" id="feedback-message"></div>
+            </div>
+
+            <!-- Session Complete -->
+            <div class="player-complete hidden" id="complete-screen">
+                <h2>Great job!</h2>
+                <div class="complete-stats">
+                    <div class="complete-stat">
+                        <span class="complete-value" id="complete-correct"></span>
+                        <span class="complete-label">Correct</span>
+                    </div>
+                    <div class="complete-stat">
+                        <span class="complete-value" id="complete-points"></span>
+                        <span class="complete-label">Points Earned</span>
+                    </div>
+                    <div class="complete-stat">
+                        <span class="complete-value" id="complete-time"></span>
+                        <span class="complete-label">Minutes</span>
+                    </div>
+                </div>
+                <button class="player-btn-start" id="btn-done">Done for Today</button>
+            </div>
+        </main>
+
+        <!-- Bottom Nav: progress map link, collaboration, settings -->
+        <nav class="player-nav">
+            <button class="nav-item active" data-view="learn" id="nav-learn">Learn</button>
+            <button class="nav-item" data-view="map" id="nav-map">My Journey</button>
+            <button class="nav-item" data-view="friends" id="nav-friends">Friends</button>
+            <button class="nav-item" data-view="badges" id="nav-badges">Badges</button>
+        </nav>
+    </div>
+
+    <script src="student/js/player-config.js"></script>
+    <script src="student/js/player-session.js"></script>
+    <script src="student/js/player-renderer.js"></script>
+    <script src="student/js/player-app.js"></script>
+</body>
+</html>

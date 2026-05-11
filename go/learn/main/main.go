@@ -26,7 +26,7 @@ const (
 var dbName = DB_NAME
 
 func main() {
-	res := common.CreateResources("L8LearnServices", false)
+	res := common.CreateResources("L8LearnServices")
 	ifs.SetNetworkMode(ifs.NETWORK_K8s)
 	nic := vnic.NewVirtualNetworkInterface(res, nil)
 	nic.Start()

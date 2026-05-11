@@ -12,8 +12,8 @@ import (
 
 const PREFIX = "/learn"
 
-func CreateResources(alias string, logVnet bool) ifs.IResources {
-	return l8c.CreateResources(alias, logVnet)
+func CreateResources(alias string) ifs.IResources {
+	return l8c.CreateResources(alias, false)
 }
 
 var WaitForSignal = l8c.WaitForSignal
