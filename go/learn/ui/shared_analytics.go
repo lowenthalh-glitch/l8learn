@@ -6,12 +6,13 @@
 package ui
 
 import (
+	l8c "github.com/saichler/l8common/go/common"
+	"github.com/saichler/l8learn/go/types/learn"
 	"github.com/saichler/l8types/go/ifs"
 )
 
 func registerAnalyticsTypes(resources ifs.IResources) {
-	// TODO: Uncomment after proto generation
-	// common.RegisterType(resources, &learn.ProgressReport{}, &learn.ProgressReportList{}, "ReportId")
-	// common.RegisterType(resources, &learn.EngagementMetric{}, &learn.EngagementMetricList{}, "MetricId")
-	_ = resources
+	
+	l8c.RegisterType(resources, &learn.ProgressReport{}, &learn.ProgressReportList{}, "ReportId")
+	l8c.RegisterType(resources, &learn.EngagementMetric{}, &learn.EngagementMetricList{}, "MetricId")
 }

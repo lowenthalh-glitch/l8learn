@@ -6,14 +6,15 @@
 package ui
 
 import (
+	l8c "github.com/saichler/l8common/go/common"
+	"github.com/saichler/l8learn/go/types/learn"
 	"github.com/saichler/l8types/go/ifs"
 )
 
 func registerCollabTypes(resources ifs.IResources) {
-	// TODO: Uncomment after proto generation
-	// common.RegisterType(resources, &learn.CollabGroup{}, &learn.CollabGroupList{}, "GroupId")
-	// common.RegisterType(resources, &learn.CollabMessage{}, &learn.CollabMessageList{}, "MessageId")
-	// common.RegisterType(resources, &learn.TutorMatch{}, &learn.TutorMatchList{}, "MatchId")
-	// common.RegisterType(resources, &learn.Challenge{}, &learn.ChallengeList{}, "ChallengeId")
-	_ = resources
+	
+	l8c.RegisterType(resources, &learn.CollabGroup{}, &learn.CollabGroupList{}, "GroupId")
+	l8c.RegisterType(resources, &learn.CollabMessage{}, &learn.CollabMessageList{}, "MessageId")
+	l8c.RegisterType(resources, &learn.TutorMatch{}, &learn.TutorMatchList{}, "MatchId")
+	l8c.RegisterType(resources, &learn.Challenge{}, &learn.ChallengeList{}, "ChallengeId")
 }
