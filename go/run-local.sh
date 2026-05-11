@@ -1,84 +1,85 @@
-#!/usr/bin/env bash
-#
-# L8Learn — Local Development Setup
-# Adapted from ../l8erp/go/run-local.sh
-#
+#!/bin/bash
 set -e
 
-echo "=== L8Learn Local Development ==="
+CLEAN=false
+if [ "$1" = "clean" ]; then
+    CLEAN=true
+fi
 
-# Clean and fetch dependencies
-echo "Cleaning dependencies..."
-rm -rf go.sum go.mod vendor
-go mod init
-GOPROXY=direct GOPRIVATE=github.com go mod tidy
-go mod vendor
-
-# Start database
-echo "Starting database..."
-docker rm -f unsecure-postgres 2>/dev/null || true
-docker run -d --name unsecure-postgres -p 5432:5432 -v /data/:/data/ \
-    saichler/unsecure-postgres:latest \
-    /bin/sh -c "/start-postgres.sh admin admin admin 5432 && tail -f /dev/null"
-sleep 5
-
-# Build binaries
-echo "Building binaries..."
-rm -rf demo && mkdir -p demo
-
-echo "  Building mocks..."
-cd tests/mocks/cmd && go build -o ../../../demo/mocks_demo && cd ../../..
-
-echo "  Building vnet..."
-cd learn/vnet && go build -o ../../demo/vnet_demo && cd ../..
-
-echo "  Building backend..."
-cd learn/main && go build -o ../../demo/learn_demo && cd ../..
-
-echo "  Building UI server..."
-cd learn/ui/main && go build -o ../../../demo/ui_demo && cd ../../..
-
-# Copy web assets
-echo "  Copying web assets..."
-cp -r learn/ui/web demo/web
-
-# Generate cleanup script
-cat > demo/kill_demo.sh << 'KILLEOF'
-#!/usr/bin/env bash
-pkill -f "vnet_demo" 2>/dev/null || true
-pkill -f "learn_demo" 2>/dev/null || true
-pkill -f "ui_demo" 2>/dev/null || true
-docker rm -f unsecure-postgres 2>/dev/null || true
-echo "Demo processes killed."
-KILLEOF
-chmod +x demo/kill_demo.sh
-
-# Start services
-echo ""
-echo "Starting services..."
-cd demo
-
-./vnet_demo &
+# Always kill previous demo processes
+pkill -9 demo 2>/dev/null || true
 sleep 1
 
-./learn_demo local &
-./ui_demo &
-sleep 8
+# Vendor refresh (only on clean, otherwise reuse existing)
+if $CLEAN || [ ! -d vendor ]; then
+    rm -rf go.sum go.mod vendor
+    go mod init
+    GOPROXY=direct GOPRIVATE=github.com go mod tidy
+    go mod vendor
+fi
 
-# Get external IP
-EXTERNAL_IP=$(hostname -I | awk '{print $1}')
-echo ""
-echo "================================================"
-echo "  L8Learn is running!"
-echo "  URL: https://${EXTERNAL_IP}:2773"
-echo "  Login: admin / admin"
-echo "================================================"
-echo ""
+if $CLEAN; then
+    # Recreate database
+    echo "Clean mode: recreating database..."
+    docker rm -f unsecure-postgres 2>/dev/null || true
+    docker run -d --name unsecure-postgres -p 5432:5432 \
+        -v /data/:/data/ saichler/unsecure-postgres:latest \
+        /bin/sh -c "/start-postgres.sh admin admin admin 5432 && tail -f /dev/null"
+    sleep 5
+else
+    # Ensure database is running
+    if ! docker ps --format '{{.Names}}' | grep -q unsecure-postgres; then
+        echo "Database not running, starting..."
+        docker rm -f unsecure-postgres 2>/dev/null || true
+        docker run -d --name unsecure-postgres -p 5432:5432 \
+            -v /data/:/data/ saichler/unsecure-postgres:latest \
+            /bin/sh -c "/start-postgres.sh admin admin admin 5432 && tail -f /dev/null"
+        sleep 5
+    fi
+fi
 
-# Upload mock data
-read -p "Press ENTER to upload mock data (or Ctrl+C to skip)..."
-./mocks_demo --address https://${EXTERNAL_IP}:2773 --user admin --password admin --insecure
+# Build binaries
+rm -rf demo && mkdir -p demo
+cd tests/mocks/cmd && go build -o ../../../demo/mocks_demo && cd ../../../
+cd learn/vnet && go build -o ../../demo/vnet_demo && cd ../../
+cd learn/main && go build -o ../../demo/learn_demo && cd ../../
+cd learn/ui/main && go build -o ../../../demo/ui_demo && cd ../../../
+cp -r learn/ui/web demo/.
 
-echo ""
-read -p "Press ENTER to shut down..."
+# Generate kill script
+cd demo
+cat > kill_demo.sh <<'EOF'
+cd ..
+rm -rf demo
+rm -rf /data/postgres/admin
+pkill -9 demo
+EOF
+chmod +x kill_demo.sh
+
+LOGFILE="../demo/demo.log"
+> $LOGFILE
+
+# Start services — UI must start BEFORE backend so it receives web service broadcasts
+echo "Starting VNet..."
+./vnet_demo >> $LOGFILE 2>&1 &
+sleep 2
+
+echo "Starting UI..."
+./ui_demo >> $LOGFILE 2>&1 &
+sleep 2
+
+echo "Starting backend (local mode)..."
+./learn_demo local >> $LOGFILE 2>&1 &
+sleep 5
+
+echo "All services started! Logs: demo/demo.log"
+
+if $CLEAN; then
+    # Upload mock data
+    EXTERNAL_IP=$(ip route get 1.1.1.1 | grep -oP 'src \K[0-9.]+')
+    read -p "Press Enter to upload mocks"
+    ./mocks_demo --address https://${EXTERNAL_IP}:2773 --user admin --password admin --insecure 2>&1 | tee -a $LOGFILE
+fi
+
+read -p "Press Enter to kill the demo"
 ./kill_demo.sh
