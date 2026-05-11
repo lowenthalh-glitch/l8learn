@@ -21,4 +21,5 @@ func registerContentTypes(resources ifs.IResources) {
 	l8c.RegisterType(resources, &learn.FamilyActivity{}, &learn.FamilyActivityList{}, "FamilyActivityId")
 	l8c.RegisterType(resources, &learn.RealWorldLesson{}, &learn.RealWorldLessonList{}, "LessonId")
 	l8c.RegisterType(resources, &learn.Project{}, &learn.ProjectList{}, "ProjectId")
+	l8c.RegisterType(resources, &learn.GeneratedLesson{}, &learn.GeneratedLessonList{}, "GeneratedLessonId")
 }

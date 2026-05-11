@@ -9,6 +9,7 @@ import (
 	"github.com/saichler/l8learn/go/learn/content/activities"
 	"github.com/saichler/l8learn/go/learn/content/courses"
 	"github.com/saichler/l8learn/go/learn/content/familyactivities"
+	"github.com/saichler/l8learn/go/learn/content/genlessons"
 	"github.com/saichler/l8learn/go/learn/content/lessons"
 	"github.com/saichler/l8learn/go/learn/content/projects"
 	"github.com/saichler/l8learn/go/learn/content/realworld"
@@ -27,5 +28,6 @@ func collectContentActivations(creds, dbname string, nic ifs.IVNic) []func() {
 		func() { familyactivities.Activate(creds, dbname, nic) },
 		func() { realworld.Activate(creds, dbname, nic) },
 		func() { projects.Activate(creds, dbname, nic) },
+		func() { genlessons.Activate(creds, dbname, nic) },
 	}
 }

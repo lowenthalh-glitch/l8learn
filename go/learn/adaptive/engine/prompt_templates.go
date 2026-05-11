@@ -9,6 +9,8 @@
 package engine
 
 import (
+	"fmt"
+
 	"github.com/saichler/l8learn/go/types/learn"
 )
 
@@ -95,5 +97,26 @@ func BuildEvalImportPrompt(pdfText, documentType, currentProfile string) (string
 		AddContext("document_type", documentType).
 		AddContext("current_student_profile", currentProfile).
 		SetReturnFormat(`{"document_type":"...","professional":"...","evaluation_date":"...","findings":[{"profile_section":"...","profile_field":"...","current_value":"...","new_value":"...","source_text":"...","confidence":0.0-1.0}],"contradictions":[...],"new_therapy_info":{...}}`).
+		Build()
+}
+
+func BuildGenerateLessonPrompt(profile, mastery, skillGraph, interests, accommodations string, maxMinutes int, difficulty string) (string, string) {
+	return NewPromptBuilder(learn.LLMPromptType_LLM_PROMPT_TYPE_GENERATE_LESSON).
+		SetRole("personalized lesson creator for adaptive learning. You replace the teacher — generate a complete, self-contained lesson").
+		AddRule("Include physical/hands-on step if learning style includes kinesthetic").
+		AddRule("Theme the lesson around the student's interests when possible").
+		AddRule("Duration must not exceed the student's attention profile").
+		AddRule("Include progressive hints matched to the student's hint_style").
+		AddRule("Generate real, mathematically correct problems — never placeholder text").
+		AddRule("Respect accommodations (IEP, 504, sensory needs)").
+		AddRule("Each question must have exactly one correct answer").
+		AddContext("student_profile", profile).
+		AddContext("current_mastery", mastery).
+		AddContext("skill_prerequisites", skillGraph).
+		AddContext("interests", interests).
+		AddContext("accommodations", accommodations).
+		AddContext("max_duration_minutes", fmt.Sprintf("%d", maxMinutes)).
+		AddContext("target_difficulty", difficulty).
+		SetReturnFormat(`{"title":"...","objective":"...","theme":"...","estimatedMinutes":N,"materialsNeeded":["..."],"parentInstructions":"...","steps":[{"stepNumber":1,"stepType":"physical|screen|discussion|worksheet|break","title":"...","instructions":"...","durationMinutes":N,"parentRole":"guide|observe|none","materialsInstructions":"...","questions":[{"prompt":"...","questionType":1-4,"correctAnswer":"...","explanation":"...","hints":["..."],"difficulty":1-5,"options":[{"text":"...","isCorrect":true,"feedback":"..."}]}]}],"worksheetContent":{"title":"...","problems":[{"prompt":"...","answer":"..."}]},"minCorrectToAdvance":3,"minCorrectToPass":2,"onStruggleStrategy":"scaffold"}`).
 		Build()
 }

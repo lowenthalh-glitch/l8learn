@@ -72,6 +72,9 @@ func (s *LLMSimulator) generateResponse(promptType learn.LLMPromptType) string {
 	case learn.LLMPromptType_LLM_PROMPT_TYPE_MODERATION:
 		return `{"action":"approved","reason":"Simulated moderation"}`
 
+	case learn.LLMPromptType_LLM_PROMPT_TYPE_GENERATE_LESSON:
+		return `{"title":"Simulated Lesson — review prompt in PromptLog","objective":"Student will practice the target skill","theme":"general","estimatedMinutes":10,"materialsNeeded":[],"parentInstructions":"Observe and encourage","steps":[{"stepNumber":1,"stepType":"screen","title":"Practice Problems","instructions":"Answer these questions","durationMinutes":10,"parentRole":"none","questions":[{"prompt":"What is 7 x 8?","questionType":3,"correctAnswer":"56","explanation":"7 groups of 8 = 56","hints":["Try counting by 7s"],"difficulty":3},{"prompt":"What is 6 x 9?","questionType":3,"correctAnswer":"54","explanation":"6 groups of 9 = 54","hints":["Try 6 x 10 minus 6"],"difficulty":3}]}],"minCorrectToAdvance":2,"minCorrectToPass":1,"onStruggleStrategy":"scaffold"}`
+
 	default:
 		return `{"simulated":true,"message":"Review the prompt in PromptLog service"}`
 	}
