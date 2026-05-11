@@ -983,46 +983,233 @@ message EvalContradiction {
 
 ---
 
-## 5. Implementation Phases
+## 5. Data Completeness — UI Forms, Columns, and Mock Data
+
+### 5.1 UI Forms and Columns for New Services
+
+Each new service MUST have enums, columns, and forms defined in the same phase as the service.
+
+**StudentProfile** — added to Students module (`learn-ui/students/people/`):
+- Columns: profileId, studentId, overallDescription (truncated), readiness.academicReadiness, readiness.readingReadiness, readiness.mathReadiness
+- Form: tabbed layout — Basic (summary, strengths, challenges, goals), Learning Style, Attention, Motivation, Literacy, Math, Speech, Motor, Sensory, Social-Emotional, Behavior, Technology, Health, Therapy, Adaptive Settings, AI Tutor Settings, Goals
+- Detail popup uses Related Resources tab to link back to Student record
+
+**LLMPromptLog** — added to AI Monitor section (`learn-ui/aimonitor/`):
+- Columns: logId, type (enum renderer), studentId, containsPii (boolean), systemPromptTokens, userMessageTokens, responseTimeMs, timestamp (date)
+- Form: read-only — shows full system prompt, user message, response, PII fields found
+- **Immutable**: service rejects PUT and DELETE — UI has no edit/delete buttons
+
+**LLMConfig** — added to AI Monitor section:
+- Columns: configId, mode (enum), apiProvider, modelName, piiMaskingEnabled (boolean), promptLoggingEnabled, maxDailyCalls, callsToday
+- Form: editable by admin only — mode selector, masking toggle, cost controls
+
+**EvalImport** — added to Students module:
+- Columns: importId, studentId, documentType (enum), professionalName, evaluationDate (date), allReviewed (boolean), acceptedCount, rejectedCount
+- Form: custom wizard — PDF upload → AI extraction → findings review (accept/reject/edit per finding) → apply to profile
+
+### 5.2 Mock Data for New Services
+
+```
+go/tests/mocks/
+├── gen_learn_profiles.go         # 100 StudentProfiles with realistic learning data
+├── gen_learn_promptlogs.go       # 50 simulated prompt logs (mixed types)
+├── gen_learn_evals.go            # 10 EvalImports with findings (speech, OT, IEP)
+```
+
+**Phase ordering**: Profiles depend on StudentIDs (Phase 2 in original). PromptLogs depend on StudentIDs. EvalImports depend on StudentIDs + ProfileIDs.
+
+**store.go additions**:
+```go
+ProfileIDs    []string
+PromptLogIDs  []string
+EvalImportIDs []string
+```
+
+**LLMConfig**: Seeded as a single record in Phase 1 mock generator with `mode: SIMULATE`.
+
+### 5.3 Prompt Template Extraction (Duplication Prevention)
+
+Sections 4.1–4.6 define 6 prompt templates with similar structure (system prompt, context sections, return format). Per `plan-duplication-audit.md`, these MUST be extracted into a shared template builder:
+
+```go
+// go/learn/adaptive/engine/prompt_builder.go (<200 lines)
+type PromptBuilder struct {
+    promptType  learn.LLMPromptType
+    systemRole  string
+    rules       []string
+    context     map[string]string
+    returnFormat string
+}
+
+func NewPromptBuilder(promptType learn.LLMPromptType) *PromptBuilder { ... }
+func (b *PromptBuilder) SetRole(role string) *PromptBuilder { ... }
+func (b *PromptBuilder) AddRule(rule string) *PromptBuilder { ... }
+func (b *PromptBuilder) AddContext(key, value string) *PromptBuilder { ... }
+func (b *PromptBuilder) SetReturnFormat(format string) *PromptBuilder { ... }
+func (b *PromptBuilder) Build() (systemPrompt, userMessage string) { ... }
+```
+
+Each prompt type uses the builder — no copy-paste of prompt structure:
+```go
+// prompt_templates.go (<150 lines) — one function per type, config only
+func BuildPathDecisionPrompt(profile, mastery, interactions string) (string, string) {
+    return NewPromptBuilder(learn.LLM_PROMPT_TYPE_PATH_DECISION).
+        SetRole("adaptive learning engine for {grade} students").
+        AddRule("Never assign activities whose prerequisites are not PROFICIENT").
+        AddRule("Respect adaptive_settings").
+        AddContext("student_profile", profile).
+        AddContext("mastery", mastery).
+        AddContext("interactions", interactions).
+        SetReturnFormat(`{"nextActivities":[...],"reasoning":"..."}`).
+        Build()
+}
+```
+
+**File budget**: `prompt_builder.go` ~200 lines, `prompt_templates.go` ~150 lines. No file exceeds 500 lines.
+
+---
+
+## 5A. LLM Simulator File Structure (Maintainability)
+
+The LLM Simulator is split across multiple files to stay under 500 lines each:
+
+```
+go/learn/adaptive/engine/
+├── llm_client.go          # ~80 lines — interface + mode switching (SIMULATE/LIVE/LOG_ONLY)
+├── llm_simulator.go       # ~120 lines — deterministic response generation per prompt type
+├── prompt_builder.go      # ~200 lines — shared template builder (prevents duplication)
+├── prompt_templates.go    # ~150 lines — one function per prompt type (config only)
+└── prompt_logger.go       # ~100 lines — logs prompts to PromptLog service + PII scan
+```
+
+Total: ~650 lines across 5 files. No single file exceeds 500.
+
+---
+
+## 5B. Immutability
+
+| Entity | Immutable? | Backend Enforcement | UI |
+|--------|:----------:|--------------------|----|
+| LLMPromptLog | YES | Reject PUT and DELETE in ServiceCallback Before hook | Read-only table, no edit/delete buttons |
+| LLMConfig | NO (admin-editable) | Allow PUT for admin role only | Edit form for admin |
+| StudentProfile | NO (auto-updated) | Allow PUT/PATCH from engine and guardian | Read-only for teacher, editable sections for guardian |
+| EvalImport | PARTIAL | Allow PUT (for guardian review) but reject DELETE | Edit (review flow) but no delete |
+
+---
+
+## 5C. Deployment
+
+No new deployable binaries. All 4 new services are added to the existing `learn_demo` backend process via `services/activate_students.go` (Profile, EvalImport) and `services/activate_adaptive.go` (PromptLog, LLMConfig). No new Dockerfile, build.sh, or K8s YAML required.
+
+**run-local.sh update**: Add mock data generators to the build step:
+```bash
+# Already built: cd tests/mocks/cmd && go build -o ../../../demo/mocks_demo
+# No change needed — new generators are compiled into the same mocks_demo binary
+```
+
+---
+
+## 5D. Mobile Parity
+
+All new UI sections MUST have mobile equivalents:
+
+| Desktop Section | Mobile Equivalent |
+|----------------|-------------------|
+| AI Monitor (prompt log table) | Mobile nav → System → AI Monitor (Layer8MTable) |
+| Student Profile (tabbed detail) | Mobile popup with tabbed sections (Layer8MPopup with onTabChange) |
+| Eval Import (upload + review) | Mobile file upload + approval card list |
+| LLM Config (settings) | Mobile form in System → AI Settings |
+
+**Mobile files to create** (Phase 1):
+- `m/js/aimonitor/aimonitor-enums.js`
+- `m/js/aimonitor/aimonitor-columns.js`
+- `m/js/aimonitor/aimonitor-forms.js`
+- `m/js/aimonitor/aimonitor-index.js`
+- Add to `m/app.html` script loading
+- Add to mobile nav config
+
+---
+
+## 6. Implementation Phases (Updated)
 
 ### Amendment Phase 1: Student Profile + LLM Infrastructure + Eval Import
 - Add `learn-profile.proto`, `learn-llm.proto`, and `learn-eval.proto`
 - Run `make-bindings.sh`
-- Create Profile, PromptLog, LLMConfig, EvalImport services
-- Create LLM Simulator with PII scanner
-- Create AI Monitor UI section (sidebar entry, prompt log table, PII summary)
-- Wire LLM Simulator into adaptive engine
-- Create Eval Import UI (upload PDF, review findings, accept/reject/edit flow)
-- **Verify**: Login → AI Monitor → see logged prompts with PII flags. Upload a sample evaluation PDF → see extracted findings → approve → profile updated
+- Create Profile, PromptLog, LLMConfig, EvalImport services + ServiceCallbacks
+- Register types in `shared_students.go` (Profile, EvalImport) and `shared_adaptive.go` (PromptLog, LLMConfig)
+- LLMPromptLog: immutable — reject PUT/DELETE in Before hook
+- Create LLM Simulator: `llm_client.go`, `llm_simulator.go`, `prompt_builder.go`, `prompt_templates.go`, `prompt_logger.go`
+- Reuse `l8agent/masking` for PII — do NOT build new scanner
+- Create AI Monitor UI section (desktop): sidebar entry, prompt log table (Type, Student, PII, Tokens, Time columns), PII summary dashboard, LLM Config editor
+- Create AI Monitor UI section (mobile): nav entry, mobile table, mobile config form
+- Create Student Profile UI: tabbed form in Students module (desktop + mobile)
+- Create Eval Import UI: PDF upload, findings review, accept/reject/edit flow (desktop + mobile)
+- Create mock data generators: `gen_learn_profiles.go`, `gen_learn_promptlogs.go`, `gen_learn_evals.go`
+- Update `store.go` with ProfileIDs, PromptLogIDs, EvalImportIDs
+- Wire into `learn_phases.go`
+- **Verify**: Login → AI Monitor → see logged prompts with PII flags. Click Students → click a student → see Profile tab with readiness scores. Upload a sample evaluation PDF → see extracted findings → approve → profile updated. Check mobile: same sections visible.
 
 ### Amendment Phase 2: Diagnostic Flow
-- Create diagnostic benchmark engine
-- Wire into enrollment activation callback
-- Create diagnostic UI in student player
-- **Verify**: New student logs in → completes diagnostic → SkillMastery + Profile populated → first activity appears
+- Create diagnostic benchmark engine (adaptive placement algorithm)
+- Wire into enrollment activation callback (After status → ACTIVE)
+- Create diagnostic UI in student player (avatar setup → "not a test" → adaptive questions → results)
+- Algorithm: start at grade level, 3-5 questions per skill, advance if >80%, drop if <40%, stop at ceiling/floor
+- PromptLog: log the PATH_DECISION prompt that generates the initial learning path
+- **Verify**: New student logs in → completes diagnostic → SkillMastery + Profile populated → LearningPath created → first activity appears. Check AI Monitor: diagnostic prompt logged with PII masked.
 
 ### Amendment Phase 3: Profile Auto-Update
-- Wire SkillMastery callback to update StudentProfile
-- Wire session completion to update learning_style, attention, motivation
-- Schedule weekly PROFILE_UPDATE prompt
-- **Verify**: After 5 sessions, student profile shows learned preferences
+- Wire SkillMastery callback to update StudentProfile (readiness, literacy, math sections)
+- Wire session completion to update learning_style, attention, motivation (from interaction patterns)
+- Wire worksheet scan callback to update fine_motor, attention, behavior (from handwriting/work pattern analysis)
+- Schedule weekly PROFILE_UPDATE prompt via l8alarms scheduler pattern
+- PromptLog: log all profile update prompts
+- **Verify**: After 5 sessions, student profile shows learned preferences (activity type preferences, attention minutes, error patterns). Check AI Monitor: PROFILE_UPDATE prompts logged.
 
 ### Amendment Phase 4: Parent Coaching
-- Wire daily PARENT_COACHING prompt for each active family
-- Display tip in guardian portal
-- **Verify**: Guardian logs in → sees today's coaching tip with materials
+- Create daily PARENT_COACHING scheduled job (l8alarms scheduler pattern)
+- Trigger: once per active family per day (morning)
+- In simulate mode: generate coaching tip from simulated response and store it
+- Display tip in guardian portal (desktop + mobile)
+- PromptLog: log each coaching prompt
+- **Verify**: Guardian logs in → sees today's coaching tip with materials and activity suggestion. Check AI Monitor: PARENT_COACHING prompt logged.
 
 ### Amendment Phase 5: Risk + Analytics Computation
-- Implement weekly RISK_ASSESSMENT batch job
-- Implement cohort snapshot computation
-- Implement growth record computation
-- **Verify**: After 1 week of data → risk assessments appear → cohort snapshots generated
+- Implement weekly RISK_ASSESSMENT batch job (l8alarms scheduler pattern)
+- Implement cohort snapshot computation (weekly classroom, monthly school/district)
+- Implement growth record computation (triggered by SkillMastery changes)
+- Implement content effectiveness computation (quarterly)
+- All batch jobs log their prompts to PromptLog
+- **Verify**: After 1 week of data → risk assessments appear in History → Risk table. Cohort snapshots generated. Growth records populated. Check AI Monitor: batch prompts logged.
 
 ### Amendment Phase 6: Go Live with Real LLM
 - Switch LLMConfig mode from SIMULATE to LIVE
-- Review all prompt logs for PII leaks
+- Review ALL prompt logs for PII leaks (admin uses AI Monitor)
+- Verify PII masking works (no real names in prompts)
 - Set cost controls (max_daily_calls)
-- **Verify**: Same prompts, real AI responses, data stays clean
+- **Verify**: Same prompts, real AI responses, data stays clean. PromptLog shows `mode: LIVE`. No PII flags.
+
+### Amendment Phase 7: End-to-End Verification
+For every section affected by this amendment:
+1. Admin navigates to AI Monitor → sees prompt log table → clicks a row → sees full prompt + response + PII report
+2. Admin changes LLM mode to SIMULATE → sees mode reflected in config table
+3. Click Students → click a student → see Profile tab with readiness scores, learning style, attention profile
+4. Guardian uploads evaluation PDF → sees extracted findings → approves → StudentProfile updated
+5. Guardian rejects a finding → profile NOT updated for that field
+6. New student logs in → completes diagnostic → Profile + Mastery + Path created → first activity loads
+7. After 5 sessions → profile auto-updates → learning_style reflects observed preferences
+8. Guardian logs in → sees today's coaching tip
+9. After 1 week → risk assessments, cohort snapshots, growth records populated
+10. All of the above verified on BOTH desktop and mobile
+
+Sections to verify:
+- [ ] AI Monitor (desktop + mobile)
+- [ ] Student Profile (desktop + mobile)
+- [ ] Eval Import (desktop + mobile)
+- [ ] Diagnostic flow (student player)
+- [ ] Profile auto-update (after sessions)
+- [ ] Parent coaching (guardian portal, desktop + mobile)
+- [ ] Risk + analytics (History section)
+- [ ] PromptLog immutability (no edit/delete buttons, PUT rejected)
 
 ---
 
@@ -1106,7 +1293,7 @@ Do NOT assume signatures from the PRD examples. Read the actual function. Then c
 |---|-----|----------------|
 | 1 | Student profile is flat admin record | Phase 1 |
 | 2 | No LLM integration | Phase 1 (simulator) → Phase 6 (live) |
-| 3 | No PII safety controls | Phase 1 |
+| 3 | No PII safety controls | Phase 1 (reuse l8agent/masking) |
 | 4 | No prompt visibility | Phase 1 (AI Monitor UI) |
 | 5 | No diagnostic placement | Phase 2 |
 | 6 | Profile never auto-updates | Phase 3 |
@@ -1114,9 +1301,18 @@ Do NOT assume signatures from the PRD examples. Read the actual function. Then c
 | 8 | Risk prediction is CRUD only | Phase 5 |
 | 9 | Computed analytics don't compute | Phase 5 |
 | 10 | No cost controls for LLM | Phase 1 (config) → Phase 6 (enforcement) |
-| 11 | Worksheet scans don't update student profile | Phase 1 (handwriting + work pattern analysis in scan callback) |
-| 12 | No professional evaluation import | Phase 1 (EvalImport service, PDF extraction, guardian approval flow) |
+| 11 | Worksheet scans don't update student profile | Phase 3 (handwriting + work pattern analysis) |
+| 12 | No professional evaluation import | Phase 1 (EvalImport service, PDF extraction, guardian approval) |
 | 13 | Existing readOnly configs broken (svc() misuse) | Fixed (committed) |
+| 14 | No forms/columns for new services | Phase 1 (Section 5.1 defines all) |
+| 15 | No mock data for new services | Phase 1 (Section 5.2 defines generators) |
+| 16 | Mobile parity not addressed | Phase 1 (Section 5D defines mobile equivalents) |
+| 17 | Prompt template duplication | Phase 1 (Section 5.3 — shared PromptBuilder) |
+| 18 | LLMPromptLog immutability not enforced | Phase 1 (Section 5B — reject PUT/DELETE) |
+| 19 | LLM Simulator exceeds 500 lines | Phase 1 (Section 5A — split across 5 files) |
+| 20 | No final verification phase | Phase 7 (end-to-end smoke test) |
+| 21 | No deployment artifact clarification | Section 5C — explicitly: no new binaries |
+| 22 | run-local.sh not updated | Section 5C — no change needed (same binary) |
 
 ---
 
