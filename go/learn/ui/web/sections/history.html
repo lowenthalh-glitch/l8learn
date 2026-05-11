@@ -1,0 +1,9 @@
+<div id="history-section-placeholder"></div>
+<script>
+    (function() {
+        var placeholder = document.getElementById('history-section-placeholder');
+        if (placeholder && window.Layer8SectionGenerator) {
+            placeholder.outerHTML = Layer8SectionGenerator.generate('history');
+        }
+    })();
+</script>
