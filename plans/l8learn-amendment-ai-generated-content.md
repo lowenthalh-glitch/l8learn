@@ -508,7 +508,161 @@ grep "func (b \*VB)" go/vendor/github.com/saichler/l8common/go/common/validation
 
 ---
 
-## 18. Traceability
+## 18. Ecosystem Concern Fixes
+
+### 18.1 Primary Key — Rename to Avoid Collision
+
+Rename `lesson_id` to `generated_lesson_id` in `learn-generated.proto`:
+```protobuf
+message GeneratedLesson {
+    string generated_lesson_id = 1;    // NOT lesson_id (collides with Lesson)
+```
+
+Service PrimaryKey: `GeneratedLessonId`. Reference registry: `...ref.simple('GeneratedLesson', 'generatedLessonId', 'title', 'Generated Lesson')`.
+
+### 18.2 Content Safety Filter
+
+New file: `go/learn/adaptive/engine/content_safety.go` (~100 lines)
+
+The LLM generates content shown directly to children. Before marking a lesson READY, scan for:
+- Profanity / inappropriate language (word list)
+- Violence, weapons, drugs references
+- Bias or stereotyping in problem context
+- Mathematical errors (verify answers are correct for generated problems)
+- Prompt injection attempts in generated text
+
+```go
+type ContentSafety struct {
+    blockedWords []string
+}
+
+func (cs *ContentSafety) ValidateLesson(lesson *learn.GeneratedLesson) []string {
+    var issues []string
+    for _, step := range lesson.Steps {
+        issues = append(issues, cs.scanText(step.Instructions)...)
+        for _, q := range step.Questions {
+            issues = append(issues, cs.scanText(q.Prompt)...)
+            issues = append(issues, cs.scanText(q.Explanation)...)
+        }
+    }
+    return issues // empty = safe
+}
+```
+
+**Flow**: AI generates lesson → `ContentSafety.ValidateLesson()` → if issues found, lesson marked GENERATING (retry with modified prompt) → if clean, marked READY.
+
+### 18.3 Pre-Generation — Never Let the Student Wait
+
+Follow l8alarms escalation scheduler pattern: pre-compute future items when current item is created.
+
+**When student starts a lesson** (status → IN_PROGRESS):
+- Trigger background generation of the NEXT lesson
+- By the time student finishes current lesson, next is already READY
+
+**When student completes a lesson** (status → COMPLETED):
+- If next lesson is READY → assign immediately (no wait)
+- If next lesson is still GENERATING → show brief "preparing..." (rare)
+- If next lesson failed → generate on demand (fallback)
+
+**Pre-generation buffer**: Always keep 2 lessons ahead. When student has 1 completed + 1 in_progress + 0 ready → trigger generation. This ensures the student NEVER waits.
+
+### 18.4 LLM Failure Fallback
+
+When the LLM fails (timeout, rate limit, error response):
+
+1. **Retry once** with simplified prompt (fewer context fields)
+2. **If retry fails** → generate a **template lesson** from the static content library:
+   - Find Activities matching the target skill + difficulty in the existing database
+   - Wrap them in a GeneratedLesson shell with generic instructions
+   - Mark as `theme: "fallback"` so the system knows it wasn't AI-generated
+3. **If no static content matches** → show a practice review of previously mastered skills (always available)
+
+```
+LLM Call → success → lesson READY
+  ↓ fail
+Retry → success → lesson READY
+  ↓ fail
+Static content fallback → lesson READY (theme: "fallback")
+  ↓ no match
+Review of mastered skills → lesson READY (theme: "review")
+```
+
+The pre-generation buffer (18.3) makes this rare — the fallback only triggers if the LLM was down when the pre-generation ran AND the student finishes the current lesson before it recovers.
+
+### 18.5 Cost Tracking and Budget Enforcement
+
+**PromptLog already tracks tokens.** Add cost estimation:
+
+Add to `learn-llm.proto` LLMConfig:
+```protobuf
+double cost_per_input_token = 13;       // e.g., 0.000003 for Sonnet
+double cost_per_output_token = 14;      // e.g., 0.000015 for Sonnet
+double cost_today = 15;                 // Running total
+double max_daily_cost = 16;             // Budget limit (e.g., $15.00)
+```
+
+Add to `prompt_logger.go`:
+```go
+estimatedCost := float64(inputTokens)*config.CostPerInputToken +
+                 float64(outputTokens)*config.CostPerOutputToken
+config.CostToday += estimatedCost
+if config.CostToday >= config.MaxDailyCost {
+    // Switch mode to LOG_ONLY until tomorrow
+    // Existing pre-generated lessons serve students
+    // New generation paused until budget resets
+}
+```
+
+**What happens when budget is hit mid-day:**
+- Pre-generated buffer (18.3) keeps serving students
+- No new lessons generated until midnight reset
+- AI Monitor shows cost warning
+- Static content fallback (18.4) used for any student without a buffer
+
+**Cost projection:** At Sonnet pricing ($3/M input, $15/M output):
+- ~3000 input + ~1500 output per lesson = ~$0.03/lesson
+- 1000 students × 3 lessons/day = 3000 lessons = ~$90/day
+- With pre-generation buffer: students share similar skill-level lessons can reuse themes → potential 30-50% reduction
+
+### 18.6 UI Distinction — Curriculum Framework vs Generated Lessons
+
+Update `learn-ui/content/content-section-config.js`:
+
+```javascript
+Layer8SectionConfigs.register('content', {
+    title: 'Content',
+    subtitle: 'Curriculum Standards & AI-Generated Lessons',
+    icon: '📚',
+    initFn: 'initializeContent',
+    modules: [
+        {
+            key: 'curriculum', label: 'Curriculum Framework', icon: '📐', isDefault: true,
+            services: [
+                { key: 'courses', label: 'Standards', icon: '📕', isDefault: true },
+                { key: 'units', label: 'Units', icon: '📗' },
+                { key: 'lessons', label: 'Lesson Plans', icon: '📘' },
+                { key: 'activities', label: 'Activity Bank', icon: '🎯' },
+                { key: 'skills', label: 'Skill Graph', icon: '🧠' }
+            ]
+        },
+        {
+            key: 'generated', label: 'AI Generated', icon: '🤖',
+            services: [
+                { key: 'genlessons', label: 'Generated Lessons', icon: '🤖', isDefault: true },
+                { key: 'worksheets', label: 'Worksheets', icon: '📄' }
+            ]
+        }
+    ]
+});
+```
+
+**Visual distinction:**
+- "Curriculum Framework" tab = what to teach (scope & sequence, skill graph) — edited by content authors
+- "AI Generated" tab = how the AI teaches it (generated lessons, worksheets) — created by AI, reviewed by teachers
+
+---
+
+## 19. Traceability
 
 | # | Gap | Phase |
 |---|-----|-------|
@@ -526,10 +680,16 @@ grep "func (b \*VB)" go/vendor/github.com/saichler/l8common/go/common/validation
 | 12 | Immutability not specified | Section 16 (lifecycle: GENERATING→READY→IN_PROGRESS→COMPLETED, no DELETE) |
 | 13 | Pre-implementation questions not answered | Section 12 (all answered) |
 | 14 | API signatures not verified | Section 17 (grep commands listed) |
+| 15 | Primary key collision (lesson_id) | Section 18.1 (renamed to generated_lesson_id) |
+| 16 | No content safety filter on AI output | Section 18.2 (content_safety.go scans before READY) |
+| 17 | Student waits for AI to generate lesson | Section 18.3 (pre-generation buffer, 2 lessons ahead) |
+| 18 | No fallback when LLM fails | Section 18.4 (retry → static fallback → review mode) |
+| 19 | No cost tracking or budget enforcement | Section 18.5 (cost per token, daily budget, auto-pause) |
+| 20 | UI doesn't distinguish framework vs generated | Section 18.6 (two module tabs: Curriculum Framework + AI Generated) |
 
 ---
 
-## 19. Compliance
+## 20. Compliance
 
 ### Data Safety
 - Generated lessons contain NO student PII — only skill targets, difficulty, and theme
