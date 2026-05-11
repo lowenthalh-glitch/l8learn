@@ -21,7 +21,7 @@ func newAdaptRuleServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Build()
 }
 
-func validateTriggerStrategy(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+func validateTriggerStrategy(elem interface{}, vnic ifs.IVNic) error {
 	rule := elem.(*learn.AdaptationRule)
 
 	// SCORE_ABOVE should not trigger REVIEW (reviewing easier material when scoring high makes no sense)

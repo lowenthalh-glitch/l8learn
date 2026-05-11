@@ -22,7 +22,7 @@ func newActivityServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Build()
 }
 
-func validateQuestions(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+func validateQuestions(elem interface{}, vnic ifs.IVNic) error {
 	activity := elem.(*learn.Activity)
 	if activity.Questions == nil || len(activity.Questions) == 0 {
 		return nil

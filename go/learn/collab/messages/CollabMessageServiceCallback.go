@@ -27,10 +27,7 @@ func newCollabMessageServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 }
 
 // moderateMessage runs AI moderation BEFORE the message is stored/delivered
-func moderateMessage(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
-	if action != ifs.POST {
-		return nil
-	}
+func moderateMessage(elem interface{}, vnic ifs.IVNic) error {
 	msg := elem.(*learn.CollabMessage)
 
 	// Block personal information
@@ -61,9 +58,6 @@ func moderateMessage(elem interface{}, action ifs.Action, vnic ifs.IVNic) error 
 
 // onMessageSent handles post-delivery logic
 func onMessageSent(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
-	if action != ifs.POST {
-		return nil, true, nil
-	}
 	msg := elem.(*learn.CollabMessage)
 
 	// If message contains an explanation, award helper points
