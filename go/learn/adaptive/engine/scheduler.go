@@ -22,17 +22,21 @@ import (
 type Scheduler struct {
 	vnic           ifs.IVNic
 	profileUpdater *ProfileUpdater
-	parentCoach    *ParentCoach
-	running        bool
+	parentCoach       *ParentCoach
+	riskAssessor      *RiskAssessor
+	analyticsComputer *AnalyticsComputer
+	running           bool
 	stopCh         chan struct{}
 }
 
-func NewScheduler(vnic ifs.IVNic, profileUpdater *ProfileUpdater, parentCoach *ParentCoach) *Scheduler {
+func NewScheduler(vnic ifs.IVNic, profileUpdater *ProfileUpdater, parentCoach *ParentCoach, riskAssessor *RiskAssessor, analyticsComputer *AnalyticsComputer) *Scheduler {
 	return &Scheduler{
 		vnic:           vnic,
 		profileUpdater: profileUpdater,
-		parentCoach:    parentCoach,
-		stopCh:         make(chan struct{}),
+		parentCoach:       parentCoach,
+		riskAssessor:      riskAssessor,
+		analyticsComputer: analyticsComputer,
+		stopCh:            make(chan struct{}),
 	}
 }
 
@@ -73,6 +77,12 @@ func (s *Scheduler) runWeeklyLoop() {
 			// Run weekly profile update if 7 days have passed
 			if now.Sub(lastWeeklyRun) >= 7*24*time.Hour {
 				s.runWeeklyProfileUpdates()
+				if s.riskAssessor != nil {
+					s.riskAssessor.RunWeeklyRiskBatch()
+				}
+				if s.analyticsComputer != nil {
+					s.analyticsComputer.RunWeeklyCohortSnapshots()
+				}
 				lastWeeklyRun = now
 			}
 		}
