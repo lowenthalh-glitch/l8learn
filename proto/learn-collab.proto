@@ -1,0 +1,237 @@
+syntax = "proto3";
+package learn;
+option go_package = "./types/learn";
+import "l8common.proto";
+import "api.proto";
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum GroupType {
+    GROUP_TYPE_UNSPECIFIED = 0;
+    GROUP_TYPE_STUDY = 1;                    // Working on same subject/skills
+    GROUP_TYPE_PROJECT = 2;                  // Shared deliverable
+    GROUP_TYPE_CHALLENGE = 3;                // Competitive team goal
+    GROUP_TYPE_TUTORING = 4;                 // Peer tutor + learner pair
+    GROUP_TYPE_BOOK_CLUB = 5;               // Shared reading + discussion
+    GROUP_TYPE_POD = 6;                      // Homeschool pod group
+}
+
+enum GroupStatus {
+    GROUP_STATUS_UNSPECIFIED = 0;
+    GROUP_STATUS_ACTIVE = 1;
+    GROUP_STATUS_COMPLETED = 2;
+    GROUP_STATUS_PAUSED = 3;
+    GROUP_STATUS_ARCHIVED = 4;
+}
+
+enum MemberRole {
+    MEMBER_ROLE_UNSPECIFIED = 0;
+    MEMBER_ROLE_LEADER = 1;
+    MEMBER_ROLE_MEMBER = 2;
+    MEMBER_ROLE_TUTOR = 3;
+    MEMBER_ROLE_LEARNER = 4;
+}
+
+enum ChatMessageType {
+    CHAT_MESSAGE_TYPE_UNSPECIFIED = 0;
+    CHAT_MESSAGE_TYPE_TEXT = 1;
+    CHAT_MESSAGE_TYPE_QUESTION = 2;          // "How do I do #7?"
+    CHAT_MESSAGE_TYPE_EXPLANATION = 3;       // "Here's how I solved it..."
+    CHAT_MESSAGE_TYPE_ENCOURAGEMENT = 4;     // "You got this!"
+    CHAT_MESSAGE_TYPE_WORK_SHARE = 5;        // Shared approach (not answer)
+    CHAT_MESSAGE_TYPE_AI_COACH = 6;          // AI interjection
+    CHAT_MESSAGE_TYPE_SYSTEM = 7;            // Milestone, badge, notification
+}
+
+enum ModerationAction {
+    MODERATION_ACTION_UNSPECIFIED = 0;
+    MODERATION_ACTION_APPROVED = 1;          // Auto-approved, appropriate
+    MODERATION_ACTION_COACHED = 2;           // AI nudged toward better phrasing
+    MODERATION_ACTION_BLOCKED = 3;           // Inappropriate, not delivered
+    MODERATION_ACTION_FLAGGED = 4;           // Sent but flagged for parent/teacher review
+}
+
+// ============================================================================
+// COLLABORATION GROUPS
+// ============================================================================
+
+// @PrimeObject
+// A collaboration group (study squad, project team, tutor pair, challenge team)
+message CollabGroup {
+    string group_id = 1;
+    string name = 2;
+    GroupType type = 3;
+    GroupStatus status = 4;
+    string description = 5;
+
+    // Membership
+    repeated GroupMember members = 6;        // Embedded child
+    int32 max_members = 7;
+    string classroom_id = 8;                 // Scoped to classroom (or pod_id for homeschool)
+    string created_by = 9;                   // teacher_id or student_id
+
+    // Learning focus
+    SubjectType subject = 10;
+    repeated string skill_ids = 11;
+    repeated string activity_ids = 12;       // Shared activities/assignments
+
+    // Goals
+    int32 team_score_goal = 13;
+    int64 deadline = 14;
+    int32 current_team_score = 15;
+    int32 team_streak_days = 16;
+
+    // Project-specific (type=PROJECT)
+    repeated ProjectDeliverable deliverables = 17;  // Embedded child
+
+    map<string, string> custom_fields = 18;
+    l8common.AuditInfo audit_info = 19;
+}
+
+message CollabGroupList {
+    repeated CollabGroup list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of CollabGroup
+message GroupMember {
+    string student_id = 1;
+    MemberRole role = 2;
+    int32 contribution_score = 3;
+    int32 messages_sent = 4;
+    int32 helps_given = 5;                   // Times they explained something to a peer
+    int64 last_active = 6;
+    string assigned_task = 7;                // For projects: "Data Collector"
+}
+
+// Embedded child of CollabGroup (for project groups)
+message ProjectDeliverable {
+    string deliverable_id = 1;
+    string title = 2;
+    string description = 3;
+    string assigned_to = 4;                  // student_id
+    int32 week_number = 5;
+    bool completed = 6;
+    string file_path = 7;                    // Uploaded work via Layer8FileUpload
+}
+
+// ============================================================================
+// AI-MODERATED STUDY CHAT
+// ============================================================================
+
+// @PrimeObject
+// Chat message in a collaboration group (AI-moderated before delivery)
+message CollabMessage {
+    string message_id = 1;
+    string group_id = 2;
+    string sender_id = 3;                    // student_id or "ai" for AI coach
+    ChatMessageType type = 4;
+    string content = 5;
+    int64 timestamp = 6;
+
+    // Moderation
+    ModerationAction moderation = 7;
+    string moderation_reason = 8;
+
+    // Learning value tracking
+    bool contains_explanation = 9;
+    bool helped_peer = 10;                   // Recipient marked as helpful
+    string referenced_question_id = 11;
+    string referenced_skill_id = 12;
+
+    map<string, string> custom_fields = 13;
+    l8common.AuditInfo audit_info = 14;
+}
+
+message CollabMessageList {
+    repeated CollabMessage list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// ============================================================================
+// PEER TUTORING
+// ============================================================================
+
+// @PrimeObject
+// AI-matched peer tutoring pair (student who mastered teaches student who's struggling)
+message TutorMatch {
+    string match_id = 1;
+    string tutor_id = 2;                     // Student who has mastery
+    string learner_id = 3;                   // Student who needs help
+    string skill_id = 4;
+    string group_id = 5;                     // Created CollabGroup for this pair
+
+    // Tutor qualifications
+    MasteryLevel tutor_mastery = 6;          // Must be MASTERED or EXEMPLARY
+    double tutor_confidence = 7;
+
+    // Outcome tracking
+    MasteryLevel learner_start = 8;
+    MasteryLevel learner_end = 9;
+    double learner_improvement = 10;
+    int32 sessions_completed = 11;
+    bool successful = 12;                    // Did learner reach PROFICIENT?
+
+    // Rewards
+    int32 tutor_points_earned = 13;
+    int32 learner_points_earned = 14;
+    repeated string badges_awarded = 15;
+
+    int64 start_date = 16;
+    int64 end_date = 17;
+    map<string, string> custom_fields = 18;
+    l8common.AuditInfo audit_info = 19;
+}
+
+message TutorMatchList {
+    repeated TutorMatch list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// ============================================================================
+// TEAM CHALLENGES
+// ============================================================================
+
+// @PrimeObject
+// Competitive/collaborative team goal with leaderboard
+message Challenge {
+    string challenge_id = 1;
+    string name = 2;
+    string description = 3;
+    string classroom_id = 4;
+    SubjectType subject = 5;
+    repeated string skill_ids = 6;
+
+    // Rules
+    int32 team_size = 7;
+    int64 start_date = 8;
+    int64 end_date = 9;
+    int32 daily_requirement = 10;            // Activities per member per day
+    bool weakest_member_bonus = 11;          // 2x if weakest member improves
+    int32 target_team_score = 12;
+
+    // Teams
+    repeated ChallengeTeam teams = 13;       // Embedded child
+
+    ContentStatus status = 14;
+    map<string, string> custom_fields = 15;
+    l8common.AuditInfo audit_info = 16;
+}
+
+message ChallengeList {
+    repeated Challenge list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of Challenge
+message ChallengeTeam {
+    string team_id = 1;
+    string team_name = 2;
+    string team_emoji = 3;                   // "🦊", "🐼"
+    repeated string member_ids = 4;
+    int32 total_score = 5;
+    int32 streak_days = 6;
+    int32 rank = 7;
+}

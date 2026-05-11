@@ -1,0 +1,23 @@
+{
+    "login": {
+        "appTitle": "L8Learn",
+        "appDescription": "Adaptive Learning Platform",
+        "authEndpoint": "/auth",
+        "redirectUrl": "/app.html",
+        "sessionTimeout": 30,
+        "tfaEnabled": false,
+        "showRememberMe": true,
+        "showRegister": true
+    },
+    "app": {
+        "dateFormat": "mm/dd/yyyy",
+        "apiPrefix": "/learn",
+        "healthPath": "/0/Health",
+        "portals": {
+            "app.html": { "roles": ["district-admin", "school-admin", "content-author"] },
+            "teacher.html": { "roles": ["teacher"] },
+            "guardian.html": { "roles": ["guardian"] },
+            "student.html": { "roles": ["student"] }
+        }
+    }
+}

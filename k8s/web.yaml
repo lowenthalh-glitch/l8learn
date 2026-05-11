@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: learn-web
+  labels:
+    name: learn-web
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: learn-web
+  name: learn-web
+  labels:
+    app: learn-web
+spec:
+  selector:
+    matchLabels:
+      app: learn-web
+  template:
+    metadata:
+      labels:
+        app: learn-web
+    spec:
+      hostNetwork: true
+      containers:
+        - name: learn-web
+          image: saichler/learn-web:latest
+          imagePullPolicy: Always
+          env:
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+          volumeMounts:
+            - name: hdata
+              mountPath: /data
+      volumes:
+        - name: hdata
+          hostPath:
+            path: /data
+            type: DirectoryOrCreate

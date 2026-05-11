@@ -1,0 +1,251 @@
+syntax = "proto3";
+package learn;
+option go_package = "./types/learn";
+import "l8common.proto";
+import "api.proto";
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum StudentStatus {
+    STUDENT_STATUS_UNSPECIFIED = 0;
+    STUDENT_STATUS_ACTIVE = 1;
+    STUDENT_STATUS_INACTIVE = 2;
+    STUDENT_STATUS_GRADUATED = 3;
+    STUDENT_STATUS_TRANSFERRED = 4;
+}
+
+enum GuardianRelation {
+    GUARDIAN_RELATION_UNSPECIFIED = 0;
+    GUARDIAN_RELATION_PARENT = 1;
+    GUARDIAN_RELATION_GRANDPARENT = 2;
+    GUARDIAN_RELATION_SIBLING = 3;
+    GUARDIAN_RELATION_LEGAL_GUARDIAN = 4;
+    GUARDIAN_RELATION_OTHER = 5;
+}
+
+enum TeacherRole {
+    TEACHER_ROLE_UNSPECIFIED = 0;
+    TEACHER_ROLE_PRIMARY = 1;
+    TEACHER_ROLE_SPECIALIST = 2;
+    TEACHER_ROLE_AIDE = 3;
+    TEACHER_ROLE_SUBSTITUTE = 4;
+    TEACHER_ROLE_ADMIN = 5;
+}
+
+enum EnrollmentStatus {
+    ENROLLMENT_STATUS_UNSPECIFIED = 0;
+    ENROLLMENT_STATUS_DRAFT = 1;             // Admin created, not yet invited
+    ENROLLMENT_STATUS_INVITED = 2;           // Guardian invite sent
+    ENROLLMENT_STATUS_PENDING_CONSENT = 3;   // Guardian registered, consent not yet given
+    ENROLLMENT_STATUS_CONSENTED = 4;         // Guardian signed, student not yet active
+    ENROLLMENT_STATUS_ACTIVE = 5;            // Student can log in and learn
+    ENROLLMENT_STATUS_SUSPENDED = 6;         // Temporarily disabled
+    ENROLLMENT_STATUS_WITHDRAWN = 7;         // Left the school
+}
+
+enum ConsentType {
+    CONSENT_TYPE_UNSPECIFIED = 0;
+    CONSENT_TYPE_COPPA = 1;                  // Children's Online Privacy Protection
+    CONSENT_TYPE_DATA_COLLECTION = 2;        // General data collection
+    CONSENT_TYPE_AI_PERSONALIZATION = 3;     // AI-driven content adaptation
+    CONSENT_TYPE_PROGRESS_SHARING = 4;       // Share progress with teacher/school
+    CONSENT_TYPE_PHOTO_AVATAR = 5;           // Allow photo upload for avatar
+}
+
+// ============================================================================
+// PEOPLE MESSAGES
+// ============================================================================
+
+// @PrimeObject
+message Student {
+    string student_id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string preferred_name = 4;
+    GradeLevel grade_level = 5;
+    StudentStatus status = 6;
+    string classroom_id = 7;                 // Current classroom
+    string school_id = 8;
+    string district_id = 9;
+    int64 date_of_birth = 10;
+    string avatar_url = 11;
+    string primary_guardian_id = 12;
+    string language_preference = 13;         // ISO 639-1 code
+    bool has_iep = 14;                       // Individualized Education Program
+    bool has_504_plan = 15;                  // Section 504 accommodation
+    string accommodation_notes = 16;
+    int32 weekly_goal_minutes = 17;          // Target usage per week
+    int32 daily_goal_minutes = 18;           // Target usage per day
+    int64 enrollment_date = 19;
+    map<string, string> custom_fields = 20;
+    l8common.AuditInfo audit_info = 21;
+}
+
+message StudentList {
+    repeated Student list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// @PrimeObject
+message Guardian {
+    string guardian_id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string email = 4;
+    string phone = 5;
+    GuardianRelation relation = 6;
+    repeated string student_ids = 7;         // Children linked to this guardian
+    bool receives_reports = 8;               // Opt-in for progress reports
+    string report_frequency = 9;             // "daily", "weekly", "monthly"
+    string language_preference = 10;
+    map<string, string> custom_fields = 11;
+    l8common.AuditInfo audit_info = 12;
+}
+
+message GuardianList {
+    repeated Guardian list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// @PrimeObject
+message Teacher {
+    string teacher_id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string email = 4;
+    TeacherRole role = 5;
+    repeated string classroom_ids = 6;
+    string school_id = 7;
+    string district_id = 8;
+    repeated SubjectType subjects = 9;       // Subjects this teacher manages
+    map<string, string> custom_fields = 10;
+    l8common.AuditInfo audit_info = 11;
+}
+
+message TeacherList {
+    repeated Teacher list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// @PrimeObject
+message Classroom {
+    string classroom_id = 1;
+    string name = 2;
+    GradeLevel grade_level = 3;
+    string primary_teacher_id = 4;
+    string school_id = 5;
+    string academic_year = 6;                // "2026-2027"
+    int32 student_count = 7;
+    map<string, string> custom_fields = 8;
+    l8common.AuditInfo audit_info = 9;
+}
+
+message ClassroomList {
+    repeated Classroom list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// @PrimeObject
+message School {
+    string school_id = 1;
+    string name = 2;
+    string district_id = 3;
+    string address_line1 = 4;
+    string address_line2 = 5;
+    string city = 6;
+    string state_province = 7;
+    string postal_code = 8;
+    string country_code = 9;
+    string principal_name = 10;
+    string phone = 11;
+    string timezone = 12;
+    map<string, string> custom_fields = 13;
+    l8common.AuditInfo audit_info = 14;
+}
+
+message SchoolList {
+    repeated School list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// @PrimeObject
+message District {
+    string district_id = 1;
+    string name = 2;
+    string state_province = 3;
+    string country_code = 4;
+    string admin_contact = 5;
+    string phone = 6;
+    string license_tier = 7;                 // "basic", "standard", "premium"
+    int64 license_expiry = 8;
+    int32 max_students = 9;                  // License seat count
+    map<string, string> custom_fields = 10;
+    l8common.AuditInfo audit_info = 11;
+}
+
+message DistrictList {
+    repeated District list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// ============================================================================
+// ENROLLMENT
+// ============================================================================
+
+// @PrimeObject
+// Tracks the full enrollment lifecycle from admin creation through activation
+message Enrollment {
+    string enrollment_id = 1;
+    string student_id = 2;
+    string school_id = 3;
+    string classroom_id = 4;
+    string district_id = 5;
+    EnrollmentStatus status = 6;
+    string academic_year = 7;                // "2026-2027"
+
+    // Guardian link
+    string guardian_id = 8;
+    string invite_token = 9;                 // Unique token for guardian invite link
+    int64 invite_sent_date = 10;
+    int64 invite_expiry = 11;
+
+    // Consent tracking
+    repeated ConsentRecord consents = 12;    // Embedded child
+
+    // Onboarding progress
+    bool guardian_registered = 13;
+    bool consent_complete = 14;
+    bool diagnostic_complete = 15;
+    bool path_created = 16;
+    string diagnostic_benchmark_id = 17;
+
+    // Dates
+    int64 enrollment_date = 18;
+    int64 activation_date = 19;
+    int64 withdrawal_date = 20;
+    string withdrawal_reason = 21;
+
+    // Transfer
+    string transfer_from_school_id = 22;     // If transferring in
+    string transfer_from_district_id = 23;
+
+    map<string, string> custom_fields = 24;
+    l8common.AuditInfo audit_info = 25;
+}
+
+message EnrollmentList {
+    repeated Enrollment list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of Enrollment
+message ConsentRecord {
+    ConsentType type = 1;
+    bool granted = 2;
+    int64 signed_date = 3;
+    string signed_by = 4;                    // Guardian ID
+    string ip_address = 5;                   // For legal record
+    string consent_version = 6;              // Version of consent text shown
+}

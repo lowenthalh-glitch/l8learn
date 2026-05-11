@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: learn-vnet
+  labels:
+    name: learn-vnet
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: learn-vnet
+  name: learn-vnet
+  labels:
+    app: learn-vnet
+spec:
+  selector:
+    matchLabels:
+      app: learn-vnet
+  template:
+    metadata:
+      labels:
+        app: learn-vnet
+    spec:
+      hostNetwork: true
+      containers:
+        - name: learn-vnet
+          image: saichler/learn-vnet:latest
+          imagePullPolicy: Always
+          env:
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+          volumeMounts:
+            - name: hdata
+              mountPath: /data
+      volumes:
+        - name: hdata
+          hostPath:
+            path: /data
+            type: DirectoryOrCreate

@@ -1,0 +1,96 @@
+syntax = "proto3";
+package learn;
+option go_package = "./types/learn";
+import "l8common.proto";
+import "api.proto";
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum ReportPeriod {
+    REPORT_PERIOD_UNSPECIFIED = 0;
+    REPORT_PERIOD_DAILY = 1;
+    REPORT_PERIOD_WEEKLY = 2;
+    REPORT_PERIOD_MONTHLY = 3;
+    REPORT_PERIOD_QUARTERLY = 4;
+    REPORT_PERIOD_YEARLY = 5;
+}
+
+enum EngagementLevel {
+    ENGAGEMENT_LEVEL_UNSPECIFIED = 0;
+    ENGAGEMENT_LEVEL_DISENGAGED = 1;
+    ENGAGEMENT_LEVEL_LOW = 2;
+    ENGAGEMENT_LEVEL_MODERATE = 3;
+    ENGAGEMENT_LEVEL_HIGH = 4;
+    ENGAGEMENT_LEVEL_EXCEPTIONAL = 5;
+}
+
+// ============================================================================
+// PROGRESS REPORTS
+// ============================================================================
+
+// @PrimeObject
+// Generated report for a student over a time period
+message ProgressReport {
+    string report_id = 1;
+    string student_id = 2;
+    SubjectType subject = 3;
+    ReportPeriod period = 4;
+    int64 period_start = 5;
+    int64 period_end = 6;
+
+    // Time & usage
+    int32 total_time_minutes = 7;
+    int32 sessions_count = 8;
+    int32 days_active = 9;
+
+    // Achievement
+    int32 activities_completed = 10;
+    int32 skills_practiced = 11;
+    int32 skills_mastered = 12;
+    double average_score = 13;
+    double score_trend = 14;                 // Positive = improving
+
+    // Engagement
+    EngagementLevel engagement = 15;
+    int32 streak_days = 16;                  // Consecutive days active
+
+    // Strengths & gaps
+    repeated string strength_skill_ids = 17;
+    repeated string gap_skill_ids = 18;
+    string ai_summary = 19;                  // AI-generated narrative summary
+    string ai_recommendations = 20;          // AI-generated next steps
+
+    map<string, string> custom_fields = 21;
+    l8common.AuditInfo audit_info = 22;
+}
+
+message ProgressReportList {
+    repeated ProgressReport list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// @PrimeObject
+// Engagement metrics per student (continuously updated)
+message EngagementMetric {
+    string metric_id = 1;
+    string student_id = 2;
+    EngagementLevel current_level = 3;
+    int32 current_streak_days = 4;
+    int32 longest_streak_days = 5;
+    int32 total_points = 6;
+    int32 badges_earned = 7;
+    double avg_session_minutes = 8;
+    double avg_daily_minutes = 9;
+    int32 weekly_goal_percent = 10;          // % of weekly goal met
+    int64 last_session_date = 11;
+    int32 days_since_last_session = 12;
+    map<string, string> custom_fields = 13;
+    l8common.AuditInfo audit_info = 14;
+}
+
+message EngagementMetricList {
+    repeated EngagementMetric list = 1;
+    l8api.L8MetaData metadata = 2;
+}

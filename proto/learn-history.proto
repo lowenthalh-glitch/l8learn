@@ -1,0 +1,273 @@
+syntax = "proto3";
+package learn;
+option go_package = "./types/learn";
+import "l8common.proto";
+import "api.proto";
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum AggregationLevel {
+    AGGREGATION_LEVEL_UNSPECIFIED = 0;
+    AGGREGATION_LEVEL_STUDENT = 1;
+    AGGREGATION_LEVEL_CLASSROOM = 2;
+    AGGREGATION_LEVEL_SCHOOL = 3;
+    AGGREGATION_LEVEL_DISTRICT = 4;
+}
+
+enum GrowthRating {
+    GROWTH_RATING_UNSPECIFIED = 0;
+    GROWTH_RATING_WELL_BELOW = 1;            // <25th percentile growth
+    GROWTH_RATING_BELOW = 2;                 // 25-40th
+    GROWTH_RATING_TYPICAL = 3;               // 40-60th
+    GROWTH_RATING_ABOVE = 4;                 // 60-75th
+    GROWTH_RATING_WELL_ABOVE = 5;            // >75th percentile growth
+}
+
+enum RiskLevel {
+    RISK_LEVEL_UNSPECIFIED = 0;
+    RISK_LEVEL_ON_TRACK = 1;
+    RISK_LEVEL_WATCH = 2;                    // Early warning signals
+    RISK_LEVEL_AT_RISK = 3;                  // Intervention needed
+    RISK_LEVEL_CRITICAL = 4;                 // Immediate action required
+}
+
+enum SnapshotType {
+    SNAPSHOT_TYPE_UNSPECIFIED = 0;
+    SNAPSHOT_TYPE_WEEKLY = 1;
+    SNAPSHOT_TYPE_MONTHLY = 2;
+    SNAPSHOT_TYPE_QUARTERLY = 3;
+    SNAPSHOT_TYPE_SEMESTER = 4;
+    SNAPSHOT_TYPE_YEAR_END = 5;
+}
+
+// ============================================================================
+// GROWTH MEASUREMENT
+// ============================================================================
+
+// @PrimeObject
+// Measures growth over time — one record per student per subject per academic year
+message GrowthRecord {
+    string growth_id = 1;
+    string student_id = 2;
+    SubjectType subject = 3;
+    string academic_year = 4;                // "2026-2027"
+    GradeLevel grade_level = 5;
+
+    // Starting point (beginning of year / enrollment diagnostic)
+    double baseline_score = 6;
+    MasteryLevel baseline_mastery = 7;
+    int64 baseline_date = 8;
+    int32 baseline_skills_mastered = 9;
+
+    // Current / end point
+    double current_score = 10;
+    MasteryLevel current_mastery = 11;
+    int64 current_date = 12;
+    int32 current_skills_mastered = 13;
+
+    // Growth metrics
+    double absolute_growth = 14;             // current - baseline
+    double growth_percentile = 15;           // Compared to peers at same starting level
+    GrowthRating rating = 16;
+    double expected_growth = 17;             // Typical growth for this starting level
+    double growth_vs_expected = 18;          // actual / expected (>1.0 = above expected)
+
+    // Time investment
+    int32 total_time_minutes = 19;
+    int32 total_sessions = 20;
+    int32 total_activities = 21;
+
+    map<string, string> custom_fields = 22;
+    l8common.AuditInfo audit_info = 23;
+}
+
+message GrowthRecordList {
+    repeated GrowthRecord list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// ============================================================================
+// COHORT ANALYTICS
+// ============================================================================
+
+// @PrimeObject
+// Aggregated snapshot for a group at a point in time (weekly, monthly, year-end)
+message CohortSnapshot {
+    string snapshot_id = 1;
+    AggregationLevel level = 2;
+    string entity_id = 3;                    // classroom_id, school_id, or district_id
+    SubjectType subject = 4;
+    GradeLevel grade_level = 5;              // 0 = all grades at this entity
+    string academic_year = 6;
+    SnapshotType type = 7;
+    int64 snapshot_date = 8;
+
+    // Population
+    int32 total_students = 9;
+    int32 active_students = 10;
+    int32 inactive_students = 11;
+
+    // Mastery distribution
+    int32 students_exemplary = 12;
+    int32 students_mastered = 13;
+    int32 students_proficient = 14;
+    int32 students_developing = 15;
+    int32 students_emerging = 16;
+    int32 students_not_started = 17;
+
+    // Aggregate scores
+    double mean_score = 18;
+    double median_score = 19;
+    double std_deviation = 20;
+    double score_25th_percentile = 21;
+    double score_75th_percentile = 22;
+
+    // Growth
+    double mean_growth = 23;
+    double mean_growth_vs_expected = 24;     // >1.0 = above expected
+    int32 students_above_expected = 25;
+    int32 students_below_expected = 26;
+
+    // Engagement
+    double mean_weekly_minutes = 27;
+    double participation_rate = 28;          // % meeting weekly goal
+    int32 students_disengaged = 29;          // No activity in 14+ days
+
+    // Skills
+    int32 total_skills_in_scope = 30;
+    double mean_skills_mastered = 31;
+    repeated SkillGap top_gaps = 32;         // Embedded: top 10 weakest skills
+
+    map<string, string> custom_fields = 33;
+    l8common.AuditInfo audit_info = 34;
+}
+
+message CohortSnapshotList {
+    repeated CohortSnapshot list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of CohortSnapshot
+message SkillGap {
+    string skill_id = 1;
+    string skill_name = 2;
+    double mastery_rate = 3;                 // % of students at PROFICIENT or above
+    int32 students_struggling = 4;
+}
+
+// ============================================================================
+// RISK PREDICTION
+// ============================================================================
+
+// @PrimeObject
+// AI-generated early warning for students at risk of falling behind (recalculated weekly)
+message RiskAssessment {
+    string assessment_id = 1;
+    string student_id = 2;
+    SubjectType subject = 3;
+    RiskLevel risk_level = 4;
+    double risk_score = 5;                   // 0.0-1.0 probability of falling behind
+    int64 assessed_date = 6;
+
+    // Contributing factors (AI-identified)
+    repeated RiskFactor factors = 7;         // Embedded child
+
+    // Recommended interventions
+    string ai_recommendation = 8;
+    repeated string recommended_skill_ids = 9;
+
+    // Tracking
+    bool teacher_acknowledged = 10;
+    int64 acknowledged_date = 11;
+    string teacher_notes = 12;
+    string intervention_plan = 13;
+
+    map<string, string> custom_fields = 14;
+    l8common.AuditInfo audit_info = 15;
+}
+
+message RiskAssessmentList {
+    repeated RiskAssessment list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of RiskAssessment
+message RiskFactor {
+    string factor_type = 1;                  // "engagement_drop", "mastery_plateau", "session_decline"
+    string description = 2;
+    double weight = 3;                       // Contribution to risk score
+    string evidence = 4;                     // "multiplication stuck at 52% for 3 weeks"
+}
+
+// ============================================================================
+// STANDARDS MASTERY
+// ============================================================================
+
+// @PrimeObject
+// Tracks mastery against curriculum standards (Common Core, state standards)
+// One record per student per standard per academic year
+message StandardMastery {
+    string standard_mastery_id = 1;
+    string student_id = 2;
+    string standard_id = 3;                  // e.g., "4.NF.A.1"
+    string standard_description = 4;
+    SubjectType subject = 5;
+    GradeLevel grade_level = 6;
+    string academic_year = 7;
+
+    MasteryLevel level = 8;
+    double score = 9;
+    int32 skills_in_standard = 10;
+    int32 skills_mastered = 11;
+    int64 last_assessed = 12;
+
+    map<string, string> custom_fields = 13;
+    l8common.AuditInfo audit_info = 14;
+}
+
+message StandardMasteryList {
+    repeated StandardMastery list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// ============================================================================
+// CURRICULUM EFFECTIVENESS
+// ============================================================================
+
+// @PrimeObject
+// How effective is each activity/lesson/course at producing mastery?
+// Aggregated from all students who attempted it
+message ContentEffect {
+    string effect_id = 1;
+    string content_id = 2;                   // activity_id, lesson_id, or course_id
+    string content_type = 3;                 // "Activity", "Lesson", "Course"
+    string content_name = 4;
+    SubjectType subject = 5;
+    string academic_year = 6;
+
+    // Usage
+    int32 total_attempts = 7;
+    int32 unique_students = 8;
+    double mean_completion_rate = 9;
+    double mean_time_seconds = 10;
+
+    // Effectiveness
+    double mean_score = 11;
+    double mean_mastery_gain = 12;           // Avg mastery improvement after this content
+    double mastery_gain_per_minute = 13;     // Efficiency: learning per unit time
+    int32 students_gained_mastery = 14;      // Moved from <PROFICIENT to >=PROFICIENT
+
+    // Comparative
+    double effectiveness_percentile = 15;    // vs other content targeting same skills
+    string ai_analysis = 16;                 // AI narrative on why this content works or doesn't
+
+    map<string, string> custom_fields = 17;
+    l8common.AuditInfo audit_info = 18;
+}
+
+message ContentEffectList {
+    repeated ContentEffect list = 1;
+    l8api.L8MetaData metadata = 2;
+}

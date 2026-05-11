@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L8Learn — Adaptive Learning OS</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    overflow: hidden;
+}
+
+.slide {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    padding: 60px 80px;
+    position: relative;
+}
+
+.slide.active { display: flex; flex-direction: column; }
+
+/* Slide layouts */
+.slide-title {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.slide-content {
+    justify-content: flex-start;
+    background: #1e293b;
+}
+
+.slide-split {
+    flex-direction: row;
+    gap: 60px;
+    background: #1e293b;
+}
+
+.slide-split .left, .slide-split .right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Typography */
+h1 { font-size: 3.5rem; font-weight: 700; margin-bottom: 16px; color: #f8fafc; }
+h2 { font-size: 2.4rem; font-weight: 600; margin-bottom: 32px; color: #f8fafc; }
+h3 { font-size: 1.6rem; font-weight: 600; margin-bottom: 16px; color: #38bdf8; }
+p { font-size: 1.3rem; line-height: 1.6; color: #94a3b8; margin-bottom: 12px; }
+.subtitle { font-size: 1.5rem; color: #38bdf8; margin-bottom: 24px; }
+.tagline { font-size: 1.8rem; color: #94a3b8; margin-top: 16px; font-weight: 300; }
+
+/* Lists */
+ul { list-style: none; padding: 0; }
+ul li {
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: #cbd5e1;
+    padding-left: 28px;
+    position: relative;
+    margin-bottom: 8px;
+}
+ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 12px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #38bdf8;
+}
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+th { text-align: left; padding: 12px 16px; font-size: 1rem; color: #38bdf8; border-bottom: 2px solid #334155; }
+td { padding: 12px 16px; font-size: 1.05rem; color: #cbd5e1; border-bottom: 1px solid #334155; }
+tr:hover td { background: #334155; }
+
+/* Cards */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+.card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 24px;
+}
+.card h3 { font-size: 1.2rem; margin-bottom: 8px; }
+.card p { font-size: 1rem; color: #94a3b8; margin: 0; }
+
+/* Stats row */
+.stats-row {
+    display: flex;
+    gap: 40px;
+    margin-top: 32px;
+}
+.stat {
+    text-align: center;
+}
+.stat-value {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #38bdf8;
+}
+.stat-label {
+    font-size: 1rem;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+/* Comparison */
+.vs-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.vs-them { color: #f87171; font-size: 1.1rem; text-align: right; }
+.vs-divider { color: #475569; font-size: 1.4rem; font-weight: 700; }
+.vs-us { color: #4ade80; font-size: 1.1rem; }
+
+/* Flow diagram */
+.flow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+.flow-step {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    color: #cbd5e1;
+}
+.flow-arrow { color: #38bdf8; font-size: 1.4rem; }
+
+/* Navigation */
+.nav {
+    position: fixed;
+    bottom: 24px;
+    right: 40px;
+    display: flex;
+    gap: 12px;
+    z-index: 100;
+}
+.nav button {
+    background: #334155;
+    border: none;
+    color: #e2e8f0;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+.nav button:hover { background: #475569; }
+
+.slide-counter {
+    position: fixed;
+    bottom: 30px;
+    left: 40px;
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+/* Accent bar */
+.accent-bar {
+    width: 60px;
+    height: 4px;
+    background: #38bdf8;
+    border-radius: 2px;
+    margin-bottom: 24px;
+}
+</style>
+</head>
+<body>
+
+<!-- Slide 1: Title -->
+<div class="slide slide-title active" id="slide-1">
+    <h1>L8Learn</h1>
+    <p class="subtitle">Adaptive Learning Operating System</p>
+    <p class="tagline">AI-powered personalized education for every child</p>
+    <div class="stats-row">
+        <div class="stat"><div class="stat-value">38</div><div class="stat-label">Services</div></div>
+        <div class="stat"><div class="stat-value">7</div><div class="stat-label">Service Areas</div></div>
+        <div class="stat"><div class="stat-value">K-8</div><div class="stat-label">Grade Levels</div></div>
+    </div>
+</div>
+
+<!-- Slide 2: Problem -->
+<div class="slide slide-content" id="slide-2">
+    <div class="accent-bar"></div>
+    <h2>The Problem</h2>
+    <div class="card-grid">
+        <div class="card">
+            <h3>Existing Platforms</h3>
+            <p>Rule-based adaptation (2012 tech). Single subject. No family tools. No offline integration. Treats homeschool as an afterthought.</p>
+        </div>
+        <div class="card">
+            <h3>Homeschool Parents</h3>
+            <p>Overwhelmed by curriculum selection, compliance paperwork, scheduling multiple children, and lack of pedagogical training.</p>
+        </div>
+        <div class="card">
+            <h3>Teachers</h3>
+            <p>No visibility into HOW students think. Manual grading wastes hours. No early warning for at-risk students. No collaboration tools.</p>
+        </div>
+        <div class="card">
+            <h3>Students</h3>
+            <p>One-size-fits-all pacing. No peer learning. Offline work (worksheets) disconnected from digital progress. Isolation.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 3: Solution Overview -->
+<div class="slide slide-content" id="slide-3">
+    <div class="accent-bar"></div>
+    <h2>The Solution</h2>
+    <p>An AI that doesn't just track what kids get right or wrong — it understands <strong>how they think</strong>, adapts in real-time, coaches parents, connects peers, and handles compliance automatically.</p>
+    <div class="card-grid">
+        <div class="card">
+            <h3>AI Adaptive Engine</h3>
+            <p>15 data inputs per decision. LLM-powered. Adjusts difficulty, activity type, and teaching strategy per child per session.</p>
+        </div>
+        <div class="card">
+            <h3>School + Homeschool</h3>
+            <p>Same platform serves classrooms and kitchen tables. Multi-child families, learning pods, and traditional schools.</p>
+        </div>
+        <div class="card">
+            <h3>Offline Loop</h3>
+            <p>Print worksheets. Scan back with phone camera. AI grades handwriting. Scores feed back into adaptive engine.</p>
+        </div>
+        <div class="card">
+            <h3>Social Learning</h3>
+            <p>AI-moderated study chat. Peer tutoring. Team challenges. The student who explains learns more than the one who listens.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 4: AI Adaptive Engine -->
+<div class="slide slide-content" id="slide-4">
+    <div class="accent-bar"></div>
+    <h2>AI Adaptive Engine</h2>
+    <p>The engine considers 15 inputs to decide every student's next activity:</p>
+    <table>
+        <tr><th>Input</th><th>What It Tells the AI</th></tr>
+        <tr><td>Diagnostic results</td><td>Starting skill levels</td></tr>
+        <tr><td>Skill prerequisite graph</td><td>What CAN vs CANNOT be taught next</td></tr>
+        <tr><td>Interaction patterns</td><td>How the child thinks, specific error patterns</td></tr>
+        <tr><td>Mastery trajectory</td><td>Improving, plateauing, or declining</td></tr>
+        <tr><td>Engagement signals</td><td>Session length, activity preferences, abandonment patterns</td></tr>
+        <tr><td>Accommodations (IEP/504)</td><td>Extended time, visual supports, bilingual needs</td></tr>
+        <tr><td>Peer patterns</td><td>What worked for similar students</td></tr>
+        <tr><td>Worksheet scan results</td><td>Offline error patterns (handwriting analysis)</td></tr>
+        <tr><td>Teacher overrides</td><td>Priority skills, blocked progressions</td></tr>
+        <tr><td>Content effectiveness</td><td>Which activities produce the best outcomes</td></tr>
+    </table>
+</div>
+
+<!-- Slide 5: Worksheet & Scan -->
+<div class="slide slide-split" id="slide-5">
+    <div class="left">
+        <div class="accent-bar"></div>
+        <h2>Print. Solve. Scan. Learn.</h2>
+        <ul>
+            <li>Teacher generates personalized PDFs per student (based on mastery levels)</li>
+            <li>6 layout types: standard, grid, two-column, passage, matching, fill-blank</li>
+            <li>Student fills in on paper with pencil</li>
+            <li>Teacher scans with phone camera (batch: whole class stack)</li>
+            <li>AI extracts handwritten answers</li>
+            <li>Handles math equivalence (5/4 = 1 1/4 = 1.25)</li>
+            <li>Flags low-confidence items for teacher review</li>
+            <li>Scores feed back into mastery + learning path</li>
+        </ul>
+    </div>
+    <div class="right">
+        <h3>The Loop</h3>
+        <div class="flow">
+            <div class="flow-step">Generate PDF</div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">Print</div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">Student solves</div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">Scan</div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">AI grades</div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">Review flags</div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">Update mastery</div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step">Adapt path</div>
+        </div>
+        <h3 style="margin-top:40px">Offline work is no longer a dead end</h3>
+        <p>Paper worksheets feed the same adaptive engine as digital activities.</p>
+    </div>
+</div>
+
+<!-- Slide 6: Homeschool -->
+<div class="slide slide-content" id="slide-6">
+    <div class="accent-bar"></div>
+    <h2>Built for Homeschool (Not Adapted)</h2>
+    <div class="card-grid">
+        <div class="card">
+            <h3>AI Parent Coach</h3>
+            <p>Surfaces teaching strategies: "Jake learns best with physical objects. Get 7 groups of 8 blocks BEFORE the digital activity."</p>
+        </div>
+        <div class="card">
+            <h3>Multi-Child Dashboard</h3>
+            <p>One view for all children. See everyone's progress, schedule the day, assign sibling activities.</p>
+        </div>
+        <div class="card">
+            <h3>Daily Schedule Generator</h3>
+            <p>AI builds the day: considers each child's goals, parent energy level, appointments, weather, attention spans by age.</p>
+        </div>
+        <div class="card">
+            <h3>Real-World Curriculum</h3>
+            <p>Grocery trips, cooking, nature walks, road trips become curriculum. Parent logs, system scores, compliance tracks.</p>
+        </div>
+        <div class="card">
+            <h3>Sibling Collaboration</h3>
+            <p>Activities requiring multiple ages: older teaches younger, all practice at their own level simultaneously.</p>
+        </div>
+        <div class="card">
+            <h3>State Compliance</h3>
+            <p>Auto-tracks hours and subjects. Alerts before deadlines. Auto-generates portfolio PDFs for state reviews.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 7: Collaboration Center -->
+<div class="slide slide-content" id="slide-7">
+    <div class="accent-bar"></div>
+    <h2>Collaboration Center</h2>
+    <p>Kids learn better explaining to each other than from any adult or screen.</p>
+    <div class="card-grid">
+        <div class="card">
+            <h3>Study Groups</h3>
+            <p>See each other's progress. Ask for help. Celebrate team milestones. Work sync or async.</p>
+        </div>
+        <div class="card">
+            <h3>Peer Tutoring</h3>
+            <p>AI matches mastery students with struggling ones. The explainer benefits MORE than the listener (90% vs 10% retention).</p>
+        </div>
+        <div class="card">
+            <h3>Team Challenges</h3>
+            <p>Leaderboards with weakest-member bonus: teams score 2x when their weakest member improves. Incentivizes helping.</p>
+        </div>
+        <div class="card">
+            <h3>AI-Moderated Chat</h3>
+            <p>Every message checked before delivery. Blocks inappropriate content. Coaches "explain, don't give the answer." COPPA-safe.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 8: Historical Analytics -->
+<div class="slide slide-content" id="slide-8">
+    <div class="accent-bar"></div>
+    <h2>Analytics That Answer Real Questions</h2>
+    <table>
+        <tr><th>Question</th><th>Who Asks</th><th>L8Learn Answers</th></tr>
+        <tr><td>"Is this platform working?"</td><td>Superintendent</td><td>Growth vs expected: 1.2x. Proficiency 54% &rarr; 67% over 3 years. Cost: $3.20/skill mastered.</td></tr>
+        <tr><td>"Which students are falling behind?"</td><td>Teacher</td><td>AI risk prediction (weekly): 14 students at WATCH, 3 at AT RISK with contributing factors.</td></tr>
+        <tr><td>"Are our 4th graders better than last year's?"</td><td>District Admin</td><td>Cohort comparison: year-over-year snapshots with mastery distribution and growth percentiles.</td></tr>
+        <tr><td>"Which content actually works?"</td><td>Curriculum Director</td><td>Mastery gain per minute for every activity. Scatter plot: effectiveness vs usage.</td></tr>
+        <tr><td>"Do we have achievement gaps?"</td><td>Board</td><td>Standards coverage heatmap by school. Skill gap analysis by demographic.</td></tr>
+    </table>
+</div>
+
+<!-- Slide 9: Enrollment Pipeline -->
+<div class="slide slide-content" id="slide-9">
+    <div class="accent-bar"></div>
+    <h2>Student Enrollment Pipeline</h2>
+    <div class="flow">
+        <div class="flow-step">Admin creates student</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">Guardian invite sent</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">Guardian registers</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">COPPA consent signed</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">Student activated</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">Diagnostic benchmark</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">AI builds path</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">Learning begins</div>
+    </div>
+    <div style="margin-top: 48px;">
+        <h3>Also Supports</h3>
+        <ul>
+            <li>Bulk enrollment via CSV (500 students in one upload)</li>
+            <li>Transfer students carry full history (no repeated diagnostics)</li>
+            <li>Enrollment status tracking dashboard for admins</li>
+            <li>Auto-generated student login credentials</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Slide 10: Competitive Landscape -->
+<div class="slide slide-content" id="slide-10">
+    <div class="accent-bar"></div>
+    <h2>Competitive Landscape</h2>
+    <div class="vs-row">
+        <div class="vs-them">Rule-based adaptation</div>
+        <div class="vs-divider">vs</div>
+        <div class="vs-us">LLM-powered (15 inputs per decision)</div>
+    </div>
+    <div class="vs-row">
+        <div class="vs-them">Single subject (math OR reading)</div>
+        <div class="vs-divider">vs</div>
+        <div class="vs-us">Multi-subject (math, reading, science, writing, social studies)</div>
+    </div>
+    <div class="vs-row">
+        <div class="vs-them">School-only, adapted for homeschool</div>
+        <div class="vs-divider">vs</div>
+        <div class="vs-us">Built for both from day one</div>
+    </div>
+    <div class="vs-row">
+        <div class="vs-them">Digital-only activities</div>
+        <div class="vs-divider">vs</div>
+        <div class="vs-us">Digital + printable + real-world + projects</div>
+    </div>
+    <div class="vs-row">
+        <div class="vs-them">No peer learning</div>
+        <div class="vs-divider">vs</div>
+        <div class="vs-us">AI-matched tutoring, team challenges, moderated chat</div>
+    </div>
+    <div class="vs-row">
+        <div class="vs-them">Cloud-dependent, vendor-locked</div>
+        <div class="vs-divider">vs</div>
+        <div class="vs-us">Self-hosted, district owns data, works offline</div>
+    </div>
+    <div class="vs-row">
+        <div class="vs-them">Manual grading, no scan-back</div>
+        <div class="vs-divider">vs</div>
+        <div class="vs-us">AI grades scanned worksheets, feeds back to adaptive engine</div>
+    </div>
+</div>
+
+<!-- Slide 11: Architecture -->
+<div class="slide slide-content" id="slide-11">
+    <div class="accent-bar"></div>
+    <h2>Architecture</h2>
+    <p>Built on the Layer 8 VNet mesh &mdash; distributed, encrypted (AES-256), no single point of failure.</p>
+    <table>
+        <tr><th>Area</th><th>ID</th><th>Services</th><th>Purpose</th></tr>
+        <tr><td>Content</td><td>10</td><td>8</td><td>Curriculum, worksheets, projects, real-world lessons</td></tr>
+        <tr><td>Students</td><td>20</td><td>10</td><td>People, enrollment, families, compliance, pods</td></tr>
+        <tr><td>Adaptive</td><td>30</td><td>5</td><td>Paths, mastery, rules, daily schedules</td></tr>
+        <tr><td>Assessment</td><td>40</td><td>4</td><td>Sessions, scores, benchmarks, scan grading</td></tr>
+        <tr><td>Analytics</td><td>50</td><td>2</td><td>Progress reports, engagement</td></tr>
+        <tr><td>History</td><td>60</td><td>5</td><td>Growth, cohorts, risk, standards, effectiveness</td></tr>
+        <tr><td>Collaboration</td><td>70</td><td>4</td><td>Groups, chat, tutoring, challenges</td></tr>
+        <tr><td colspan="2"><strong>Total</strong></td><td><strong>38</strong></td><td></td></tr>
+    </table>
+</div>
+
+<!-- Slide 12: Compliance -->
+<div class="slide slide-split" id="slide-12">
+    <div class="left">
+        <div class="accent-bar"></div>
+        <h2>Compliance Built In</h2>
+        <h3>FERPA</h3>
+        <ul>
+            <li>All student PII encrypted at rest and in transit</li>
+            <li>Role-based access (district, school, teacher, guardian, student)</li>
+            <li>Full audit trail on every data access</li>
+            <li>Data deletion support (right to erasure)</li>
+        </ul>
+        <h3 style="margin-top: 24px;">COPPA</h3>
+        <ul>
+            <li>Guardian consent wizard before any child data collection</li>
+            <li>Minimal PII (no email/phone for students)</li>
+            <li>No third-party tracking or advertising</li>
+            <li>Collaboration features require explicit parent opt-in</li>
+        </ul>
+    </div>
+    <div class="right">
+        <h3>State Homeschool Laws (All 50 States)</h3>
+        <ul>
+            <li>Auto-tracks instruction hours from session data</li>
+            <li>Auto-tracks subject coverage from activities</li>
+            <li>Alerts 30 days before state deadlines</li>
+            <li>Auto-generates portfolio PDFs for reviews</li>
+            <li>Pre-fills notification forms for districts</li>
+        </ul>
+        <h3 style="margin-top: 24px;">Roles</h3>
+        <ul>
+            <li>District admin: all data within their district</li>
+            <li>Teacher: own classroom students only</li>
+            <li>Guardian: linked children only</li>
+            <li>Student: own data, read-only + POST interactions</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Slide 13: Target Market -->
+<div class="slide slide-content" id="slide-13">
+    <div class="accent-bar"></div>
+    <h2>Target Market</h2>
+    <div class="card-grid">
+        <div class="card">
+            <h3>K-8 School Districts</h3>
+            <p>Replace DreamBox/IXL with unified AI platform. Multi-subject. Risk prediction. Standards coverage. ROI reporting.</p>
+        </div>
+        <div class="card">
+            <h3>Homeschool Families</h3>
+            <p>First platform built FOR them. Multi-child, real-world curriculum, compliance automation, parent coaching, daily scheduling.</p>
+        </div>
+        <div class="card">
+            <h3>Learning Pods / Co-ops</h3>
+            <p>Collaboration features purpose-built for small groups. Shared curriculum, teaching rotation, group projects.</p>
+        </div>
+        <div class="card">
+            <h3>International</h3>
+            <p>Multi-language from day one. Protobuf is language-agnostic. UI supports language preference per student and guardian.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 14: Implementation -->
+<div class="slide slide-content" id="slide-14">
+    <div class="accent-bar"></div>
+    <h2>Implementation Roadmap</h2>
+    <table>
+        <tr><th>Phase</th><th>Deliverable</th></tr>
+        <tr><td>1</td><td>Foundation: proto definitions, project skeleton, l8ui setup</td></tr>
+        <tr><td>2</td><td>Content services + worksheet PDF generation</td></tr>
+        <tr><td>3</td><td>People, enrollment pipeline, bulk CSV import</td></tr>
+        <tr><td>4</td><td>Skill graph + mastery tracking</td></tr>
+        <tr><td>5</td><td>AI adaptive engine (rule layer + LLM fallback)</td></tr>
+        <tr><td>6</td><td>Assessment + AI worksheet scanning</td></tr>
+        <tr><td>7</td><td>Analytics + AI-generated narrative reports</td></tr>
+        <tr><td>8</td><td>Homeschool: families, scheduling, compliance, projects, real-world</td></tr>
+        <tr><td>9</td><td>Collaboration Center: groups, chat, tutoring, challenges</td></tr>
+        <tr><td>10</td><td>Historical analytics: growth, cohorts, risk prediction, standards</td></tr>
+        <tr><td>11-12</td><td>Student activity player (gamified) + parent/teacher portals</td></tr>
+        <tr><td>13-15</td><td>Mock data, deployment (Docker + K8s), end-to-end verification</td></tr>
+    </table>
+</div>
+
+<!-- Slide 15: Closing -->
+<div class="slide slide-title" id="slide-15">
+    <h1>L8Learn</h1>
+    <p class="tagline">Every child learns differently.<br>Now every child's platform does too.</p>
+    <div class="stats-row" style="margin-top: 48px;">
+        <div class="stat"><div class="stat-value">7</div><div class="stat-label">Service Areas</div></div>
+        <div class="stat"><div class="stat-value">38</div><div class="stat-label">Services</div></div>
+        <div class="stat"><div class="stat-value">15</div><div class="stat-label">Inputs per AI Decision</div></div>
+        <div class="stat"><div class="stat-value">50</div><div class="stat-label">States Compliant</div></div>
+    </div>
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+    <button onclick="prevSlide()">&larr; Prev</button>
+    <button onclick="nextSlide()">Next &rarr;</button>
+</div>
+<div class="slide-counter" id="counter">1 / 15</div>
+
+<script>
+let current = 1;
+const total = 15;
+
+function showSlide(n) {
+    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+    document.getElementById('slide-' + n).classList.add('active');
+    document.getElementById('counter').textContent = n + ' / ' + total;
+}
+
+function nextSlide() { if (current < total) { current++; showSlide(current); } }
+function prevSlide() { if (current > 1) { current--; showSlide(current); } }
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+});
+</script>
+</body>
+</html>

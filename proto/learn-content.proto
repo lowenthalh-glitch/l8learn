@@ -1,0 +1,270 @@
+syntax = "proto3";
+package learn;
+option go_package = "./types/learn";
+import "l8common.proto";
+import "api.proto";
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum SubjectType {
+    SUBJECT_TYPE_UNSPECIFIED = 0;
+    SUBJECT_TYPE_MATH = 1;
+    SUBJECT_TYPE_READING = 2;
+    SUBJECT_TYPE_SCIENCE = 3;
+    SUBJECT_TYPE_WRITING = 4;
+    SUBJECT_TYPE_SOCIAL_STUDIES = 5;
+}
+
+enum GradeLevel {
+    GRADE_LEVEL_UNSPECIFIED = 0;
+    GRADE_LEVEL_PRE_K = 1;
+    GRADE_LEVEL_K = 2;
+    GRADE_LEVEL_1 = 3;
+    GRADE_LEVEL_2 = 4;
+    GRADE_LEVEL_3 = 5;
+    GRADE_LEVEL_4 = 6;
+    GRADE_LEVEL_5 = 7;
+    GRADE_LEVEL_6 = 8;
+    GRADE_LEVEL_7 = 9;
+    GRADE_LEVEL_8 = 10;
+}
+
+enum DifficultyLevel {
+    DIFFICULTY_LEVEL_UNSPECIFIED = 0;
+    DIFFICULTY_LEVEL_INTRO = 1;
+    DIFFICULTY_LEVEL_EASY = 2;
+    DIFFICULTY_LEVEL_MEDIUM = 3;
+    DIFFICULTY_LEVEL_HARD = 4;
+    DIFFICULTY_LEVEL_CHALLENGE = 5;
+}
+
+enum ContentStatus {
+    CONTENT_STATUS_UNSPECIFIED = 0;
+    CONTENT_STATUS_DRAFT = 1;
+    CONTENT_STATUS_REVIEW = 2;
+    CONTENT_STATUS_PUBLISHED = 3;
+    CONTENT_STATUS_ARCHIVED = 4;
+}
+
+enum ActivityType {
+    ACTIVITY_TYPE_UNSPECIFIED = 0;
+    ACTIVITY_TYPE_INTERACTIVE = 1;      // Drag-drop, manipulatives
+    ACTIVITY_TYPE_MULTIPLE_CHOICE = 2;
+    ACTIVITY_TYPE_FREE_RESPONSE = 3;
+    ACTIVITY_TYPE_MATCHING = 4;
+    ACTIVITY_TYPE_ORDERING = 5;         // Sequence ordering
+    ACTIVITY_TYPE_FILL_BLANK = 6;
+    ACTIVITY_TYPE_READING_PASSAGE = 7;
+    ACTIVITY_TYPE_VIDEO = 8;
+    ACTIVITY_TYPE_GAME = 9;
+}
+
+enum QuestionType {
+    QUESTION_TYPE_UNSPECIFIED = 0;
+    QUESTION_TYPE_SINGLE_CHOICE = 1;
+    QUESTION_TYPE_MULTI_CHOICE = 2;
+    QUESTION_TYPE_NUMERIC = 3;
+    QUESTION_TYPE_TEXT = 4;
+    QUESTION_TYPE_DRAG_DROP = 5;
+    QUESTION_TYPE_DRAWING = 6;
+}
+
+enum WorksheetStatus {
+    WORKSHEET_STATUS_UNSPECIFIED = 0;
+    WORKSHEET_STATUS_DRAFT = 1;
+    WORKSHEET_STATUS_GENERATED = 2;
+    WORKSHEET_STATUS_DISTRIBUTED = 3;
+    WORKSHEET_STATUS_SCORED = 4;
+}
+
+enum WorksheetLayout {
+    WORKSHEET_LAYOUT_UNSPECIFIED = 0;
+    WORKSHEET_LAYOUT_STANDARD = 1;           // Questions top-to-bottom
+    WORKSHEET_LAYOUT_TWO_COLUMN = 2;         // Side-by-side columns
+    WORKSHEET_LAYOUT_GRID = 3;               // Grid of problems (math facts)
+    WORKSHEET_LAYOUT_PASSAGE = 4;            // Reading passage + questions below
+    WORKSHEET_LAYOUT_MATCHING = 5;           // Left-right matching
+    WORKSHEET_LAYOUT_FILL_BLANK = 6;         // Inline blanks in text
+}
+
+// ============================================================================
+// CONTENT MESSAGES
+// ============================================================================
+
+// @PrimeObject
+message Course {
+    string course_id = 1;
+    string name = 2;
+    string description = 3;
+    SubjectType subject = 4;
+    GradeLevel min_grade = 5;
+    GradeLevel max_grade = 6;
+    ContentStatus status = 7;
+    string thumbnail_url = 8;
+    repeated string standard_ids = 9;        // Curriculum standard alignment
+    repeated string prerequisite_course_ids = 10;
+    int32 estimated_hours = 11;
+    string author_id = 12;
+    map<string, string> custom_fields = 13;
+    l8common.AuditInfo audit_info = 14;
+}
+
+message CourseList {
+    repeated Course list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// @PrimeObject
+message Unit {
+    string unit_id = 1;
+    string course_id = 2;                    // Parent course
+    string name = 3;
+    string description = 4;
+    int32 sequence_order = 5;
+    ContentStatus status = 6;
+    repeated string skill_ids = 7;           // Skills taught in this unit
+    repeated string prerequisite_unit_ids = 8;
+    int32 estimated_minutes = 9;
+    map<string, string> custom_fields = 10;
+    l8common.AuditInfo audit_info = 11;
+}
+
+message UnitList {
+    repeated Unit list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// @PrimeObject
+message Lesson {
+    string lesson_id = 1;
+    string unit_id = 2;                      // Parent unit
+    string name = 3;
+    string description = 4;
+    int32 sequence_order = 5;
+    DifficultyLevel difficulty = 6;
+    ContentStatus status = 7;
+    repeated string skill_ids = 8;           // Skills practiced
+    string instruction_text = 9;             // Markdown content
+    string media_url = 10;                   // Video/animation URL
+    int32 estimated_minutes = 11;
+    map<string, string> custom_fields = 12;
+    l8common.AuditInfo audit_info = 13;
+}
+
+message LessonList {
+    repeated Lesson list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// @PrimeObject
+message Activity {
+    string activity_id = 1;
+    string lesson_id = 2;                    // Parent lesson
+    string name = 3;
+    string instructions = 4;
+    ActivityType activity_type = 5;
+    DifficultyLevel difficulty = 6;
+    ContentStatus status = 7;
+    repeated string skill_ids = 8;
+    int32 points_possible = 9;
+    int32 estimated_seconds = 10;
+    int32 max_attempts = 11;                 // 0 = unlimited
+    bool hints_enabled = 12;
+    int32 hint_count = 13;
+    string config_json = 14;                 // Activity-type-specific config (manipulative params, game config)
+    repeated Question questions = 15;        // Embedded child
+    map<string, string> custom_fields = 16;
+    l8common.AuditInfo audit_info = 17;
+}
+
+message ActivityList {
+    repeated Activity list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of Activity — NOT a Prime Object
+message Question {
+    string question_id = 1;
+    int32 sequence_order = 2;
+    QuestionType question_type = 3;
+    string prompt_text = 4;                  // The question (markdown)
+    string prompt_media_url = 5;             // Image/diagram for the question
+    DifficultyLevel difficulty = 6;
+    repeated AnswerOption options = 7;       // For choice-based questions
+    string correct_answer = 8;              // For numeric/text questions
+    string explanation = 9;                  // Shown after answering
+    int32 points = 10;
+    repeated string skill_ids = 11;          // Specific skills this question tests
+    repeated string hint_texts = 12;         // Progressive hints
+}
+
+// Embedded child of Question
+message AnswerOption {
+    string option_id = 1;
+    string text = 2;
+    string media_url = 3;
+    bool is_correct = 4;
+    string feedback = 5;                     // Shown when this option is selected
+}
+
+// ============================================================================
+// PRINTABLE WORKSHEETS
+// ============================================================================
+
+// @PrimeObject
+// Teacher-generated printable worksheet, optionally personalized per student
+message Worksheet {
+    string worksheet_id = 1;
+    string name = 2;
+    string teacher_id = 3;
+    SubjectType subject = 4;
+    GradeLevel grade_level = 5;
+    DifficultyLevel difficulty = 6;
+    WorksheetStatus status = 7;
+    WorksheetLayout layout = 8;
+
+    // Content selection
+    repeated string skill_ids = 9;           // Skills to draw questions from
+    repeated string activity_ids = 10;       // Or pick specific activities
+    int32 question_count = 11;
+    bool shuffle_questions = 12;             // Randomize order per student
+    bool shuffle_options = 13;               // Randomize answer choices
+    bool include_word_bank = 14;
+    bool include_number_line = 15;
+    bool include_grid_paper = 16;
+    string instructions_text = 17;           // Custom header instructions
+    bool personalized = 18;                  // Generate per-student variants based on mastery
+
+    // Distribution
+    repeated string student_ids = 19;        // Empty = whole classroom
+    string classroom_id = 20;
+    int64 due_date = 21;
+
+    // Generated output
+    string pdf_storage_path = 22;            // Via Layer8FileUpload
+    string answer_key_path = 23;
+
+    // Scoring (after hand-grading or scan)
+    repeated WorksheetScore scores = 24;     // Embedded child
+
+    map<string, string> custom_fields = 25;
+    l8common.AuditInfo audit_info = 26;
+}
+
+message WorksheetList {
+    repeated Worksheet list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child — one per student who received the worksheet
+message WorksheetScore {
+    string student_id = 1;
+    int32 questions_correct = 2;
+    int32 questions_total = 3;
+    double score_percent = 4;
+    int64 scored_date = 5;
+    string scored_by = 6;                    // Teacher who graded it
+    bool fed_to_mastery = 7;                 // Has this score been fed back to SkillMastery?
+}

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L8Learn — Teacher</title>
+    <link rel="stylesheet" href="teacher/css/teacher.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="portal-header">
+            <div class="portal-brand">L8Learn</div>
+            <nav class="portal-nav">
+                <a class="nav-tab active" data-section="dashboard">Dashboard</a>
+                <a class="nav-tab" data-section="students">Students</a>
+                <a class="nav-tab" data-section="worksheets">Worksheets</a>
+                <a class="nav-tab" data-section="collab">Collaboration</a>
+                <a class="nav-tab" data-section="scans">Scan & Grade</a>
+            </nav>
+            <div class="portal-user">
+                <span id="teacher-name"></span>
+                <button id="btn-logout">Logout</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="portal-main">
+            <!-- Dashboard -->
+            <section class="portal-section active" data-section="dashboard">
+                <h2>Classroom Dashboard</h2>
+
+                <!-- KPI Widgets -->
+                <div class="widget-grid" id="dashboard-widgets">
+                    <div class="widget">
+                        <div class="widget-label">Active Students</div>
+                        <div class="widget-value" id="w-active-students">—</div>
+                    </div>
+                    <div class="widget">
+                        <div class="widget-label">Avg Mastery</div>
+                        <div class="widget-value" id="w-avg-mastery">—</div>
+                    </div>
+                    <div class="widget">
+                        <div class="widget-label">At Risk</div>
+                        <div class="widget-value widget-alert" id="w-at-risk">—</div>
+                    </div>
+                    <div class="widget">
+                        <div class="widget-label">Avg Daily Minutes</div>
+                        <div class="widget-value" id="w-avg-minutes">—</div>
+                    </div>
+                </div>
+
+                <!-- Skill Heatmap -->
+                <div class="card">
+                    <h3>Skill Heatmap</h3>
+                    <div id="skill-heatmap">
+                        <!-- Rendered by JS: students (rows) × skills (columns) with color-coded mastery -->
+                    </div>
+                </div>
+
+                <!-- At-Risk Students -->
+                <div class="card">
+                    <h3>Needs Attention</h3>
+                    <div id="risk-alerts">
+                        <!-- Rendered by JS: list of at-risk students with factors and recommendations -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Students -->
+            <section class="portal-section" data-section="students">
+                <h2>Students</h2>
+                <div id="students-table-container">
+                    <!-- Layer8DTable rendered here -->
+                </div>
+            </section>
+
+            <!-- Worksheets -->
+            <section class="portal-section" data-section="worksheets">
+                <h2>Worksheets</h2>
+                <div class="section-actions">
+                    <button class="btn-primary" id="btn-create-worksheet">Create Worksheet</button>
+                </div>
+                <div id="worksheets-table-container">
+                    <!-- Layer8DTable rendered here -->
+                </div>
+            </section>
+
+            <!-- Collaboration -->
+            <section class="portal-section" data-section="collab">
+                <h2>Collaboration</h2>
+                <div class="collab-overview">
+                    <div class="card">
+                        <h3>Active Groups</h3>
+                        <div id="collab-groups"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Team Challenges</h3>
+                        <div id="collab-challenges"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Peer Tutoring</h3>
+                        <div id="collab-tutoring"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scan & Grade -->
+            <section class="portal-section" data-section="scans">
+                <h2>Scan & Grade</h2>
+                <div class="section-actions">
+                    <button class="btn-primary" id="btn-scan-batch">Scan Worksheets</button>
+                </div>
+                <div id="scans-table-container">
+                    <!-- Layer8DTable of WorksheetScans with review flow -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="teacher/js/teacher-config.js"></script>
+    <script src="teacher/js/teacher-dashboard.js"></script>
+    <script src="teacher/js/teacher-app.js"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+syntax = "proto3";
+package learn;
+option go_package = "./types/learn";
+import "l8common.proto";
+import "api.proto";
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum SessionStatus {
+    SESSION_STATUS_UNSPECIFIED = 0;
+    SESSION_STATUS_ACTIVE = 1;
+    SESSION_STATUS_COMPLETED = 2;
+    SESSION_STATUS_ABANDONED = 3;            // Closed without finishing
+}
+
+enum InteractionResult {
+    INTERACTION_RESULT_UNSPECIFIED = 0;
+    INTERACTION_RESULT_CORRECT = 1;
+    INTERACTION_RESULT_INCORRECT = 2;
+    INTERACTION_RESULT_PARTIAL = 3;
+    INTERACTION_RESULT_SKIPPED = 4;
+    INTERACTION_RESULT_HINT_USED = 5;
+    INTERACTION_RESULT_TIMED_OUT = 6;
+}
+
+enum BenchmarkType {
+    BENCHMARK_TYPE_UNSPECIFIED = 0;
+    BENCHMARK_TYPE_DIAGNOSTIC = 1;           // Initial placement
+    BENCHMARK_TYPE_FORMATIVE = 2;            // During instruction
+    BENCHMARK_TYPE_SUMMATIVE = 3;            // End of unit/course
+    BENCHMARK_TYPE_PROGRESS_MONITOR = 4;     // Periodic check
+}
+
+enum ScanStatus {
+    SCAN_STATUS_UNSPECIFIED = 0;
+    SCAN_STATUS_UPLOADED = 1;                // Image received
+    SCAN_STATUS_PROCESSING = 2;              // AI extracting answers
+    SCAN_STATUS_REVIEW = 3;                  // Has flagged items needing teacher review
+    SCAN_STATUS_COMPLETE = 4;                // All graded, scores saved
+    SCAN_STATUS_FAILED = 5;                  // AI could not process image
+}
+
+// ============================================================================
+// SESSION & INTERACTION TRACKING
+// ============================================================================
+
+// @PrimeObject
+// One record per student login session
+message LearningSession {
+    string session_id = 1;
+    string student_id = 2;
+    string path_id = 3;                      // Active learning path
+    SessionStatus status = 4;
+    int64 start_time = 5;
+    int64 end_time = 6;
+    int32 duration_seconds = 7;
+    int32 activities_attempted = 8;
+    int32 activities_completed = 9;
+    int32 questions_answered = 10;
+    int32 questions_correct = 11;
+    int32 hints_used = 12;
+    int32 points_earned = 13;
+    string device_type = 14;                 // "tablet", "desktop", "phone"
+    repeated Interaction interactions = 15;   // Embedded child
+    map<string, string> custom_fields = 16;
+    l8common.AuditInfo audit_info = 17;
+}
+
+message LearningSessionList {
+    repeated LearningSession list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of LearningSession
+message Interaction {
+    string interaction_id = 1;
+    string activity_id = 2;
+    string question_id = 3;
+    string skill_id = 4;
+    int64 timestamp = 5;
+    InteractionResult result = 6;
+    string student_answer = 7;
+    string correct_answer = 8;
+    int32 time_spent_seconds = 9;
+    int32 attempt_number = 10;
+    int32 hints_used = 11;
+    int32 points_awarded = 12;
+    DifficultyLevel difficulty = 13;
+    string strategy_detected = 14;           // AI-detected problem-solving strategy
+}
+
+// ============================================================================
+// SCORES & BENCHMARKS
+// ============================================================================
+
+// @PrimeObject
+// Aggregated score per student per skill or activity
+message Score {
+    string score_id = 1;
+    string student_id = 2;
+    string skill_id = 3;
+    string activity_id = 4;                  // Empty if skill-level aggregate
+    double score_value = 5;                  // 0.0-100.0
+    double percentile = 6;                   // Relative to peers
+    int64 scored_date = 7;
+    int32 questions_total = 8;
+    int32 questions_correct = 9;
+    int32 time_spent_seconds = 10;
+    map<string, string> custom_fields = 11;
+    l8common.AuditInfo audit_info = 12;
+}
+
+message ScoreList {
+    repeated Score list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// @PrimeObject
+// Periodic assessment (diagnostic, formative, summative)
+message Benchmark {
+    string benchmark_id = 1;
+    string name = 2;
+    BenchmarkType type = 3;
+    SubjectType subject = 4;
+    GradeLevel grade_level = 5;
+    ContentStatus status = 6;
+    repeated string skill_ids = 7;           // Skills assessed
+    repeated string activity_ids = 8;        // Activities included
+    int32 time_limit_minutes = 9;            // 0 = untimed
+    int32 passing_score = 10;                // Minimum score to pass (0-100)
+    map<string, string> custom_fields = 11;
+    l8common.AuditInfo audit_info = 12;
+}
+
+message BenchmarkList {
+    repeated Benchmark list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// ============================================================================
+// WORKSHEET SCANNING — AI-powered grading of printed worksheets
+// ============================================================================
+
+// @PrimeObject
+// One scan job per worksheet per student
+message WorksheetScan {
+    string scan_id = 1;
+    string worksheet_id = 2;
+    string student_id = 3;                   // Resolved from name on page or teacher assignment
+    string teacher_id = 4;                   // Who initiated the scan
+    ScanStatus status = 5;
+
+    // Input
+    string image_path = 6;                   // Scanned image via Layer8FileUpload
+    string image_format = 7;                 // "jpeg", "png", "pdf"
+
+    // AI extraction results
+    string detected_student_name = 8;        // Name read from the worksheet header
+    double extraction_confidence = 9;        // Overall confidence 0.0-1.0
+    repeated ScannedAnswer answers = 10;     // Embedded child
+
+    // Scoring
+    int32 auto_graded_count = 11;
+    int32 flagged_count = 12;
+    int32 correct_count = 13;
+    int32 total_questions = 14;
+    double score_percent = 15;
+    bool fed_to_mastery = 16;                // Scores fed back to SkillMastery
+
+    map<string, string> custom_fields = 17;
+    l8common.AuditInfo audit_info = 18;
+}
+
+message WorksheetScanList {
+    repeated WorksheetScan list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of WorksheetScan
+message ScannedAnswer {
+    string question_id = 1;
+    int32 question_number = 2;
+    string extracted_text = 3;               // What the AI read from the scan
+    string correct_answer = 4;
+    InteractionResult result = 5;            // CORRECT, INCORRECT, or UNSPECIFIED (flagged)
+    double confidence = 6;                   // Per-answer extraction confidence
+    bool needs_review = 7;                   // Flagged for teacher
+    string teacher_override = 8;             // Teacher's manual answer (if reviewed)
+    string crop_image_path = 9;              // Cropped image of just this answer area
+    string ai_reasoning = 10;                // Why AI graded it this way (e.g., "1 1/4 = 5/4, equivalent")
+}

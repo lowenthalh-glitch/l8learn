@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L8Learn — Parent</title>
+    <link rel="stylesheet" href="guardian/css/guardian.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="portal-header">
+            <div class="portal-brand">L8Learn</div>
+            <nav class="portal-nav">
+                <a class="nav-tab active" data-section="family">Family</a>
+                <a class="nav-tab" data-section="progress">Progress</a>
+                <a class="nav-tab" data-section="schedule">Schedule</a>
+                <a class="nav-tab" data-section="compliance">Compliance</a>
+                <a class="nav-tab" data-section="activities">Activities</a>
+            </nav>
+            <div class="portal-user">
+                <span id="guardian-name"></span>
+                <button id="btn-logout">Logout</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="portal-main">
+            <!-- Family Overview -->
+            <section class="portal-section active" data-section="family">
+                <h2>My Family</h2>
+                <div class="children-grid" id="children-grid">
+                    <!-- Rendered by JS: card per child with today's progress -->
+                </div>
+
+                <!-- AI Coach Tip of the Day -->
+                <div class="card coach-card">
+                    <h3>Today's Tip</h3>
+                    <p id="coach-tip">Loading...</p>
+                </div>
+            </section>
+
+            <!-- Progress Reports -->
+            <section class="portal-section" data-section="progress">
+                <h2>Progress</h2>
+                <div class="child-selector" id="child-selector">
+                    <!-- Rendered: tabs per child -->
+                </div>
+                <div class="card">
+                    <h3>Mastery Overview</h3>
+                    <div id="mastery-chart">
+                        <!-- Skills mastery visualization -->
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Growth</h3>
+                    <div id="growth-summary">
+                        <!-- Growth vs expected, trend -->
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>AI Summary</h3>
+                    <p id="ai-progress-summary"></p>
+                </div>
+            </section>
+
+            <!-- Daily Schedule -->
+            <section class="portal-section" data-section="schedule">
+                <h2>Today's Schedule</h2>
+                <div class="schedule-controls">
+                    <label>Parent energy: </label>
+                    <select id="parent-energy">
+                        <option value="high">High — hands-on activities</option>
+                        <option value="medium" selected>Medium — mix of guided and independent</option>
+                        <option value="low">Low — mostly independent digital</option>
+                    </select>
+                    <button class="btn-primary" id="btn-generate-schedule">Generate Schedule</button>
+                </div>
+                <div class="schedule-timeline" id="schedule-timeline">
+                    <!-- Rendered: time blocks for all children -->
+                </div>
+            </section>
+
+            <!-- State Compliance -->
+            <section class="portal-section" data-section="compliance">
+                <h2>Compliance</h2>
+                <div class="compliance-summary" id="compliance-summary">
+                    <div class="card">
+                        <h3>Instruction Hours</h3>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="hours-bar"></div>
+                        </div>
+                        <p id="hours-text">0 / 0 hours</p>
+                    </div>
+                    <div class="card">
+                        <h3>Subjects Covered</h3>
+                        <div id="subjects-checklist"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Upcoming Deadlines</h3>
+                        <div id="deadlines-list"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <button class="btn-primary" id="btn-download-portfolio">Download Portfolio PDF</button>
+                </div>
+            </section>
+
+            <!-- Family Activities & Real-World -->
+            <section class="portal-section" data-section="activities">
+                <h2>Activities</h2>
+                <div class="activity-tabs">
+                    <button class="tab-btn active" data-tab="family">Family Activities</button>
+                    <button class="tab-btn" data-tab="realworld">Real-World Lessons</button>
+                    <button class="tab-btn" data-tab="projects">Projects</button>
+                </div>
+                <div class="tab-content active" data-tab="family" id="family-activities-list">
+                    <!-- AI-suggested family activities based on children's current skills -->
+                </div>
+                <div class="tab-content" data-tab="realworld" id="realworld-list">
+                    <!-- Real-world lessons: grocery, cooking, nature, etc. -->
+                </div>
+                <div class="tab-content" data-tab="projects" id="projects-list">
+                    <!-- Multi-week projects with milestone tracking -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="guardian/js/guardian-config.js"></script>
+    <script src="guardian/js/guardian-app.js"></script>
+</body>
+</html>

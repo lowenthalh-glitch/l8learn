@@ -1,0 +1,210 @@
+syntax = "proto3";
+package learn;
+option go_package = "./types/learn";
+import "l8common.proto";
+import "api.proto";
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum MasteryLevel {
+    MASTERY_LEVEL_UNSPECIFIED = 0;
+    MASTERY_LEVEL_NOT_STARTED = 1;
+    MASTERY_LEVEL_EMERGING = 2;              // <40% — beginning to understand
+    MASTERY_LEVEL_DEVELOPING = 3;            // 40-60% — partial understanding
+    MASTERY_LEVEL_PROFICIENT = 4;            // 60-80% — solid understanding
+    MASTERY_LEVEL_MASTERED = 5;              // 80-95% — strong command
+    MASTERY_LEVEL_EXEMPLARY = 6;             // >95% — can teach others
+}
+
+enum PathStatus {
+    PATH_STATUS_UNSPECIFIED = 0;
+    PATH_STATUS_ACTIVE = 1;
+    PATH_STATUS_PAUSED = 2;
+    PATH_STATUS_COMPLETED = 3;
+}
+
+enum AdaptRuleStatus {
+    ADAPT_RULE_STATUS_UNSPECIFIED = 0;
+    ADAPT_RULE_STATUS_DRAFT = 1;
+    ADAPT_RULE_STATUS_ACTIVE = 2;
+    ADAPT_RULE_STATUS_DISABLED = 3;
+}
+
+enum AdaptStrategy {
+    ADAPT_STRATEGY_UNSPECIFIED = 0;
+    ADAPT_STRATEGY_REPEAT = 1;              // Repeat same skill, easier difficulty
+    ADAPT_STRATEGY_SCAFFOLD = 2;            // Break skill into sub-skills
+    ADAPT_STRATEGY_ALTERNATE = 3;           // Try different activity type
+    ADAPT_STRATEGY_REVIEW = 4;              // Go back to prerequisite skill
+    ADAPT_STRATEGY_ADVANCE = 5;             // Move to next skill
+    ADAPT_STRATEGY_ENRICH = 6;              // Challenge with harder problems
+    ADAPT_STRATEGY_BREAK = 7;               // Switch to engagement activity (game)
+}
+
+enum AdaptTrigger {
+    ADAPT_TRIGGER_UNSPECIFIED = 0;
+    ADAPT_TRIGGER_SCORE_BELOW = 1;          // Score dropped below threshold
+    ADAPT_TRIGGER_SCORE_ABOVE = 2;          // Score rose above threshold
+    ADAPT_TRIGGER_STREAK_CORRECT = 3;       // N correct in a row
+    ADAPT_TRIGGER_STREAK_INCORRECT = 4;     // N incorrect in a row
+    ADAPT_TRIGGER_TIME_EXCEEDED = 5;        // Spent too long on activity
+    ADAPT_TRIGGER_TIME_TOO_FAST = 6;        // Completed suspiciously fast (guessing?)
+    ADAPT_TRIGGER_HINTS_EXHAUSTED = 7;      // Used all available hints
+    ADAPT_TRIGGER_ENGAGEMENT_DROP = 8;      // Engagement signals declining
+    ADAPT_TRIGGER_SESSION_DURATION = 9;     // Session length threshold
+    ADAPT_TRIGGER_MASTERY_ACHIEVED = 10;    // Skill mastery level reached target
+}
+
+// ============================================================================
+// SKILL GRAPH
+// ============================================================================
+
+// @PrimeObject
+// Skill represents a node in the knowledge graph
+message Skill {
+    string skill_id = 1;
+    string name = 2;
+    string description = 3;
+    SubjectType subject = 4;
+    GradeLevel grade_level = 5;
+    string domain = 6;                       // "Number Sense", "Geometry", "Phonics"
+    string subdomain = 7;                    // "Fractions", "Angles", "Blends"
+    repeated string prerequisite_skill_ids = 8;
+    repeated string standard_ids = 9;        // Common Core / state standard codes
+    int32 typical_mastery_minutes = 10;      // Expected time to mastery
+    map<string, string> custom_fields = 11;
+    l8common.AuditInfo audit_info = 12;
+}
+
+message SkillList {
+    repeated Skill list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// ============================================================================
+// STUDENT MASTERY
+// ============================================================================
+
+// @PrimeObject
+// One record per student per skill
+message SkillMastery {
+    string mastery_id = 1;
+    string student_id = 2;
+    string skill_id = 3;
+    MasteryLevel level = 4;
+    double confidence = 5;                   // 0.0-1.0 statistical confidence
+    int32 attempts_count = 6;
+    int32 correct_count = 7;
+    double current_accuracy = 8;             // Rolling accuracy (last 10 attempts)
+    int64 first_attempted = 9;
+    int64 last_attempted = 10;
+    int64 mastered_date = 11;                // 0 if not yet mastered
+    int32 total_time_seconds = 12;
+    repeated MasterySnapshot history = 13;   // Embedded child: periodic snapshots
+    map<string, string> custom_fields = 14;
+    l8common.AuditInfo audit_info = 15;
+}
+
+message SkillMasteryList {
+    repeated SkillMastery list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of SkillMastery
+message MasterySnapshot {
+    int64 timestamp = 1;
+    MasteryLevel level = 2;
+    double accuracy = 3;
+    int32 attempts_in_period = 4;
+}
+
+// ============================================================================
+// LEARNING PATHS
+// ============================================================================
+
+// @PrimeObject
+// The AI-managed learning journey for one student in one subject
+message LearningPath {
+    string path_id = 1;
+    string student_id = 2;
+    SubjectType subject = 3;
+    GradeLevel target_grade = 4;
+    PathStatus status = 5;
+    string current_activity_id = 6;          // What the student should do next
+    string current_skill_id = 7;
+    DifficultyLevel current_difficulty = 8;
+    int32 activities_completed = 9;
+    int32 skills_mastered = 10;
+    int32 total_time_seconds = 11;
+    int64 started_date = 12;
+    int64 last_active = 13;
+    repeated PathStep upcoming_queue = 14;   // Embedded: next N activities planned
+    repeated AdaptationLog adaptation_log = 15; // Embedded: why AI chose each step
+    map<string, string> custom_fields = 16;
+    l8common.AuditInfo audit_info = 17;
+}
+
+message LearningPathList {
+    repeated LearningPath list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of LearningPath
+message PathStep {
+    string activity_id = 1;
+    string skill_id = 2;
+    DifficultyLevel difficulty = 3;
+    string reason = 4;                       // Why this step was chosen
+    int32 sequence = 5;
+}
+
+// Embedded child of LearningPath
+message AdaptationLog {
+    int64 timestamp = 1;
+    AdaptTrigger trigger = 2;
+    AdaptStrategy strategy = 3;
+    string from_activity_id = 4;
+    string to_activity_id = 5;
+    string reasoning = 6;                    // AI explanation of the decision
+}
+
+// ============================================================================
+// ADAPTATION RULES
+// ============================================================================
+
+// @PrimeObject
+// Configurable rules that guide the adaptive engine
+message AdaptationRule {
+    string rule_id = 1;
+    string name = 2;
+    string description = 3;
+    AdaptRuleStatus status = 4;
+    int32 priority = 5;                      // Lower = higher priority
+
+    // Scope
+    SubjectType subject_filter = 6;          // 0 = all subjects
+    GradeLevel grade_filter = 7;             // 0 = all grades
+
+    // Trigger conditions
+    AdaptTrigger trigger = 8;
+    int32 trigger_threshold = 9;             // e.g., score < 40, streak >= 5
+    int32 trigger_window = 10;               // Number of recent attempts to evaluate
+
+    // Response
+    AdaptStrategy strategy = 11;
+    DifficultyLevel target_difficulty = 12;  // 0 = relative adjustment
+
+    // Limits
+    int32 max_applications_per_session = 13;
+    int32 cooldown_seconds = 14;
+
+    map<string, string> custom_fields = 15;
+    l8common.AuditInfo audit_info = 16;
+}
+
+message AdaptationRuleList {
+    repeated AdaptationRule list = 1;
+    l8api.L8MetaData metadata = 2;
+}

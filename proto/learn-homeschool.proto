@@ -1,0 +1,308 @@
+syntax = "proto3";
+package learn;
+option go_package = "./types/learn";
+import "l8common.proto";
+import "api.proto";
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum ComplianceType {
+    COMPLIANCE_TYPE_UNSPECIFIED = 0;
+    COMPLIANCE_TYPE_NOTIFICATION = 1;        // Must notify district of intent to homeschool
+    COMPLIANCE_TYPE_ATTENDANCE_LOG = 2;       // Must track days/hours of instruction
+    COMPLIANCE_TYPE_PORTFOLIO_REVIEW = 3;     // Annual portfolio reviewed by evaluator
+    COMPLIANCE_TYPE_STANDARDIZED_TEST = 4;    // Must take state standardized test
+    COMPLIANCE_TYPE_SUBJECT_COVERAGE = 5;     // Must cover specific subjects
+    COMPLIANCE_TYPE_PROGRESS_REPORT = 6;      // Must submit progress reports to district
+    COMPLIANCE_TYPE_INSTRUCTOR_QUAL = 7;      // Parent must meet qualification requirements
+}
+
+enum RealWorldContext {
+    REAL_WORLD_CONTEXT_UNSPECIFIED = 0;
+    REAL_WORLD_CONTEXT_GROCERY = 1;
+    REAL_WORLD_CONTEXT_COOKING = 2;
+    REAL_WORLD_CONTEXT_NATURE_WALK = 3;
+    REAL_WORLD_CONTEXT_ROAD_TRIP = 4;
+    REAL_WORLD_CONTEXT_MUSEUM = 5;
+    REAL_WORLD_CONTEXT_LIBRARY = 6;
+    REAL_WORLD_CONTEXT_GARDEN = 7;
+    REAL_WORLD_CONTEXT_BUILDING = 8;
+    REAL_WORLD_CONTEXT_SHOPPING = 9;
+    REAL_WORLD_CONTEXT_SPORTS = 10;
+}
+
+// ============================================================================
+// FAMILY (Service Area 20)
+// ============================================================================
+
+// @PrimeObject
+// Family unit linking guardians and students for multi-child management
+message Family {
+    string family_id = 1;
+    string name = 2;                         // "The Martinez Family"
+    repeated string guardian_ids = 3;
+    repeated string student_ids = 4;
+    string primary_guardian_id = 5;
+    string state_code = 6;                   // For compliance rules
+    string timezone = 7;
+    string language_preference = 8;
+    map<string, string> custom_fields = 9;
+    l8common.AuditInfo audit_info = 10;
+}
+
+message FamilyList {
+    repeated Family list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// ============================================================================
+// STATE COMPLIANCE (Service Area 20)
+// ============================================================================
+
+// @PrimeObject
+// Tracks homeschool legal compliance per state per family per year
+message StateCompliance {
+    string compliance_id = 1;
+    string family_id = 2;
+    string state_code = 3;                   // "CA", "TX", "NY"
+    string academic_year = 4;
+
+    // Requirements for this state
+    repeated ComplianceRequirement requirements = 5;  // Embedded child
+
+    // Auto-tracked from session data
+    int32 instruction_days_logged = 6;
+    int32 instruction_days_required = 7;
+    int32 instruction_hours_logged = 8;
+    int32 instruction_hours_required = 9;
+    repeated SubjectType subjects_covered = 10;
+    repeated SubjectType subjects_required = 11;
+
+    // Status
+    bool notification_filed = 12;
+    int64 notification_date = 13;
+    bool portfolio_submitted = 14;
+    int64 portfolio_date = 15;
+    int64 next_deadline = 16;
+    string next_action = 17;                 // "File annual assessment by June 30"
+
+    // Auto-generated portfolio
+    string portfolio_path = 18;              // Generated PDF via Layer8FileUpload
+
+    map<string, string> custom_fields = 19;
+    l8common.AuditInfo audit_info = 20;
+}
+
+message StateComplianceList {
+    repeated StateCompliance list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of StateCompliance
+message ComplianceRequirement {
+    ComplianceType type = 1;
+    string description = 2;
+    int64 deadline = 3;
+    bool satisfied = 4;
+    string evidence_path = 5;                // Stored document via Layer8FileUpload
+}
+
+// ============================================================================
+// LEARNING PODS (Service Area 20)
+// ============================================================================
+
+// @PrimeObject
+// Homeschool co-op / learning pod (3-5 families learning together)
+message LearningPod {
+    string pod_id = 1;
+    string name = 2;                         // "Elm Street Learning Pod"
+    repeated string family_ids = 3;
+    string organizer_guardian_id = 4;
+    string meeting_schedule = 5;             // "Tuesdays and Thursdays 10am-12pm"
+    string location = 6;
+    repeated string shared_course_ids = 7;
+    repeated SubjectType pod_subjects = 8;
+    int32 total_students = 9;
+    map<string, string> custom_fields = 10;
+    l8common.AuditInfo audit_info = 11;
+}
+
+message LearningPodList {
+    repeated LearningPod list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// ============================================================================
+// FAMILY ACTIVITIES (Service Area 10)
+// ============================================================================
+
+// @PrimeObject
+// Sibling collaboration activities requiring multiple ages working together
+message FamilyActivity {
+    string family_activity_id = 1;
+    string name = 2;
+    string description = 3;
+    ActivityType activity_type = 4;
+
+    // Multi-child involvement
+    repeated StudentRole roles = 5;          // Embedded: what each child does
+
+    // Cross-subject integration
+    repeated SubjectType subjects_covered = 6;
+    repeated string skill_ids = 7;
+
+    // Logistics
+    int32 estimated_minutes = 8;
+    repeated string materials_needed = 9;
+    string location = 10;                    // "kitchen", "backyard", "living room"
+    bool requires_parent = 11;
+
+    GradeLevel min_grade = 12;
+    GradeLevel max_grade = 13;
+    ContentStatus status = 14;
+    map<string, string> custom_fields = 15;
+    l8common.AuditInfo audit_info = 16;
+}
+
+message FamilyActivityList {
+    repeated FamilyActivity list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of FamilyActivity
+message StudentRole {
+    string student_id = 1;
+    string role_description = 2;             // "Teacher: explain how to halve a recipe"
+    GradeLevel role_level = 3;               // Difficulty matched to this child
+    repeated string skill_ids = 4;           // What THIS child practices
+}
+
+// ============================================================================
+// REAL-WORLD LESSONS (Service Area 10)
+// ============================================================================
+
+// @PrimeObject
+// Turns daily life (grocery trips, cooking, nature walks) into curriculum
+message RealWorldLesson {
+    string lesson_id = 1;
+    string name = 2;
+    RealWorldContext context = 3;
+    string description = 4;
+
+    // Pre-activity (instructions for parent)
+    string parent_instructions = 5;
+    repeated string materials_needed = 6;
+
+    // During activity (prompts/challenges)
+    repeated RealWorldChallenge challenges = 7;  // Embedded child
+
+    // Post-activity (logging back into the system)
+    repeated string skill_ids = 8;
+    repeated SubjectType subjects = 9;
+    GradeLevel min_grade = 10;
+    GradeLevel max_grade = 11;
+    int32 estimated_minutes = 12;
+    ContentStatus status = 13;
+    map<string, string> custom_fields = 14;
+    l8common.AuditInfo audit_info = 15;
+}
+
+message RealWorldLessonList {
+    repeated RealWorldLesson list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of RealWorldLesson
+message RealWorldChallenge {
+    string challenge_id = 1;
+    string prompt = 2;                       // "Estimate the total before checkout"
+    string skill_id = 3;
+    DifficultyLevel difficulty = 4;
+    string success_criteria = 5;             // "Within $2 of actual total"
+}
+
+// ============================================================================
+// PROJECT-BASED LEARNING (Service Area 10)
+// ============================================================================
+
+// @PrimeObject
+// Multi-week projects integrating multiple subjects
+message Project {
+    string project_id = 1;
+    string name = 2;                         // "Design a Garden"
+    string description = 3;
+    repeated SubjectType subjects = 4;
+    GradeLevel min_grade = 5;
+    GradeLevel max_grade = 6;
+    int32 estimated_weeks = 7;
+
+    repeated ProjectMilestone milestones = 8;  // Embedded child
+
+    // Cross-subject skill mapping
+    repeated string skill_ids = 9;
+    repeated string materials_needed = 10;
+    string budget_estimate = 11;             // "$15-25"
+    ContentStatus status = 12;
+    map<string, string> custom_fields = 13;
+    l8common.AuditInfo audit_info = 14;
+}
+
+message ProjectList {
+    repeated Project list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of Project
+message ProjectMilestone {
+    string milestone_id = 1;
+    int32 week_number = 2;
+    string title = 3;                        // "Week 2: Calculate area for each plant"
+    string description = 4;
+    SubjectType primary_subject = 5;
+    repeated string skill_ids = 6;
+    repeated string deliverables = 7;        // "Garden layout drawing", "Area calculations"
+    bool requires_photo = 8;                 // Parent uploads photo of real-world work
+}
+
+// ============================================================================
+// DAILY SCHEDULE (Service Area 30)
+// ============================================================================
+
+// @PrimeObject
+// AI-generated daily plan for the whole family
+message DailySchedule {
+    string schedule_id = 1;
+    string family_id = 2;
+    int64 schedule_date = 3;
+
+    repeated ScheduleBlock blocks = 4;       // Embedded: time-ordered blocks
+
+    // Context the AI used to generate this
+    int32 available_hours = 5;               // Parent said "we have 4 hours today"
+    string parent_energy = 6;                // "low", "medium", "high"
+    repeated string appointments = 7;        // "dentist at 2pm" — schedule around it
+    string weather = 8;                      // "sunny" → outdoor; "rainy" → indoor
+
+    map<string, string> custom_fields = 9;
+    l8common.AuditInfo audit_info = 10;
+}
+
+message DailyScheduleList {
+    repeated DailySchedule list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child of DailySchedule
+message ScheduleBlock {
+    string block_id = 1;
+    int32 start_minute = 2;                  // Minutes from midnight (540 = 9:00 AM)
+    int32 duration_minutes = 3;
+    string student_id = 4;                   // Empty = family activity
+    string activity_type = 5;                // "digital", "hands_on", "reading", "outdoor", "break", "sibling"
+    SubjectType subject = 6;
+    string description = 7;
+    string parent_role = 8;                  // "supervise", "teach", "none" (independent)
+    bool requires_parent = 9;
+}

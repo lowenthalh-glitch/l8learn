@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: learn
+  labels:
+    name: learn
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: learn
+  name: learn
+  labels:
+    app: learn
+spec:
+  serviceName: learn
+  replicas: 1
+  selector:
+    matchLabels:
+      app: learn
+  template:
+    metadata:
+      labels:
+        app: learn
+    spec:
+      containers:
+        - name: learn
+          image: saichler/learn:latest
+          imagePullPolicy: Always
+          env:
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+          volumeMounts:
+            - name: hdata
+              mountPath: /data
+      volumes:
+        - name: hdata
+          hostPath:
+            path: /data
+            type: DirectoryOrCreate
