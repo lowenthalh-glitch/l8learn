@@ -782,14 +782,77 @@ Return JSON: {"riskLevel":"ON_TRACK|WATCH|AT_RISK|CRITICAL",
 
 ## 6. Proto Import Map
 
-| File | Imports |
-|------|---------|
-| learn-profile.proto | l8common.proto, api.proto, learn-content.proto |
-| learn-llm.proto | l8common.proto, api.proto |
+| File | Imports | Why |
+|------|---------|-----|
+| learn-profile.proto | l8common.proto, api.proto | AuditInfo, L8MetaData. Does NOT need learn-content.proto — no shared types used |
+| learn-llm.proto | l8common.proto, api.proto | AuditInfo, L8MetaData |
 
 ---
 
-## 7. Traceability Matrix
+## 7. Pre-Implementation Checklist
+
+| Question | Answer |
+|----------|--------|
+| Canonical reference project? | `../l8vendingmachine` for service patterns, `../l8erp` for UI module structure |
+| How many new proto files? | 2 (learn-profile.proto, learn-llm.proto) |
+| Types shared across files? | None — both are independent |
+| Read-only services? | PromptLog (read-only in UI — created by engine, viewed by admin) |
+| Complex After hooks? | Profile (auto-update from mastery changes), PromptLog (PII scan on create) |
+| External L8 services needed? | l8agent (for LLM client pattern), l8events (audit logging) |
+| Service activation order? | Profile → LLMConfig → PromptLog (config must exist before logging starts) |
+| How many portals affected? | Admin (AI Monitor section), Guardian (coaching tip) |
+| What user sees Phase 1? | AI Monitor sidebar → prompt log table with Type, Student, PII, Tokens, Time columns |
+| Custom UI needed? | AI Monitor section (table + PII summary dashboard) |
+| Server port? | 2773 (with security config) or 4443 (without) |
+| CreateWebServer pattern? | Same as current l8learn UI — `common.CreateWebServer("web", ui.RegisterTypes)` |
+| VNet port? | 10005 (unchanged) |
+| API signatures to verify? | `l8c.RegisterType`, `common.ActivateService`, `NewValidation().Build()` |
+| l8ui module-factory-core.js? | Yes — already included in app.html |
+
+## 8. Type Registration (Phase 1 — BLOCKING)
+
+These MUST be added to the UI server type registration in the SAME phase as service creation:
+
+```go
+// In go/learn/ui/shared_students.go (add to existing function)
+l8c.RegisterType(resources, &learn.StudentProfile{}, &learn.StudentProfileList{}, "ProfileId")
+
+// In go/learn/ui/shared_adaptive.go (add to existing function)
+l8c.RegisterType(resources, &learn.LLMPromptLog{}, &learn.LLMPromptLogList{}, "LogId")
+l8c.RegisterType(resources, &learn.LLMConfig{}, &learn.LLMConfigList{}, "ConfigId")
+```
+
+Without these, the AI Monitor tables will show "Cannot find pb for method GET".
+
+## 9. API Signatures to Verify Before Writing Code
+
+Before implementing ANY Go code in this amendment, verify these signatures against `go/vendor/github.com/saichler/l8common/`:
+
+```bash
+# RegisterType signature
+grep -A3 "func RegisterType" go/vendor/github.com/saichler/l8common/go/common/*.go
+
+# ActivateService config
+grep -A10 "type ServiceConfig" go/vendor/github.com/saichler/l8common/go/common/*.go
+
+# NewValidation builder methods
+grep "func.*VB.*func" go/vendor/github.com/saichler/l8common/go/common/validation_builder.go | head -10
+
+# CreateResources signature
+grep -A3 "func CreateResources" go/vendor/github.com/saichler/l8common/go/common/*.go
+```
+
+Do NOT assume signatures from the PRD examples. Read the actual function. Then call it.
+
+## 10. Security — LLM API Credentials
+
+- Anthropic API key stored in security config JSON under `credentials.Anthropic.creds.API_KEY`
+- Follows existing pattern from `../l8secure/go/secure/plugin/learn/learn.json`
+- Key retrieved at runtime: `nic.Resources().Security().Credential("Anthropic", "API_KEY", resources)`
+- Only `admin` role can change `LLMConfig.mode` from SIMULATE to LIVE (security rules in learn.json)
+- All LLM calls logged to PromptLog regardless of mode (audit requirement)
+
+## 11. Traceability Matrix
 
 | # | Gap | Amendment Phase |
 |---|-----|----------------|
@@ -806,7 +869,7 @@ Return JSON: {"riskLevel":"ON_TRACK|WATCH|AT_RISK|CRITICAL",
 
 ---
 
-## 8. Compliance
+## 12. Compliance
 
 ### Data Safety
 - All prompts logged with PII scan results
