@@ -460,6 +460,7 @@ message LLMConfigList {
 | ServiceName | ServiceArea | PrimaryKey | Model |
 |-------------|:-----------:|------------|-------|
 | `Profile` | 20 | `ProfileId` | `StudentProfile` |
+| `EvalImprt` | 20 | `ImportId` | `EvalImport` |
 | `PromptLog` | 30 | `LogId` | `LLMPromptLog` |
 | `LLMConfig` | 30 | `ConfigId` | `LLMConfig` |
 
@@ -736,18 +737,263 @@ Return JSON: {"riskLevel":"ON_TRACK|WATCH|AT_RISK|CRITICAL",
               "recommendation":"..."}
 ```
 
+### 4.5 WORKSHEET_SCAN Profile Update Prompt
+
+When a scanned worksheet is graded, the AI also analyzes handwriting quality, work patterns, and error patterns to update the student's profile:
+
+```
+System: You are analyzing a scanned worksheet for learning insights.
+Beyond scoring right/wrong, analyze WHAT THE HANDWRITING AND WORK
+PATTERNS reveal about this student's development.
+
+Context:
+- Student profile: {masked_profile}
+- Worksheet: {subject}, {difficulty}, {question_count} questions
+- Extracted answers with confidence scores: {answer_list}
+- Handwriting analysis:
+  - Overall quality: {quality}
+  - Number/letter formation: {formation_notes}
+  - Size consistency: {consistency}
+  - Erasure count: {erasures}
+- Work pattern analysis:
+  - Scratch work visible: {yes/no}
+  - Strategy detected: {strategy}
+  - Completion pattern: {pattern}
+  - Problems skipped: {count}
+  - Quality degrades over time: {yes/no}
+
+Return JSON:
+{
+  "fine_motor_updates": { ... },
+  "math_updates": { ... },
+  "attention_updates": { ... },
+  "behavior_updates": { ... },
+  "learning_style_updates": { ... },
+  "insights": "narrative of what this worksheet reveals",
+  "recommendations": "what to adjust in the adaptive engine"
+}
+```
+
+What scanned worksheets reveal that digital activities cannot:
+
+| Paper Evidence | Insight | Profile Update |
+|---------------|---------|----------------|
+| Erasure marks | Child self-corrects — positive metacognition | `behavior.successful_supports` |
+| Scratch work (tally marks, drawings) | Problem-solving strategy | `math.preferred_tools`, `learning_style.preferred_modes` |
+| Handwriting degrades after Q3 | Attention stamina ~8 minutes for written work | `attention.focus_academic_task_minutes` |
+| Numbers 6/8 confused | Fine motor issue, not knowledge gap | `fine_motor.name_writing` |
+| Neat top, messy bottom, skipped end | Fatigue pattern | `adaptive_settings.maximum_activity_length_minutes` |
+| All errors off by same amount | Systematic error (skip-counting), not random | `math.error_patterns` |
+| Correct answers but terrible handwriting | Knows content, motor issue | Distinguishes `fine_motor` from `math` |
+
+#### Additional WorksheetScan Proto Fields
+
+Add to the existing `WorksheetScan` message:
+
+```protobuf
+// Add to existing WorksheetScan message
+HandwritingAnalysis handwriting = 19;
+WorkPatternAnalysis work_patterns = 20;
+string profile_insights = 21;
+string profile_recommendations = 22;
+repeated string profile_fields_updated = 23;
+
+// Embedded child of WorksheetScan
+message HandwritingAnalysis {
+    string overall_quality = 1;            // "pre-writing", "emerging", "developing", "proficient"
+    string letter_formation = 2;
+    string number_formation = 3;
+    string size_consistency = 4;           // "consistent", "degrades_over_time", "inconsistent"
+    string line_adherence = 5;
+    int32 erasure_count = 6;
+    repeated string confused_characters = 7;  // "6/8", "b/d", "p/q"
+}
+
+// Embedded child of WorksheetScan
+message WorkPatternAnalysis {
+    bool scratch_work_present = 1;
+    string strategy_detected = 2;          // "tally_marks", "number_line", "drawing", "mental"
+    string completion_pattern = 3;         // "complete", "front_loaded", "scattered", "abandoned"
+    int32 problems_skipped = 4;
+    int32 problems_with_erasures = 5;
+    bool quality_degrades = 6;
+    int32 estimated_focus_minutes = 7;
+}
+```
+
+---
+
+### 4.6 EVAL_IMPORT — Professional Evaluation PDF Import
+
+Professionals (speech therapists, occupational therapists, psychologists, reading specialists) produce evaluation PDFs. The AI reads these and maps findings to the student profile automatically, with guardian approval.
+
+#### What Professional PDFs Contain
+
+| Professional | PDF Contains | Maps To |
+|-------------|-------------|---------|
+| Speech therapist | Articulation scores, receptive/expressive language levels, therapy goals | `speech.clarity`, `speech.expressive_language`, `speech.current_goals` |
+| Occupational therapist | Fine motor scores, grip assessment, visual-motor, sensory processing | `fine_motor.pencil_grip`, `fine_motor.cutting`, `sensory.sensitivities` |
+| Psychologist (IEP) | Cognitive scores, processing speed, working memory, attention diagnosis | `attention`, `readiness.academic_readiness`, `adaptive_settings` |
+| Developmental pediatrician | Diagnosis, medication, sensory profile, behavior plan | `health.medical_conditions`, `sensory`, `behavior`, `therapy.services` |
+| Reading specialist | Reading level, phonemic awareness scores, fluency WPM | `literacy.reading_level`, `literacy.phonemic_awareness`, `literacy.reading_fluency_wpm` |
+| School psychologist | Social-emotional assessment, behavior intervention plan | `social_emotional`, `behavior.triggers`, `behavior.redirect_strategies` |
+
+#### LLM Prompt for Evaluation Import
+
+```
+System: You are extracting structured findings from a professional
+evaluation report for a student. Map every finding to the student
+profile schema. Only extract what is explicitly stated — do not infer.
+Flag any findings that contradict the current profile.
+
+Input:
+- PDF text content: {extracted_text}
+- Document type: {detected_type}
+- Current student profile: {masked_profile}
+
+Return JSON:
+{
+  "document_type": "speech_evaluation",
+  "professional": "Dr. Sarah Miller, SLP",
+  "evaluation_date": "2026-04-15",
+  "findings": [
+    {
+      "profile_section": "speech",
+      "profile_field": "expressive_language",
+      "current_value": "developing",
+      "new_value": "age_appropriate",
+      "source_text": "Expressive language skills are now within normal limits",
+      "confidence": 0.95
+    }
+  ],
+  "contradictions": [
+    {
+      "profile_field": "speech.clarity",
+      "current_value": "somewhat_clear",
+      "document_says": "clear in structured settings, unclear in conversation",
+      "recommendation": "Update to context-dependent value"
+    }
+  ],
+  "new_therapy_info": {
+    "service_type": "speech",
+    "provider_name": "Dr. Sarah Miller",
+    "frequency": "twice_weekly",
+    "therapy_goals": ["articulation /r/ carryover", "narrative sequencing"],
+    "home_practice": ["read aloud 10 min daily", "story retelling after dinner"]
+  }
+}
+```
+
+#### Guardian Approval Flow
+
+The AI extracts findings but the **guardian must approve** before the profile is updated:
+
+1. AI extracts findings → stores as PENDING
+2. Guardian receives notification: "New evaluation imported — review needed"
+3. Guardian sees each finding with source quote from the PDF
+4. For each finding: `[Accept]` `[Reject]` `[Edit]`
+5. Contradictions highlighted with AI recommendation
+6. On "Accept All" or individual accepts → StudentProfile updated
+7. All changes logged to l8events for audit trail
+8. Adaptive engine recalibrates with updated profile
+
+#### Protobuf
+
+```protobuf
+enum EvalDocumentType {
+    EVAL_DOCUMENT_TYPE_UNSPECIFIED = 0;
+    EVAL_DOCUMENT_TYPE_SPEECH = 1;
+    EVAL_DOCUMENT_TYPE_OCCUPATIONAL_THERAPY = 2;
+    EVAL_DOCUMENT_TYPE_PSYCHOLOGICAL = 3;
+    EVAL_DOCUMENT_TYPE_IEP = 4;
+    EVAL_DOCUMENT_TYPE_DEVELOPMENTAL = 5;
+    EVAL_DOCUMENT_TYPE_READING_SPECIALIST = 6;
+    EVAL_DOCUMENT_TYPE_BEHAVIORAL = 7;
+    EVAL_DOCUMENT_TYPE_MEDICAL = 8;
+    EVAL_DOCUMENT_TYPE_OTHER = 9;
+}
+
+enum EvalFindingStatus {
+    EVAL_FINDING_STATUS_UNSPECIFIED = 0;
+    EVAL_FINDING_STATUS_PENDING = 1;
+    EVAL_FINDING_STATUS_ACCEPTED = 2;
+    EVAL_FINDING_STATUS_REJECTED = 3;
+    EVAL_FINDING_STATUS_EDITED = 4;
+}
+
+// @PrimeObject
+message EvalImport {
+    string import_id = 1;
+    string student_id = 2;
+    string uploaded_by = 3;
+    EvalDocumentType document_type = 4;
+    string professional_name = 5;
+    int64 evaluation_date = 6;
+    string file_path = 7;               // Uploaded PDF via Layer8FileUpload
+
+    repeated EvalFinding findings = 8;
+    repeated EvalContradiction contradictions = 9;
+
+    bool all_reviewed = 10;
+    int32 accepted_count = 11;
+    int32 rejected_count = 12;
+    bool applied_to_profile = 13;
+
+    l8common.AuditInfo audit_info = 14;
+}
+
+message EvalImportList {
+    repeated EvalImport list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// Embedded child
+message EvalFinding {
+    string finding_id = 1;
+    string profile_section = 2;
+    string profile_field = 3;
+    string current_value = 4;
+    string new_value = 5;
+    string source_text = 6;
+    double confidence = 7;
+    EvalFindingStatus status = 8;
+    string edited_value = 9;
+}
+
+// Embedded child
+message EvalContradiction {
+    string profile_field = 1;
+    string current_value = 2;
+    string document_says = 3;
+    string ai_recommendation = 4;
+    EvalFindingStatus resolution = 5;
+}
+```
+
+#### Service
+
+| ServiceName | ServiceArea | PrimaryKey | Model |
+|-------------|:-----------:|------------|-------|
+| `EvalImprt` | 20 | `ImportId` | `EvalImport` |
+
+#### ServiceCallback
+
+- **After POST** (PDF uploaded): Read PDF text → detect document type → send to LLM (or simulator) with masked profile → store extracted findings as PENDING → notify guardian
+- **After PUT** (guardian reviewed): For each ACCEPTED/EDITED finding → update StudentProfile → update therapy services → mark `applied_to_profile = true` → log to l8events → trigger adaptive engine recalibration
+
 ---
 
 ## 5. Implementation Phases
 
-### Amendment Phase 1: Student Profile + LLM Infrastructure
-- Add `learn-profile.proto` and `learn-llm.proto`
+### Amendment Phase 1: Student Profile + LLM Infrastructure + Eval Import
+- Add `learn-profile.proto`, `learn-llm.proto`, and `learn-eval.proto`
 - Run `make-bindings.sh`
-- Create Profile, PromptLog, LLMConfig services
+- Create Profile, PromptLog, LLMConfig, EvalImport services
 - Create LLM Simulator with PII scanner
 - Create AI Monitor UI section (sidebar entry, prompt log table, PII summary)
 - Wire LLM Simulator into adaptive engine
-- **Verify**: Login → AI Monitor → see logged prompts with PII flags
+- Create Eval Import UI (upload PDF, review findings, accept/reject/edit flow)
+- **Verify**: Login → AI Monitor → see logged prompts with PII flags. Upload a sample evaluation PDF → see extracted findings → approve → profile updated
 
 ### Amendment Phase 2: Diagnostic Flow
 - Create diagnostic benchmark engine
@@ -786,6 +1032,7 @@ Return JSON: {"riskLevel":"ON_TRACK|WATCH|AT_RISK|CRITICAL",
 |------|---------|-----|
 | learn-profile.proto | l8common.proto, api.proto | AuditInfo, L8MetaData. Does NOT need learn-content.proto — no shared types used |
 | learn-llm.proto | l8common.proto, api.proto | AuditInfo, L8MetaData |
+| learn-eval.proto | l8common.proto, api.proto | AuditInfo, L8MetaData. References EvalDocumentType and EvalFindingStatus (defined in same file) |
 
 ---
 
@@ -816,6 +1063,7 @@ These MUST be added to the UI server type registration in the SAME phase as serv
 ```go
 // In go/learn/ui/shared_students.go (add to existing function)
 l8c.RegisterType(resources, &learn.StudentProfile{}, &learn.StudentProfileList{}, "ProfileId")
+l8c.RegisterType(resources, &learn.EvalImport{}, &learn.EvalImportList{}, "ImportId")
 
 // In go/learn/ui/shared_adaptive.go (add to existing function)
 l8c.RegisterType(resources, &learn.LLMPromptLog{}, &learn.LLMPromptLogList{}, "LogId")
@@ -866,6 +1114,9 @@ Do NOT assume signatures from the PRD examples. Read the actual function. Then c
 | 8 | Risk prediction is CRUD only | Phase 5 |
 | 9 | Computed analytics don't compute | Phase 5 |
 | 10 | No cost controls for LLM | Phase 1 (config) → Phase 6 (enforcement) |
+| 11 | Worksheet scans don't update student profile | Phase 1 (handwriting + work pattern analysis in scan callback) |
+| 12 | No professional evaluation import | Phase 1 (EvalImport service, PDF extraction, guardian approval flow) |
+| 13 | Existing readOnly configs broken (svc() misuse) | Fixed (committed) |
 
 ---
 
