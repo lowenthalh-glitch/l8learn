@@ -18,4 +18,6 @@ func registerAdaptiveTypes(resources ifs.IResources) {
 	l8c.RegisterType(resources, &learn.Skill{}, &learn.SkillList{}, "SkillId")
 	l8c.RegisterType(resources, &learn.AdaptationRule{}, &learn.AdaptationRuleList{}, "RuleId")
 	l8c.RegisterType(resources, &learn.DailySchedule{}, &learn.DailyScheduleList{}, "ScheduleId")
+	l8c.RegisterType(resources, &learn.LLMPromptLog{}, &learn.LLMPromptLogList{}, "LogId")
+	l8c.RegisterType(resources, &learn.LLMConfig{}, &learn.LLMConfigList{}, "ConfigId")
 }

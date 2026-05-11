@@ -23,4 +23,6 @@ func registerStudentTypes(resources ifs.IResources) {
 	l8c.RegisterType(resources, &learn.Family{}, &learn.FamilyList{}, "FamilyId")
 	l8c.RegisterType(resources, &learn.StateCompliance{}, &learn.StateComplianceList{}, "ComplianceId")
 	l8c.RegisterType(resources, &learn.LearningPod{}, &learn.LearningPodList{}, "PodId")
+	l8c.RegisterType(resources, &learn.StudentProfile{}, &learn.StudentProfileList{}, "ProfileId")
+	l8c.RegisterType(resources, &learn.EvalImport{}, &learn.EvalImportList{}, "ImportId")
 }

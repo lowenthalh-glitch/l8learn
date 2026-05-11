@@ -6,8 +6,10 @@
 package services
 
 import (
+	"github.com/saichler/l8learn/go/learn/adaptive/llmconfig"
 	"github.com/saichler/l8learn/go/learn/adaptive/mastery"
 	"github.com/saichler/l8learn/go/learn/adaptive/paths"
+	"github.com/saichler/l8learn/go/learn/adaptive/promptlogs"
 	"github.com/saichler/l8learn/go/learn/adaptive/rules"
 	"github.com/saichler/l8learn/go/learn/adaptive/schedules"
 	"github.com/saichler/l8learn/go/learn/adaptive/skills"
@@ -21,5 +23,7 @@ func collectAdaptiveActivations(creds, dbname string, nic ifs.IVNic) []func() {
 		func() { paths.Activate(creds, dbname, nic) },
 		func() { rules.Activate(creds, dbname, nic) },
 		func() { schedules.Activate(creds, dbname, nic) },
+		func() { promptlogs.Activate(creds, dbname, nic) },
+		func() { llmconfig.Activate(creds, dbname, nic) },
 	}
 }
