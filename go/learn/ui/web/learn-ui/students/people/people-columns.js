@@ -49,6 +49,25 @@ Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
             ...col.id('districtId'),
             ...col.col('name', 'Name'),
             ...col.col('stateProvince', 'State/Province')
+        ],
+        StudentProfile: [
+            ...col.id('profileId'),
+            ...col.col('studentId', 'Student'),
+            ...col.col('overallDescription', 'Description'),
+            ...col.number('readiness.academicReadiness', 'Academic'),
+            ...col.number('readiness.readingReadiness', 'Reading'),
+            ...col.number('readiness.mathReadiness', 'Math'),
+            ...col.date('lastUpdated', 'Last Updated')
+        ],
+        EvalImport: [
+            ...col.id('importId'),
+            ...col.col('studentId', 'Student'),
+            ...col.enum('documentType', 'Type', null, render.evalDocType),
+            ...col.col('professionalName', 'Professional'),
+            ...col.date('evaluationDate', 'Eval Date'),
+            ...col.boolean('allReviewed', 'Reviewed'),
+            ...col.number('acceptedCount', 'Accepted'),
+            ...col.number('rejectedCount', 'Rejected')
         ]
     };
 })();

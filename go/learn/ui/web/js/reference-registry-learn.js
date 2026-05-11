@@ -23,6 +23,10 @@
         ...ref.simple('LearningPath', 'pathId', 'pathId', 'Path'),
         ...ref.simple('Benchmark', 'benchmarkId', 'name', 'Benchmark'),
         ...ref.simple('CollabGroup', 'groupId', 'name', 'Group'),
-        ...ref.simple('Challenge', 'challengeId', 'name', 'Challenge')
+        ...ref.simple('Challenge', 'challengeId', 'name', 'Challenge'),
+        ...ref.simple('StudentProfile', 'profileId', 'profileId', 'Profile'),
+        ...ref.simple('EvalImport', 'importId', 'professionalName', 'Evaluation'),
+        ...ref.simple('LLMPromptLog', 'logId', 'logId', 'Prompt Log'),
+        ...ref.simple('LLMConfig', 'configId', 'configId', 'LLM Config')
     });
 })();

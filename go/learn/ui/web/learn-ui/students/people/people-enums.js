@@ -120,12 +120,36 @@ Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
         teacherRole: createStatusRenderer(TEACHER_ROLE, TEACHER_ROLE_CLASSES)
     };
 
+    var EVAL_DOC_TYPE = {
+        0: 'Unknown', 1: 'Speech', 2: 'Occupational Therapy', 3: 'Psychological',
+        4: 'IEP', 5: 'Developmental', 6: 'Reading Specialist', 7: 'Behavioral',
+        8: 'Medical', 9: 'Other'
+    };
+
+    var EVAL_FINDING_STATUS = {
+        0: 'Unknown', 1: 'Pending', 2: 'Accepted', 3: 'Rejected', 4: 'Edited'
+    };
+
+    var EVAL_FINDING_CLASSES = {
+        1: 'layer8d-status-pending', 2: 'layer8d-status-active',
+        3: 'layer8d-status-inactive', 4: 'layer8d-status-pending'
+    };
+
+    StudentsPeople.enums.EVAL_DOC_TYPE = EVAL_DOC_TYPE;
+    StudentsPeople.enums.EVAL_FINDING_STATUS = EVAL_FINDING_STATUS;
+    StudentsPeople.enums.EVAL_FINDING_CLASSES = EVAL_FINDING_CLASSES;
+
+    StudentsPeople.render.evalDocType = function(v) { return EVAL_DOC_TYPE[v] || v; };
+    StudentsPeople.render.evalFindingStatus = Layer8DRenderers.createStatusRenderer(EVAL_FINDING_STATUS, EVAL_FINDING_CLASSES);
+
     StudentsPeople.primaryKeys = {
         Student: 'studentId',
+        StudentProfile: 'profileId',
         Guardian: 'guardianId',
         Teacher: 'teacherId',
         Classroom: 'classroomId',
         School: 'schoolId',
-        District: 'districtId'
+        District: 'districtId',
+        EvalImport: 'importId'
     };
 })();

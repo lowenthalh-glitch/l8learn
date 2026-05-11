@@ -10,6 +10,7 @@ var sections = {
     analytics: 'sections/analytics.html',
     history: 'sections/history.html',
     collab: 'sections/collab.html',
+    aimonitor: 'sections/aimonitor.html',
     system: 'sections/system.html'
 };
 
@@ -21,6 +22,7 @@ var sectionInitializers = {
     analytics: function() { if (typeof initializeAnalytics === 'function') initializeAnalytics(); },
     history: function() { if (typeof initializeHistory === 'function') initializeHistory(); },
     collab: function() { if (typeof initializeCollab === 'function') initializeCollab(); },
+    aimonitor: function() { if (typeof initializeAIMonitor === 'function') initializeAIMonitor(); },
     system: function() { if (typeof initializeL8Sys === 'function') initializeL8Sys(); }
 };
 
