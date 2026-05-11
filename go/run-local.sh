@@ -58,7 +58,7 @@ echo "All services started! Logs: demo/demo.log"
 # Upload mock data
 EXTERNAL_IP=$(ip route get 1.1.1.1 | grep -oP 'src \K[0-9.]+')
 read -p "Press Enter to upload mocks"
-./mocks_demo --address https://${EXTERNAL_IP}:2773 --user admin --password admin --insecure 2>&1 | tee -a $LOGFILE
+./mocks_demo --address https://${EXTERNAL_IP}:4443 --user admin --password admin --insecure 2>&1 | tee -a $LOGFILE
 
 read -p "Press Enter to kill the demo"
 ./kill_demo.sh
