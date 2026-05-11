@@ -315,6 +315,20 @@ body {
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+/* Diagnostic Flow */
+.diagnostic-welcome, .diagnostic-skill-intro, .diagnostic-results, .diagnostic-question {
+    text-align: center;
+    padding: 40px 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+.diagnostic-welcome h1, .diagnostic-results h1 { font-size: 2rem; margin-bottom: 16px; }
+.diagnostic-reassurance { color: var(--player-primary); font-weight: 600; font-size: 1.1rem; margin: 20px 0; }
+.diagnostic-progress { font-size: 0.85rem; color: var(--player-text-light); margin-bottom: 16px; }
+.diagnostic-skill-intro h2 { font-size: 1.6rem; margin-bottom: 12px; }
+.diagnostic-loading { padding: 60px; text-align: center; }
+.diagnostic-question .option-list { text-align: left; max-width: 400px; margin: 20px auto; }
+
 /* Tablet/Desktop adjustments */
 @media (min-width: 768px) {
     .activity-content { padding: 40px; }

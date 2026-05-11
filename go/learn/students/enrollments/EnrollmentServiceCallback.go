@@ -43,10 +43,19 @@ func onEnrollmentChange(elem interface{}, action ifs.Action, notify bool, vnic i
 			}
 
 		case learn.EnrollmentStatus_ENROLLMENT_STATUS_ACTIVE:
+			// Student activated — trigger onboarding:
 			// 1. Create student login via ISecurityProvider
 			// 2. Assign "student" role
-			// 3. Create initial LearningPaths (one per configured subject)
-			// 4. Schedule diagnostic benchmark
+			// 3. Create empty StudentProfile (to be populated by diagnostic)
+			// 4. Mark enrollment.DiagnosticComplete = false
+			// 5. On first student login, student player checks DiagnosticComplete
+			//    and triggers the diagnostic flow if false
+			// 6. After diagnostic completes:
+			//    a. SkillMastery records created from diagnostic results
+			//    b. StudentProfile.readiness populated
+			//    c. LearningPaths created (one per subject)
+			//    d. enrollment.DiagnosticComplete = true
+			//    e. PATH_DECISION prompt logged to PromptLog
 			// 5. Notify teacher: "Student has been activated"
 			// 6. Notify guardian: "Account is ready"
 		}

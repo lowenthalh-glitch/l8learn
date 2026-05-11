@@ -53,9 +53,23 @@
         dom.btnDone.addEventListener('click', onDone);
     }
 
-    function showWelcome() {
+    async function showWelcome() {
         var name = PlayerConfig.studentName || 'Learner';
         dom.playerName.textContent = name;
+
+        // Check if diagnostic is needed (first login)
+        if (window.PlayerDiagnostic) {
+            var needsDiag = await PlayerDiagnostic.needsDiagnostic();
+            if (needsDiag) {
+                hide(dom.welcomeScreen);
+                hide(dom.activityContainer);
+                hide(dom.completeScreen);
+                var mainEl = document.querySelector('.player-main');
+                PlayerDiagnostic.start(mainEl);
+                return;
+            }
+        }
+
         dom.welcomeGreeting.textContent = getGreeting() + ', ' + name + '!';
         dom.welcomeMessage.textContent = "Ready to learn something awesome today?";
         show(dom.welcomeScreen);
