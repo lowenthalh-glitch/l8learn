@@ -1,0 +1,87 @@
+syntax = "proto3";
+package learn;
+option go_package = "./types/learn";
+import "l8common.proto";
+import "api.proto";
+import "learn-content.proto";
+
+// ============================================================================
+// AI-GENERATED LESSONS
+// ============================================================================
+
+enum GeneratedLessonStatus {
+    GENERATED_LESSON_STATUS_UNSPECIFIED = 0;
+    GENERATED_LESSON_STATUS_GENERATING = 1;
+    GENERATED_LESSON_STATUS_READY = 2;
+    GENERATED_LESSON_STATUS_IN_PROGRESS = 3;
+    GENERATED_LESSON_STATUS_COMPLETED = 4;
+    GENERATED_LESSON_STATUS_SKIPPED = 5;
+}
+
+// @PrimeObject
+message GeneratedLesson {
+    string generated_lesson_id = 1;
+    string student_id = 2;
+    string path_id = 3;
+    GeneratedLessonStatus status = 4;
+    repeated string skill_ids = 5;
+    SubjectType subject = 6;
+    DifficultyLevel difficulty = 7;
+    string topic = 8;
+    string theme = 9;
+    string title = 10;
+    string objective = 11;
+    repeated LessonStep steps = 12;
+    repeated string materials_needed = 13;
+    int32 estimated_minutes = 14;
+    string parent_instructions = 15;
+    string worksheet_content = 16;
+    string worksheet_pdf_path = 17;
+    int32 min_correct_to_advance = 18;
+    int32 min_correct_to_pass = 19;
+    string on_struggle_strategy = 20;
+    int32 questions_correct = 21;
+    int32 questions_total = 22;
+    int32 actual_minutes = 23;
+    string ai_observation = 24;
+    int64 generated_at = 25;
+    int64 started_at = 26;
+    int64 completed_at = 27;
+    map<string, string> custom_fields = 28;
+    l8common.AuditInfo audit_info = 29;
+}
+
+message GeneratedLessonList {
+    repeated GeneratedLesson list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+message LessonStep {
+    int32 step_number = 1;
+    string step_type = 2;
+    string title = 3;
+    string instructions = 4;
+    int32 duration_minutes = 5;
+    string parent_role = 6;
+    repeated GeneratedQuestion questions = 7;
+    string materials_instructions = 8;
+}
+
+message GeneratedQuestion {
+    string question_id = 1;
+    string prompt = 2;
+    string prompt_image_desc = 3;
+    QuestionType question_type = 4;
+    repeated GeneratedOption options = 5;
+    string correct_answer = 6;
+    string explanation = 7;
+    repeated string hints = 8;
+    DifficultyLevel difficulty = 9;
+}
+
+message GeneratedOption {
+    string option_id = 1;
+    string text = 2;
+    bool is_correct = 3;
+    string feedback = 4;
+}

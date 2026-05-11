@@ -21,6 +21,7 @@ enum LLMPromptType {
     LLM_PROMPT_TYPE_CHAT = 9;
     LLM_PROMPT_TYPE_MODERATION = 10;
     LLM_PROMPT_TYPE_EVAL_IMPORT = 11;
+    LLM_PROMPT_TYPE_GENERATE_LESSON = 12;
 }
 
 enum LLMMode {
@@ -70,8 +71,12 @@ message LLMConfig {
     bool prompt_logging_enabled = 8;
     int32 max_daily_calls = 9;
     int32 calls_today = 10;
-    map<string, string> custom_fields = 11;
-    l8common.AuditInfo audit_info = 12;
+    double cost_per_input_token = 13;
+    double cost_per_output_token = 14;
+    double cost_today = 15;
+    double max_daily_cost = 16;
+    map<string, string> custom_fields = 17;
+    l8common.AuditInfo audit_info = 18;
 }
 
 message LLMConfigList {
