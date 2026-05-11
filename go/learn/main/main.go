@@ -19,8 +19,8 @@ import (
 )
 
 const (
-	DB_CREDS = "PostgreSQL"
-	DB_NAME  = "l8learn"
+	DB_CREDS = "postgres"
+	DB_NAME  = "admin"
 )
 
 var dbName = DB_NAME
