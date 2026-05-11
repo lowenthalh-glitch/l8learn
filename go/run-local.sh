@@ -18,8 +18,9 @@ go mod vendor
 echo "Starting database..."
 docker rm -f unsecure-postgres 2>/dev/null || true
 docker run -d --name unsecure-postgres -p 5432:5432 -v /data/:/data/ \
-    saichler/unsecure-postgres:latest admin admin admin 5432
-sleep 3
+    saichler/unsecure-postgres:latest \
+    /bin/sh -c "/start-postgres.sh admin admin admin 5432 && tail -f /dev/null"
+sleep 5
 
 # Build binaries
 echo "Building binaries..."
