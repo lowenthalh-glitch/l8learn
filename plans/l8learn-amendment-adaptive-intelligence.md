@@ -869,7 +869,42 @@ Do NOT assume signatures from the PRD examples. Read the actual function. Then c
 
 ---
 
-## 12. Compliance
+## 12. Ecosystem Reuse (Don't Rebuild What Exists)
+
+The following components ALREADY exist in the Layer 8 ecosystem and MUST be reused — not rebuilt:
+
+| Component | Source Project | Reuse How |
+|-----------|---------------|-----------|
+| PII masking | `../l8agent/go/masking/proxy.go` | Import `masking.MaskText()`, `masking.MaskJSON()`, `masking.TokenMap` for round-trip mask/unmask. Handles SSN, email, phone, money patterns. Do NOT build a new PII scanner. |
+| LLM client | `../l8agent/go/llm/client.go` | Import the Anthropic Claude client. Supports system prompt + messages + tools. 60s timeout, 4096 max tokens. |
+| Related records popup | `l8ui/related/layer8d-related-resources.js` | Use to show Student → StudentProfile link in detail popup. Adds "Related" tab automatically. |
+| Scheduled jobs | `../l8alarms/go/alm/escalation/scheduler.go` | Follow the scheduler pattern for weekly risk assessment batch, daily parent coaching, and quarterly content effectiveness computation. |
+| Mobile UI framework | `../l8vendingmachine/go/vend/ui/web/m/app.html` | Copy structure for mobile module registry, nav config, forms, and reference pickers. |
+
+### What This Changes in the Amendment
+
+1. **Section 2.6 (PII Scanner)**: Replace custom `PIIScanner` with `l8agent/masking` package. The `masking.MaskText()` function already does regex-based PII detection. The `TokenMap` handles the `Student_A → Jake Martinez` round-trip.
+
+2. **Section 2.5 (LLM Simulator)**: The simulator wraps the existing `l8agent/llm/client.go` — in simulate mode it skips the HTTP call and returns deterministic responses, but uses the same prompt construction and token counting.
+
+3. **Phase 1 scope reduction**: No PII scanner to build from scratch. Import `l8agent/masking` and wire it into the prompt logging pipeline.
+
+### readOnly Services Fix
+
+The existing `history-config.js` and `assessment-config.js` pass `{ readOnly: true }` as the 6th argument to `svc()`, but `svc(key, label, icon, endpoint, model, viewType, ...)` expects a string. This silently fails — the services render without readOnly protection.
+
+**Fix**: Use inline service objects instead of `svc()` for readOnly services:
+```javascript
+// WRONG — svc() 6th arg is viewType, not options
+svc('growth', 'Growth', 'icon', '/60/Growth', 'GrowthRecord', { readOnly: true })
+
+// CORRECT — inline object with readOnly property
+{ key: 'growth', label: 'Growth', icon: 'icon', endpoint: '/60/Growth', model: 'GrowthRecord', readOnly: true }
+```
+
+---
+
+## 13. Compliance
 
 ### Data Safety
 - All prompts logged with PII scan results

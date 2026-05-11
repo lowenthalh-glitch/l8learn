@@ -10,7 +10,7 @@
                 svc('sessions', 'Sessions', '\uD83D\uDCBB', '/40/LearnSess', 'LearningSession'),
                 svc('scores', 'Scores', '\uD83D\uDCCA', '/40/Score', 'Score'),
                 svc('benchmarks', 'Benchmarks', '\uD83C\uDFAF', '/40/Benchmark', 'Benchmark'),
-                svc('scans', 'Scans', '\uD83D\uDCF7', '/40/WkshtScan', 'WorksheetScan', { readOnly: true })
+                { key: 'scans', label: 'Scans', icon: '\uD83D\uDCF7', endpoint: '/40/WkshtScan', model: 'WorksheetScan', readOnly: true }
             ])
         },
         submodules: ['AssessmentResults']
