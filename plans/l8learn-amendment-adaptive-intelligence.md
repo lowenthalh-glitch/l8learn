@@ -1132,6 +1132,13 @@ All new UI sections MUST have mobile equivalents:
 
 ## 6. Implementation Phases (Updated)
 
+### Amendment Phase 0: Fix Existing Row Click Popup (BLOCKING)
+- Debug and fix the row click detail popup across all existing 38 services
+- The l8ui code (`layer8d-module-crud.js` `_showDetailsModal`) is correct and works in l8vendingmachine
+- Requires browser console error from clicking a row to identify the runtime failure
+- This MUST be fixed before Phase 1 — all new features (Profile view, EvalImport approval, PromptLog detail) depend on working popups
+- **Verify**: Click any row in Courses table → detail popup opens with all fields
+
 ### Amendment Phase 1: Student Profile + LLM Infrastructure + Eval Import
 - Add `learn-profile.proto`, `learn-llm.proto`, and `learn-eval.proto`
 - Run `make-bindings.sh`
@@ -1228,11 +1235,11 @@ Sections to verify:
 | Question | Answer |
 |----------|--------|
 | Canonical reference project? | `../l8vendingmachine` for service patterns, `../l8erp` for UI module structure |
-| How many new proto files? | 2 (learn-profile.proto, learn-llm.proto) |
+| How many new proto files? | 3 (learn-profile.proto, learn-llm.proto, learn-eval.proto) |
 | Types shared across files? | None — both are independent |
 | Read-only services? | PromptLog (read-only in UI — created by engine, viewed by admin) |
 | Complex After hooks? | Profile (auto-update from mastery changes), PromptLog (PII scan on create) |
-| External L8 services needed? | l8agent (for LLM client pattern), l8events (audit logging) |
+| External L8 services needed? | l8events (audit logging). l8agent is READ for patterns only — NOT added as Go dependency. |
 | Service activation order? | Profile → LLMConfig → PromptLog (config must exist before logging starts) |
 | How many portals affected? | Admin (AI Monitor section), Guardian (coaching tip) |
 | What user sees Phase 1? | AI Monitor sidebar → prompt log table with Type, Student, PII, Tokens, Time columns |
@@ -1279,13 +1286,76 @@ grep -A3 "func CreateResources" go/vendor/github.com/saichler/l8common/go/common
 
 Do NOT assume signatures from the PRD examples. Read the actual function. Then call it.
 
-## 10. Security — LLM API Credentials
+## 10. Security — LLM API Credentials + New Service Rules
 
+### API Key Storage
 - Anthropic API key stored in security config JSON under `credentials.Anthropic.creds.API_KEY`
 - Follows existing pattern from `../l8secure/go/secure/plugin/learn/learn.json`
 - Key retrieved at runtime: `nic.Resources().Security().Credential("Anthropic", "API_KEY", resources)`
-- Only `admin` role can change `LLMConfig.mode` from SIMULATE to LIVE (security rules in learn.json)
 - All LLM calls logged to PromptLog regardless of mode (audit requirement)
+
+### ServiceArea Clarification
+Area 0 is NOT reserved for system services — it's the primary VNet area (dynamic based on topology). PromptLog and LLMConfig stay on area 30 (Adaptive) because they're part of the adaptive engine infrastructure. This matches the pattern where services are grouped by business module, not by technical category.
+
+### Security Rules to Add to learn.json
+
+Rules for the 4 new services must be added to `../l8secure/go/secure/plugin/learn/learn.json`:
+
+```json
+// Add to "admin" role (already has wildcard — no change needed)
+
+// Add to "district-admin" role rules:
+"da-allow-profile-read": {
+    "actions": { "5": true },
+    "allowed": true,
+    "attributes": { "*": "*" },
+    "elemType": "StudentProfile",
+    "ruleId": "da-allow-profile-read"
+},
+"da-allow-eval-read": {
+    "actions": { "5": true },
+    "allowed": true,
+    "attributes": { "*": "*" },
+    "elemType": "EvalImport",
+    "ruleId": "da-allow-eval-read"
+}
+
+// Add to "teacher" role rules:
+"t-allow-profile-read": {
+    "actions": { "5": true },
+    "allowed": true,
+    "attributes": { "*": "*" },
+    "elemType": "StudentProfile",
+    "ruleId": "t-allow-profile-read"
+}
+
+// Add to "guardian" role rules:
+"g-allow-profile-rw": {
+    "actions": { "2": true, "3": true, "5": true },
+    "allowed": true,
+    "attributes": { "*": "*" },
+    "elemType": "StudentProfile",
+    "ruleId": "g-allow-profile-rw"
+},
+"g-allow-eval-crud": {
+    "actions": { "1": true, "2": true, "5": true },
+    "allowed": true,
+    "attributes": { "*": "*" },
+    "elemType": "EvalImport",
+    "ruleId": "g-allow-eval-crud"
+}
+
+// LLMPromptLog and LLMConfig — admin only (no rules needed for other roles = denied by default)
+```
+
+**Access matrix:**
+
+| Service | admin | district-admin | teacher | guardian | student |
+|---------|:-----:|:--------------:|:-------:|:--------:|:-------:|
+| StudentProfile | CRUD | Read | Read | Read + Update (own children) | — |
+| EvalImport | CRUD | Read | — | Create + Read + Update (review) | — |
+| LLMPromptLog | Read | — | — | — | — |
+| LLMConfig | CRUD | — | — | — | — |
 
 ## 11. Traceability Matrix
 
@@ -1313,28 +1383,38 @@ Do NOT assume signatures from the PRD examples. Read the actual function. Then c
 | 20 | No final verification phase | Phase 7 (end-to-end smoke test) |
 | 21 | No deployment artifact clarification | Section 5C — explicitly: no new binaries |
 | 22 | run-local.sh not updated | Section 5C — no change needed (same binary) |
+| 23 | Row click popup broken across all services | Phase 0 (must fix before Phase 1) |
+| 24 | Security rules missing for 4 new services | Section 10 — rules defined for all roles |
+| 25 | ServiceArea 30 vs 0 for infra services | Section 10 — area 0 is VNet topology, not category. Area 30 correct. |
+| 26 | l8agent Go dependency doesn't exist anywhere | Section 12 — read source, implement locally. Do NOT add to go.mod. |
 
 ---
 
-## 12. Ecosystem Reuse (Don't Rebuild What Exists)
+## 12. Ecosystem Reuse (Copy Pattern, Don't Add Dependency)
 
-The following components ALREADY exist in the Layer 8 ecosystem and MUST be reused — not rebuilt:
+**CRITICAL**: No Layer 8 project imports `l8agent` as a Go module dependency. The pattern is to **read the source, implement locally** — not add cross-project Go imports. This keeps each project's vendor tree independent.
 
-| Component | Source Project | Reuse How |
-|-----------|---------------|-----------|
-| PII masking | `../l8agent/go/masking/proxy.go` | Import `masking.MaskText()`, `masking.MaskJSON()`, `masking.TokenMap` for round-trip mask/unmask. Handles SSN, email, phone, money patterns. Do NOT build a new PII scanner. |
-| LLM client | `../l8agent/go/llm/client.go` | Import the Anthropic Claude client. Supports system prompt + messages + tools. 60s timeout, 4096 max tokens. |
-| Related records popup | `l8ui/related/layer8d-related-resources.js` | Use to show Student → StudentProfile link in detail popup. Adds "Related" tab automatically. |
-| Scheduled jobs | `../l8alarms/go/alm/escalation/scheduler.go` | Follow the scheduler pattern for weekly risk assessment batch, daily parent coaching, and quarterly content effectiveness computation. |
-| Mobile UI framework | `../l8vendingmachine/go/vend/ui/web/m/app.html` | Copy structure for mobile module registry, nav config, forms, and reference pickers. |
+| Component | Source to READ | What to Build Locally |
+|-----------|---------------|----------------------|
+| PII masking | `../l8agent/go/masking/proxy.go` — read the regex patterns for SSN, email, phone, money. Read `masking/config.go` for mask categories. Read TokenMap for round-trip mask/unmask. | `go/learn/adaptive/engine/pii_masking.go` (~150 lines) — implement same regex patterns and TokenMap locally. Do NOT add l8agent to go.mod. |
+| LLM client | `../l8agent/go/llm/client.go` — read the Anthropic API call structure, headers, request/response format. | `go/learn/adaptive/engine/llm_client.go` (~80 lines) — implement Anthropic HTTP client locally. Same API URL, same headers, same model. |
+| Related records popup | `l8ui/related/layer8d-related-resources.js` | Already in l8ui submodule — use directly, no copy needed. |
+| Scheduled jobs | `../l8alarms/go/alm/escalation/scheduler.go` — read the timer/ticker pattern for recurring jobs. | Implement scheduler in `go/learn/adaptive/engine/scheduler.go` (~100 lines) — same goroutine + ticker pattern. |
+| Mobile UI | `../l8vendingmachine/go/vend/ui/web/m/app.html` — read the structure, nav config, module registry pattern. | Create l8learn mobile files following same structure. |
 
-### What This Changes in the Amendment
+### Why Not Import l8agent as a Go Dependency?
 
-1. **Section 2.6 (PII Scanner)**: Replace custom `PIIScanner` with `l8agent/masking` package. The `masking.MaskText()` function already does regex-based PII detection. The `TokenMap` handles the `Student_A → Jake Martinez` round-trip.
+1. No other project does it — l8agent is a standalone application, not a library
+2. Adding it to `go.mod` would vendor the entire l8agent codebase (services, tools, schema) when we only need ~200 lines of masking + LLM client
+3. If l8agent's API changes, all dependent projects break
+4. The masking patterns (regex) and LLM client (HTTP POST) are simple enough to implement locally
 
-2. **Section 2.5 (LLM Simulator)**: The simulator wraps the existing `l8agent/llm/client.go` — in simulate mode it skips the HTTP call and returns deterministic responses, but uses the same prompt construction and token counting.
+### What This Means for Phase 1
 
-3. **Phase 1 scope reduction**: No PII scanner to build from scratch. Import `l8agent/masking` and wire it into the prompt logging pipeline.
+- Read `../l8agent/go/masking/proxy.go` and `../l8agent/go/llm/client.go` BEFORE writing code
+- Implement equivalent logic in `go/learn/adaptive/engine/pii_masking.go` and `llm_client.go`
+- Verify the Anthropic API URL, headers, and model name against `../l8agent/go/llm/client.go`
+- Total local code: ~230 lines (not a new dependency)
 
 ### readOnly Services Fix
 
