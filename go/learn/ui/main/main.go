@@ -7,7 +7,7 @@ package main
 
 import (
 	"github.com/saichler/l8common/go/common"
-	"github.com/saichler/l8learn/go/learn/ui"
+	"github.com/lowenthalh-glitch/l8learn/go/learn/ui"
 )
 
 func main() {

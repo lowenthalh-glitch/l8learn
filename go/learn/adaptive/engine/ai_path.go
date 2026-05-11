@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/saichler/l8learn/go/types/learn"
+	"github.com/lowenthalh-glitch/l8learn/go/types/learn"
 )
 
 // AIPathRequest contains all 15 inputs for the AI decision

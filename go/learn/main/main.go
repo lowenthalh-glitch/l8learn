@@ -8,8 +8,8 @@ package main
 import (
 	"github.com/saichler/l8bus/go/overlay/vnic"
 	"github.com/saichler/l8events/go/services"
-	"github.com/saichler/l8learn/go/learn/common"
-	learnservices "github.com/saichler/l8learn/go/learn/services"
+	"github.com/lowenthalh-glitch/l8learn/go/learn/common"
+	learnservices "github.com/lowenthalh-glitch/l8learn/go/learn/services"
 	"github.com/saichler/l8types/go/ifs"
 	"os"
 )

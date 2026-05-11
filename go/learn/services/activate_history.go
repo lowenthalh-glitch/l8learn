@@ -6,11 +6,11 @@
 package services
 
 import (
-	"github.com/saichler/l8learn/go/learn/history/cohorts"
-	"github.com/saichler/l8learn/go/learn/history/effectiveness"
-	"github.com/saichler/l8learn/go/learn/history/growth"
-	"github.com/saichler/l8learn/go/learn/history/risk"
-	"github.com/saichler/l8learn/go/learn/history/standards"
+	"github.com/lowenthalh-glitch/l8learn/go/learn/history/cohorts"
+	"github.com/lowenthalh-glitch/l8learn/go/learn/history/effectiveness"
+	"github.com/lowenthalh-glitch/l8learn/go/learn/history/growth"
+	"github.com/lowenthalh-glitch/l8learn/go/learn/history/risk"
+	"github.com/lowenthalh-glitch/l8learn/go/learn/history/standards"
 	"github.com/saichler/l8types/go/ifs"
 )
 
