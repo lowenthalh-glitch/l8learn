@@ -1,0 +1,226 @@
+syntax = "proto3";
+package learn;
+option go_package = "./types/learn";
+import "l8common.proto";
+import "api.proto";
+
+// ============================================================================
+// STUDENT LEARNING PROFILE
+// ============================================================================
+
+// @PrimeObject
+message StudentProfile {
+    string profile_id = 1;
+    string student_id = 2;
+    int64 created_date = 3;
+    int64 last_updated = 4;
+    string overall_description = 5;
+    repeated string main_strengths = 6;
+    repeated string main_challenges = 7;
+    repeated string primary_goals = 8;
+    ReadinessScores readiness = 9;
+    LearningStyle learning_style = 10;
+    AttentionProfile attention = 11;
+    MotivationProfile motivation = 12;
+    LiteracyProfile literacy = 13;
+    MathProfile math = 14;
+    SpeechLanguageProfile speech = 15;
+    FineMotorProfile fine_motor = 16;
+    GrossMotorProfile gross_motor = 17;
+    SensoryProfile sensory = 18;
+    SocialEmotionalProfile social_emotional = 19;
+    BehaviorProfile behavior = 20;
+    TechnologyLimits technology = 21;
+    HealthSafety health = 22;
+    TherapyServices therapy = 23;
+    AdaptiveSettings adaptive_settings = 24;
+    AITutorSettings ai_tutor = 25;
+    StudentGoals goals = 26;
+    ProgressTracking progress_tracking = 27;
+    map<string, string> custom_fields = 28;
+    l8common.AuditInfo audit_info = 29;
+}
+
+message StudentProfileList {
+    repeated StudentProfile list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+message ReadinessScores {
+    int32 academic_readiness = 1;
+    int32 reading_readiness = 2;
+    int32 math_readiness = 3;
+    int32 writing_fine_motor = 4;
+    int32 speech_language = 5;
+    int32 attention_stamina = 6;
+    int32 social_emotional = 7;
+    int32 independence = 8;
+}
+
+message LearningStyle {
+    repeated string preferred_modes = 1;
+    int32 best_session_length_minutes = 2;
+    int32 best_activity_length_minutes = 3;
+    int32 max_seated_work_minutes = 4;
+    int32 break_frequency_minutes = 5;
+    string best_time_of_day = 6;
+    repeated string effective_activity_types = 7;
+}
+
+message AttentionProfile {
+    int32 focus_preferred_activity_minutes = 1;
+    int32 focus_academic_task_minutes = 2;
+    repeated string losing_focus_signs = 3;
+    repeated string helpful_supports = 4;
+}
+
+message MotivationProfile {
+    repeated string interests = 1;
+    repeated string favorite_activities = 2;
+    repeated string preferred_rewards = 3;
+    repeated string avoided_activities = 4;
+}
+
+message LiteracyProfile {
+    string reading_level = 1;
+    string letter_recognition = 2;
+    string phonemic_awareness = 3;
+    string sight_words = 4;
+    string comprehension = 5;
+    int32 book_stamina_minutes = 6;
+    int32 reading_fluency_wpm = 7;
+}
+
+message MathProfile {
+    string level = 1;
+    string counting = 2;
+    string number_recognition = 3;
+    string addition = 4;
+    string subtraction = 5;
+    string multiplication = 6;
+    string division = 7;
+    string fractions = 8;
+    repeated string preferred_tools = 9;
+    repeated string error_patterns = 10;
+}
+
+message SpeechLanguageProfile {
+    bool receives_speech_therapy = 1;
+    repeated string current_goals = 2;
+    repeated string speech_sounds = 3;
+    string clarity = 4;
+    string expressive_language = 5;
+    string receptive_language = 6;
+    repeated string helpful_prompts = 7;
+}
+
+message FineMotorProfile {
+    bool receives_occupational_therapy = 1;
+    string hand_dominance = 2;
+    string pencil_grip = 3;
+    string tracing = 4;
+    string cutting = 5;
+    string name_writing = 6;
+    repeated string helpful_tools = 7;
+}
+
+message GrossMotorProfile {
+    string energy_level = 1;
+    repeated string favorite_movement = 2;
+    string coordination = 3;
+    string balance = 4;
+    repeated string movement_breaks = 5;
+}
+
+message SensoryProfile {
+    repeated string sensitivities = 1;
+    repeated string sensory_seeking = 2;
+    repeated string sensory_supports = 3;
+}
+
+message SocialEmotionalProfile {
+    string confidence = 1;
+    string peer_interaction = 2;
+    string turn_taking = 3;
+    string emotion_naming = 4;
+    repeated string frustration_triggers = 5;
+    repeated string calming_strategies = 6;
+}
+
+message BehaviorProfile {
+    repeated string avoidance_behaviors = 1;
+    repeated string triggers = 2;
+    repeated string redirect_strategies = 3;
+    repeated string successful_supports = 4;
+}
+
+message TechnologyLimits {
+    int32 max_screen_time_daily_minutes = 1;
+    int32 max_session_minutes = 2;
+    repeated string allowed_uses = 3;
+    repeated string activities_to_avoid = 4;
+}
+
+message HealthSafety {
+    repeated string medical_conditions = 1;
+    repeated string allergies = 2;
+    string vision_concerns = 3;
+    string hearing_concerns = 4;
+    repeated string safety_concerns = 5;
+}
+
+message TherapyServices {
+    repeated TherapyService services = 1;
+}
+
+message TherapyService {
+    string service_type = 1;
+    string provider_name = 2;
+    string frequency = 3;
+    repeated string therapy_goals = 4;
+    repeated string home_practice = 5;
+}
+
+message AdaptiveSettings {
+    int32 default_session_length_minutes = 1;
+    int32 maximum_session_length_minutes = 2;
+    int32 maximum_activity_length_minutes = 3;
+    int32 break_frequency_minutes = 4;
+    string difficulty_adjustment_speed = 5;
+    repeated string error_responses = 6;
+    repeated string success_responses = 7;
+    int32 max_consecutive_errors = 8;
+    int32 max_consecutive_correct = 9;
+}
+
+message AITutorSettings {
+    repeated string personality = 1;
+    repeated string should_do = 2;
+    repeated string should_avoid = 3;
+    string sentence_length = 4;
+    string question_style = 5;
+    string hint_style = 6;
+    string encouragement_frequency = 7;
+}
+
+message StudentGoals {
+    repeated Goal short_term = 1;
+    repeated Goal medium_term = 2;
+    repeated Goal long_term = 3;
+}
+
+message Goal {
+    string goal_id = 1;
+    string description = 2;
+    string skill_id = 3;
+    string target = 4;
+    string status = 5;
+    int64 target_date = 6;
+    int64 achieved_date = 7;
+}
+
+message ProgressTracking {
+    repeated string daily_metrics = 1;
+    repeated string weekly_metrics = 2;
+    repeated string mastery_criteria = 3;
+}

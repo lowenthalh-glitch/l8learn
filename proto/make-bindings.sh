@@ -14,6 +14,9 @@ docker run --user "$(id -u):$(id -g)" -e PROTO=learn-analytics.proto --mount typ
 docker run --user "$(id -u):$(id -g)" -e PROTO=learn-history.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
 docker run --user "$(id -u):$(id -g)" -e PROTO=learn-homeschool.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
 docker run --user "$(id -u):$(id -g)" -e PROTO=learn-collab.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-profile.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-llm.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-eval.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
 
 rm api.proto l8common.proto
 

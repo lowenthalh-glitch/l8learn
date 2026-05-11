@@ -1,0 +1,80 @@
+syntax = "proto3";
+package learn;
+option go_package = "./types/learn";
+import "l8common.proto";
+import "api.proto";
+
+// ============================================================================
+// LLM PROMPT LOGGING & SIMULATION
+// ============================================================================
+
+enum LLMPromptType {
+    LLM_PROMPT_TYPE_UNSPECIFIED = 0;
+    LLM_PROMPT_TYPE_PATH_DECISION = 1;
+    LLM_PROMPT_TYPE_PROFILE_UPDATE = 2;
+    LLM_PROMPT_TYPE_RISK_ASSESSMENT = 3;
+    LLM_PROMPT_TYPE_PROGRESS_SUMMARY = 4;
+    LLM_PROMPT_TYPE_PARENT_COACHING = 5;
+    LLM_PROMPT_TYPE_WORKSHEET_SCAN = 6;
+    LLM_PROMPT_TYPE_CONTENT_ANALYSIS = 7;
+    LLM_PROMPT_TYPE_SCHEDULE_GENERATION = 8;
+    LLM_PROMPT_TYPE_CHAT = 9;
+    LLM_PROMPT_TYPE_MODERATION = 10;
+    LLM_PROMPT_TYPE_EVAL_IMPORT = 11;
+}
+
+enum LLMMode {
+    LLM_MODE_UNSPECIFIED = 0;
+    LLM_MODE_LIVE = 1;
+    LLM_MODE_SIMULATE = 2;
+    LLM_MODE_LOG_ONLY = 3;
+}
+
+// @PrimeObject
+message LLMPromptLog {
+    string log_id = 1;
+    LLMPromptType type = 2;
+    string student_id = 3;
+    LLMMode mode = 4;
+    string system_prompt = 5;
+    string user_message = 6;
+    int32 system_prompt_tokens = 7;
+    int32 user_message_tokens = 8;
+    string response = 9;
+    int32 response_tokens = 10;
+    int64 response_time_ms = 11;
+    bool contains_student_name = 12;
+    bool contains_pii = 13;
+    repeated string pii_fields_found = 14;
+    bool data_masked = 15;
+    int64 timestamp = 16;
+    string triggered_by = 17;
+    map<string, string> custom_fields = 18;
+    l8common.AuditInfo audit_info = 19;
+}
+
+message LLMPromptLogList {
+    repeated LLMPromptLog list = 1;
+    l8api.L8MetaData metadata = 2;
+}
+
+// @PrimeObject
+message LLMConfig {
+    string config_id = 1;
+    LLMMode mode = 2;
+    string api_provider = 3;
+    string model_name = 4;
+    int32 max_tokens = 5;
+    double temperature = 6;
+    bool pii_masking_enabled = 7;
+    bool prompt_logging_enabled = 8;
+    int32 max_daily_calls = 9;
+    int32 calls_today = 10;
+    map<string, string> custom_fields = 11;
+    l8common.AuditInfo audit_info = 12;
+}
+
+message LLMConfigList {
+    repeated LLMConfig list = 1;
+    l8api.L8MetaData metadata = 2;
+}
