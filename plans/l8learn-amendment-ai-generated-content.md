@@ -406,7 +406,109 @@ case learn.LLMPromptType_LLM_PROMPT_TYPE_GENERATE_LESSON:
 
 ---
 
-## 12. Traceability
+## 12. Pre-Implementation Checklist
+
+| Question | Answer |
+|----------|--------|
+| Canonical reference project? | `../l8vendingmachine` for service pattern, `../l8erp` for UI |
+| How many new proto files? | 1 (learn-generated.proto) |
+| Types shared across files? | Uses SubjectType, DifficultyLevel, QuestionType from learn-content.proto |
+| Read-only services? | No — GenLesson is created by AI, updated on completion |
+| Complex After hooks? | Yes — on POST: update LearningPath; on PUT: score, update mastery, generate next lesson |
+| External L8 services needed? | None new (uses existing LLM Simulator pipeline) |
+| Service activation order? | GenLesson after Skills and Mastery (needs skill data to generate) |
+| Portals affected? | Admin (view generated lessons), Student (renders lessons), Guardian (review lessons) |
+| What user sees Phase 1? | Content → Generated Lessons tab → see AI-generated lesson records with steps |
+| Server port? | Same (2773 with security, 4443 without) |
+| API signatures to verify? | `l8c.RegisterType`, `common.ActivateService` — same as all other services |
+
+## 13. Mock Data
+
+```
+go/tests/mocks/gen_learn_generated.go   # 20 simulated GeneratedLessons with steps and questions
+```
+
+Mock lessons should include varied themes (dinosaurs, space, animals), varied step types (physical, screen, worksheet), and varied question counts per step.
+
+**Phase ordering**: After StudentIDs, SkillIDs, PathIDs are populated (Phase 4+ in original).
+
+**store.go addition**:
+```go
+GeneratedLessonIDs []string
+```
+
+## 14. Mobile Parity
+
+| Desktop | Mobile |
+|---------|--------|
+| Content → Generated Lessons table | Mobile nav → Content → Generated Lessons (Layer8MTable) |
+| Click lesson → detail popup with steps | Mobile popup with tabbed sections (steps, questions, results) |
+| Student player renders steps | Same player — already responsive (tablet-first CSS) |
+
+No separate mobile module files needed — the student player is already mobile-responsive. The admin view uses the standard l8ui mobile table pattern.
+
+## 15. Security Rules
+
+Add to `../l8secure/go/secure/plugin/learn/learn.json`:
+
+```json
+// admin: already has wildcard — no change
+// district-admin: already has wildcard — no change
+
+// teacher: read generated lessons
+"t-allow-genlesson-read": {
+    "actions": { "5": true }, "allowed": true,
+    "attributes": { "*": "*" },
+    "elemType": "GeneratedLesson", "ruleId": "t-allow-genlesson-read"
+}
+
+// guardian: read generated lessons for own children
+"g-allow-genlesson-read": {
+    "actions": { "5": true }, "allowed": true,
+    "attributes": { "*": "*" },
+    "elemType": "GeneratedLesson", "ruleId": "g-allow-genlesson-read"
+}
+
+// student: read + update own lessons (PUT results on completion)
+"s-allow-genlesson-rw": {
+    "actions": { "2": true, "5": true }, "allowed": true,
+    "attributes": { "*": "*" },
+    "elemType": "GeneratedLesson", "ruleId": "s-allow-genlesson-rw"
+}
+```
+
+**Access matrix:**
+
+| Role | GeneratedLesson |
+|------|:---------------:|
+| admin | CRUD |
+| district-admin | CRUD |
+| teacher | Read |
+| guardian | Read (own children) |
+| student | Read + Update (PUT results) |
+
+## 16. Immutability
+
+GeneratedLesson is **NOT immutable** — it has a lifecycle:
+1. GENERATING → created by AI (POST)
+2. READY → AI finished generating (PUT by engine)
+3. IN_PROGRESS → student started (PUT by player)
+4. COMPLETED → student finished, results saved (PUT by player)
+
+PUT is allowed (to record results), DELETE is not (audit trail). The `onStruggleStrategy`, `questions`, and `steps` fields are immutable after generation — only `status`, `questionsCorrect`, `questionsTotal`, `actualMinutes`, `aiObservation`, `startedAt`, `completedAt` change on PUT.
+
+## 17. API Signatures to Verify
+
+Before writing Go code:
+```bash
+grep -A3 "func RegisterType" go/vendor/github.com/saichler/l8common/go/common/*.go
+grep -A5 "type ServiceConfig" go/vendor/github.com/saichler/l8common/go/common/*.go
+grep "func (b \*VB)" go/vendor/github.com/saichler/l8common/go/common/validation_builder.go | head -5
+```
+
+---
+
+## 18. Traceability
 
 | # | Gap | Phase |
 |---|-----|-------|
@@ -418,10 +520,16 @@ case learn.LLMPromptType_LLM_PROMPT_TYPE_GENERATE_LESSON:
 | 6 | Student player loads static activities | Phase 2 (loads GeneratedLesson instead) |
 | 7 | Worksheets are separate from lessons | Phase 2 (worksheet embedded in lesson) |
 | 8 | No lesson-level quality tracking | Phase 3 (ai_observation + effectiveness) |
+| 9 | No mock data for generated lessons | Section 13 (gen_learn_generated.go) |
+| 10 | Mobile parity not addressed | Section 14 (student player already responsive) |
+| 11 | Security rules missing for GeneratedLesson | Section 15 (teacher read, guardian read, student read+update) |
+| 12 | Immutability not specified | Section 16 (lifecycle: GENERATING→READY→IN_PROGRESS→COMPLETED, no DELETE) |
+| 13 | Pre-implementation questions not answered | Section 12 (all answered) |
+| 14 | API signatures not verified | Section 17 (grep commands listed) |
 
 ---
 
-## 13. Compliance
+## 19. Compliance
 
 ### Data Safety
 - Generated lessons contain NO student PII — only skill targets, difficulty, and theme
