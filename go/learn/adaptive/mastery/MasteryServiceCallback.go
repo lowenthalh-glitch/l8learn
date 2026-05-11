@@ -28,6 +28,9 @@ func onMasteryChange(elem interface{}, action ifs.Action, notify bool, vnic ifs.
 		// 3. Update GrowthRecord for this student/subject
 		// 4. Recalculate StandardMastery for all standards mapped to this skill
 		// 5. Append MasterySnapshot to history
+		// 6. Update StudentProfile readiness + subject sections
+		//    ProfileUpdater.OnMasteryChange(m, skill, profile)
+		//    (requires loading the skill and profile for this student)
 		_ = m
 	}
 	return nil, true, nil

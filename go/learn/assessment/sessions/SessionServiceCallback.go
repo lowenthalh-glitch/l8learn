@@ -28,11 +28,9 @@ func onSessionChange(elem interface{}, action ifs.Action, notify bool, vnic ifs.
 		// 1. Update SkillMastery records for all skills in this session's interactions
 		// 2. Trigger adaptive engine to evaluate rules and refresh LearningPath
 		// 3. Update EngagementMetric for this student
-		//
-		// engine := engine.NewAdaptiveEngine(vnic)
-		// path := loadPath(session.PathId, vnic)
-		// student := loadStudent(session.StudentId, vnic)
-		// engine.OnActivityCompleted(session, path, student)
+		// 4. Update StudentProfile learning_style, attention, motivation
+		//    ProfileUpdater.OnSessionComplete(session, profile)
+		//    (requires loading the profile for this student)
 		_ = session
 	}
 
