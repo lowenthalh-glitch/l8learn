@@ -6,11 +6,11 @@
 package services
 
 import (
-	"github.com/lowenthalh-glitch/l8learn/go/learn/adaptive/mastery"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/adaptive/paths"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/adaptive/rules"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/adaptive/schedules"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/adaptive/skills"
+	"github.com/saichler/l8learn/go/learn/adaptive/mastery"
+	"github.com/saichler/l8learn/go/learn/adaptive/paths"
+	"github.com/saichler/l8learn/go/learn/adaptive/rules"
+	"github.com/saichler/l8learn/go/learn/adaptive/schedules"
+	"github.com/saichler/l8learn/go/learn/adaptive/skills"
 	"github.com/saichler/l8types/go/ifs"
 )
 

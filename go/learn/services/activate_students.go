@@ -6,16 +6,16 @@
 package services
 
 import (
-	"github.com/lowenthalh-glitch/l8learn/go/learn/students/classrooms"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/students/compliance"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/students/districts"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/students/enrollments"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/students/families"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/students/guardians"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/students/pods"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/students/schools"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/students/students"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/students/teachers"
+	"github.com/saichler/l8learn/go/learn/students/classrooms"
+	"github.com/saichler/l8learn/go/learn/students/compliance"
+	"github.com/saichler/l8learn/go/learn/students/districts"
+	"github.com/saichler/l8learn/go/learn/students/enrollments"
+	"github.com/saichler/l8learn/go/learn/students/families"
+	"github.com/saichler/l8learn/go/learn/students/guardians"
+	"github.com/saichler/l8learn/go/learn/students/pods"
+	"github.com/saichler/l8learn/go/learn/students/schools"
+	"github.com/saichler/l8learn/go/learn/students/students"
+	"github.com/saichler/l8learn/go/learn/students/teachers"
 	"github.com/saichler/l8types/go/ifs"
 )
 

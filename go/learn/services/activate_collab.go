@@ -6,10 +6,10 @@
 package services
 
 import (
-	"github.com/lowenthalh-glitch/l8learn/go/learn/collab/challenges"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/collab/groups"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/collab/messages"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/collab/tutoring"
+	"github.com/saichler/l8learn/go/learn/collab/challenges"
+	"github.com/saichler/l8learn/go/learn/collab/groups"
+	"github.com/saichler/l8learn/go/learn/collab/messages"
+	"github.com/saichler/l8learn/go/learn/collab/tutoring"
 	"github.com/saichler/l8types/go/ifs"
 )
 

@@ -6,8 +6,8 @@
 package services
 
 import (
-	"github.com/lowenthalh-glitch/l8learn/go/learn/analytics/engagement"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/analytics/progress"
+	"github.com/saichler/l8learn/go/learn/analytics/engagement"
+	"github.com/saichler/l8learn/go/learn/analytics/progress"
 	"github.com/saichler/l8types/go/ifs"
 )
 

@@ -14,7 +14,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/lowenthalh-glitch/l8learn/go/tests/mocks"
+	"github.com/saichler/l8learn/go/tests/mocks"
 )
 
 type httpClient struct {

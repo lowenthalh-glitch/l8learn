@@ -1,3 +1,3 @@
-module github.com/lowenthalh-glitch/l8learn/go
+module github.com/saichler/l8learn/go
 
 go 1.26.1

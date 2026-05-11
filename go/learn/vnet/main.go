@@ -7,7 +7,7 @@ package main
 
 import (
 	"github.com/saichler/l8bus/go/overlay/vnet"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/common"
+	"github.com/saichler/l8learn/go/learn/common"
 	"github.com/saichler/l8types/go/ifs"
 )
 

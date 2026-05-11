@@ -6,7 +6,7 @@
 package engine
 
 import (
-	"github.com/lowenthalh-glitch/l8learn/go/types/learn"
+	"github.com/saichler/l8learn/go/types/learn"
 )
 
 // RuleResult holds the outcome of evaluating a single rule

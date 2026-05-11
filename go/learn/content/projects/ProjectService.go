@@ -7,7 +7,7 @@ package projects
 
 import (
 	"github.com/saichler/l8common/go/common"
-	"github.com/lowenthalh-glitch/l8learn/go/types/learn"
+	"github.com/saichler/l8learn/go/types/learn"
 	"github.com/saichler/l8types/go/ifs"
 )
 

@@ -6,10 +6,10 @@
 package services
 
 import (
-	"github.com/lowenthalh-glitch/l8learn/go/learn/assessment/benchmarks"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/assessment/scores"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/assessment/sessions"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/assessment/worksheetscans"
+	"github.com/saichler/l8learn/go/learn/assessment/benchmarks"
+	"github.com/saichler/l8learn/go/learn/assessment/scores"
+	"github.com/saichler/l8learn/go/learn/assessment/sessions"
+	"github.com/saichler/l8learn/go/learn/assessment/worksheetscans"
 	"github.com/saichler/l8types/go/ifs"
 )
 

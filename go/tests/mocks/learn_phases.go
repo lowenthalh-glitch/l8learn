@@ -7,7 +7,7 @@ package mocks
 
 import (
 	"fmt"
-	"github.com/lowenthalh-glitch/l8learn/go/types/learn"
+	"github.com/saichler/l8learn/go/types/learn"
 )
 
 // Client is the HTTP client interface for posting mock data

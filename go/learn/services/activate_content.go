@@ -6,14 +6,14 @@
 package services
 
 import (
-	"github.com/lowenthalh-glitch/l8learn/go/learn/content/activities"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/content/courses"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/content/familyactivities"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/content/lessons"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/content/projects"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/content/realworld"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/content/units"
-	"github.com/lowenthalh-glitch/l8learn/go/learn/content/worksheets"
+	"github.com/saichler/l8learn/go/learn/content/activities"
+	"github.com/saichler/l8learn/go/learn/content/courses"
+	"github.com/saichler/l8learn/go/learn/content/familyactivities"
+	"github.com/saichler/l8learn/go/learn/content/lessons"
+	"github.com/saichler/l8learn/go/learn/content/projects"
+	"github.com/saichler/l8learn/go/learn/content/realworld"
+	"github.com/saichler/l8learn/go/learn/content/units"
+	"github.com/saichler/l8learn/go/learn/content/worksheets"
 	"github.com/saichler/l8types/go/ifs"
 )
 
