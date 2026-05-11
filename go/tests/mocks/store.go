@@ -63,6 +63,9 @@ type MockDataStore struct {
 	PromptLogIDs  []string
 	EvalImportIDs []string
 
+	// Content Amendment: AI Generated
+	GeneratedLessonIDs []string
+
 	// Phase 10: History
 	GrowthIDs        []string
 	CohortIDs        []string

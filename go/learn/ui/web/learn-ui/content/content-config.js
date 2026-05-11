@@ -6,14 +6,17 @@
     Layer8ModuleConfigFactory.create({
         namespace: 'Content',
         modules: {
-            'curriculum': mod('Curriculum', '📚', [
-                svc('courses', 'Courses', '📕', '/10/Course', 'Course'),
+            'curriculum': mod('Curriculum Framework', '📐', [
+                svc('courses', 'Standards', '📕', '/10/Course', 'Course'),
                 svc('units', 'Units', '📗', '/10/Unit', 'Unit'),
-                svc('lessons', 'Lessons', '📘', '/10/Lesson', 'Lesson'),
-                svc('activities', 'Activities', '🎯', '/10/Activity', 'Activity'),
+                svc('lessons', 'Lesson Plans', '📘', '/10/Lesson', 'Lesson'),
+                svc('activities', 'Activity Bank', '🎯', '/10/Activity', 'Activity'),
                 svc('worksheets', 'Worksheets', '📄', '/10/Worksheet', 'Worksheet')
+            ]),
+            'generated': mod('AI Generated', '🤖', [
+                svc('genlessons', 'Generated Lessons', '🤖', '/10/GenLesson', 'GeneratedLesson')
             ])
         },
-        submodules: ['ContentCurriculum']
+        submodules: ['ContentCurriculum', 'ContentGenerated']
     });
 })();

@@ -27,6 +27,7 @@
         ...ref.simple('StudentProfile', 'profileId', 'profileId', 'Profile'),
         ...ref.simple('EvalImport', 'importId', 'professionalName', 'Evaluation'),
         ...ref.simple('LLMPromptLog', 'logId', 'logId', 'Prompt Log'),
-        ...ref.simple('LLMConfig', 'configId', 'configId', 'LLM Config')
+        ...ref.simple('LLMConfig', 'configId', 'configId', 'LLM Config'),
+        ...ref.simple('GeneratedLesson', 'generatedLessonId', 'title', 'Generated Lesson')
     });
 })();

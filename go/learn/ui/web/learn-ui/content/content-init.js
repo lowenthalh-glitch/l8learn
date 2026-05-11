@@ -6,6 +6,6 @@
         defaultService: 'courses',
         sectionSelector: 'curriculum',
         initializerName: 'initializeContent',
-        requiredNamespaces: ['ContentCurriculum']
+        requiredNamespaces: ['ContentCurriculum', 'ContentGenerated']
     });
 })();

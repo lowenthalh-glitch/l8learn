@@ -51,6 +51,7 @@ func RunAllPhases(client Client) {
 	fmt.Printf("  Profiles:    %d\n", len(store.ProfileIDs))
 	fmt.Printf("  PromptLogs:  %d\n", len(store.PromptLogIDs))
 	fmt.Printf("  EvalImports: %d\n", len(store.EvalImportIDs))
+	fmt.Printf("  GenLessons:  %d\n", len(store.GeneratedLessonIDs))
 }
 
 func runPhase1(client Client, store *MockDataStore) {
@@ -188,4 +189,12 @@ func runPhase5(client Client, store *MockDataStore) {
 		store.EvalImportIDs = append(store.EvalImportIDs, e.ImportId)
 	}
 	fmt.Printf("  EvalImports: %d\n", len(evals))
+
+	// Generated Lessons (depends on StudentIDs, PathIDs, SkillIDs)
+	genLessons := generateGeneratedLessons(store)
+	if err := client.Post("/learn/10/GenLesson", &learn.GeneratedLessonList{List: genLessons}); err != nil { fmt.Printf("  ERROR: %v\n", err) }
+	for _, gl := range genLessons {
+		store.GeneratedLessonIDs = append(store.GeneratedLessonIDs, gl.GeneratedLessonId)
+	}
+	fmt.Printf("  GenLessons: %d\n", len(genLessons))
 }
