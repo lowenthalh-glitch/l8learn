@@ -23,8 +23,9 @@ func NewLLMClient(mode learn.LLMMode, apiKey string, masker *PIIMasker, logger *
 		return NewLLMSimulator(masker, logger)
 	case learn.LLMMode_LLM_MODE_LOG_ONLY:
 		return NewLogOnlyClient(masker, logger)
+	case learn.LLMMode_LLM_MODE_LIVE:
+		return NewLiveClient(apiKey, masker, logger)
 	default:
-		// LIVE mode — not implemented yet, returns simulator with warning
 		return NewLLMSimulator(masker, logger)
 	}
 }
