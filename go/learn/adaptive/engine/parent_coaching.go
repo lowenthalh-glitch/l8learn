@@ -130,8 +130,8 @@ func (pc *ParentCoach) summarizeLearningStyles(profiles []*learn.StudentProfile)
 func (pc *ParentCoach) summarizeInterests(profiles []*learn.StudentProfile) string {
 	var interests []string
 	for _, p := range profiles {
-		if p.Motivation != nil && len(p.Motivation.Interests) > 0 {
-			interests = append(interests, p.Motivation.Interests...)
+		if p.Motivation != nil && len(p.Motivation.HighInterestActivities) > 0 {
+			interests = append(interests, p.Motivation.HighInterestActivities...)
 		}
 	}
 	if len(interests) == 0 {

@@ -51,8 +51,8 @@ func (pu *ProfileUpdater) OnMasteryChange(mastery *learn.SkillMastery, skill *le
 			profile.Math = &learn.MathProfile{}
 		}
 		updateMathProfile(profile.Math, skill, mastery)
-		if profile.Readiness != nil {
-			profile.Readiness.MathReadiness = int32(mastery.CurrentAccuracy * 100)
+		if profile.Scores != nil {
+			profile.Scores.MathReadiness = int32(mastery.CurrentAccuracy * 100)
 		}
 
 	case learn.SubjectType_SUBJECT_TYPE_READING:
@@ -60,8 +60,8 @@ func (pu *ProfileUpdater) OnMasteryChange(mastery *learn.SkillMastery, skill *le
 			profile.Literacy = &learn.LiteracyProfile{}
 		}
 		updateLiteracyProfile(profile.Literacy, skill, mastery)
-		if profile.Readiness != nil {
-			profile.Readiness.ReadingReadiness = int32(mastery.CurrentAccuracy * 100)
+		if profile.Scores != nil {
+			profile.Scores.ReadingReadiness = int32(mastery.CurrentAccuracy * 100)
 		}
 	}
 
@@ -77,7 +77,7 @@ func (pu *ProfileUpdater) OnSessionComplete(session *learn.LearningSession, prof
 
 	// Update attention profile from session duration patterns
 	if profile.Attention == nil {
-		profile.Attention = &learn.AttentionProfile{}
+		profile.Attention = &learn.AttentionRegulationProfile{}
 	}
 	sessionMinutes := session.DurationSeconds / 60
 	if sessionMinutes > 0 {
@@ -135,7 +135,7 @@ func (pu *ProfileUpdater) OnWorksheetScanned(
 	// Update fine motor from handwriting analysis
 	if true {
 		if profile.FineMotor == nil {
-			profile.FineMotor = &learn.FineMotorProfile{}
+			profile.FineMotor = &learn.FineMotorOTProfile{}
 		}
 		if insights.OverallQuality != "" {
 			profile.FineMotor.PencilGrip = insights.OverallQuality
@@ -148,7 +148,7 @@ func (pu *ProfileUpdater) OnWorksheetScanned(
 	// Update attention from work patterns
 	if true {
 		if profile.Attention == nil {
-			profile.Attention = &learn.AttentionProfile{}
+			profile.Attention = &learn.AttentionRegulationProfile{}
 		}
 		if insights.EstimatedFocusMinutes > 0 {
 			profile.Attention.FocusAcademicTaskMinutes = insights.EstimatedFocusMinutes
@@ -269,11 +269,11 @@ func addUniqueString(slice *[]string, value string) {
 }
 
 func safeReadiness(p *learn.StudentProfile, field string) int32 {
-	if p.Readiness == nil { return 0 }
+	if p.Scores == nil { return 0 }
 	switch field {
-	case "academic": return p.Readiness.AcademicReadiness
-	case "reading": return p.Readiness.ReadingReadiness
-	case "math": return p.Readiness.MathReadiness
+	case "academic": return p.Scores.OverallAcademicReadiness
+	case "reading": return p.Scores.ReadingReadiness
+	case "math": return p.Scores.MathReadiness
 	}
 	return 0
 }

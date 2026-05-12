@@ -36,7 +36,7 @@ func NewDiagnosticEngine(vnic ifs.IVNic, llmClient LLMClient) *DiagnosticEngine 
 // DiagnosticResult holds the outcome of a diagnostic session
 type DiagnosticResult struct {
 	SkillResults   []*SkillDiagResult
-	ReadinessScores *learn.ReadinessScores
+	ReadinessScores *learn.WorkingScores
 	MasteryRecords []*learn.SkillMastery
 	ProfileUpdates *learn.StudentProfile
 }
@@ -195,9 +195,9 @@ func (d *DiagnosticEngine) testSkill(skill *learn.Skill, activities []*learn.Act
 	return sr
 }
 
-func computeReadiness(mathResults, readingResults []*SkillDiagResult) *learn.ReadinessScores {
-	return &learn.ReadinessScores{
-		AcademicReadiness: int32(averageAccuracy(append(mathResults, readingResults...)) * 100),
+func computeReadiness(mathResults, readingResults []*SkillDiagResult) *learn.WorkingScores {
+	return &learn.WorkingScores{
+		OverallAcademicReadiness: int32(averageAccuracy(append(mathResults, readingResults...)) * 100),
 		ReadingReadiness:  int32(averageAccuracy(readingResults) * 100),
 		MathReadiness:     int32(averageAccuracy(mathResults) * 100),
 	}

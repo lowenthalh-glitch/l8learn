@@ -32,19 +32,19 @@ func generateProfiles(store *MockDataStore) []*learn.StudentProfile {
 			StudentId:          store.StudentIDs[i],
 			CreatedDate:        now - int64(rand.Intn(90*24*3600)),
 			LastUpdated:        now - int64(rand.Intn(7*24*3600)),
-			OverallDescription: fmt.Sprintf("Student %d shows steady progress with strengths in visual learning.", i+1),
+			ShortSummary: fmt.Sprintf("Student %d shows steady progress with strengths in visual learning.", i+1),
 			MainStrengths:      []string{interests[i%len(interests)], "persistence"},
 			MainChallenges:     []string{"attention_stamina", "writing"},
 			PrimaryGoals:       []string{"improve_reading_fluency", "master_multiplication"},
-			Readiness: &learn.ReadinessScores{
-				AcademicReadiness: int32(40 + rand.Intn(60)),
+			Scores: &learn.WorkingScores{
+				OverallAcademicReadiness: int32(40 + rand.Intn(60)),
 				ReadingReadiness:  int32(30 + rand.Intn(70)),
 				MathReadiness:     int32(35 + rand.Intn(65)),
 				WritingFineMotor:  int32(25 + rand.Intn(50)),
 				SpeechLanguage:    int32(50 + rand.Intn(50)),
-				AttentionStamina:  int32(20 + rand.Intn(60)),
-				SocialEmotional:   int32(40 + rand.Intn(60)),
-				Independence:      int32(30 + rand.Intn(70)),
+				AttentionTaskStamina:  int32(20 + rand.Intn(60)),
+				SocialMotivation:   int32(40 + rand.Intn(60)),
+				IndependenceDailyLiving:      int32(30 + rand.Intn(70)),
 			},
 			LearningStyle: &learn.LearningStyle{
 				PreferredModes:           []string{modes[i%len(modes)], modes[(i+1)%len(modes)]},
@@ -53,15 +53,15 @@ func generateProfiles(store *MockDataStore) []*learn.StudentProfile {
 				BreakFrequencyMinutes:    int32(8 + rand.Intn(15)),
 				BestTimeOfDay:            times[i%len(times)],
 			},
-			Attention: &learn.AttentionProfile{
+			Attention: &learn.AttentionRegulationProfile{
 				FocusPreferredActivityMinutes: int32(10 + rand.Intn(20)),
 				FocusAcademicTaskMinutes:      int32(5 + rand.Intn(15)),
 				LosingFocusSigns:             []string{focusSigns[i%len(focusSigns)]},
-				HelpfulSupports:              []string{supports[i%len(supports)]},
+				RegulationSupports:              []string{supports[i%len(supports)]},
 			},
 			Motivation: &learn.MotivationProfile{
-				Interests:         []string{interests[i%len(interests)], interests[(i+2)%len(interests)]},
-				PreferredRewards:  []string{rewards[i%len(rewards)]},
+				HighInterestActivities:         []string{interests[i%len(interests)], interests[(i+2)%len(interests)]},
+				RewardPreferences:  []string{rewards[i%len(rewards)]},
 			},
 			Literacy: &learn.LiteracyProfile{
 				ReadingLevel:      readingLevels[i%len(readingLevels)],
@@ -73,12 +73,11 @@ func generateProfiles(store *MockDataStore) []*learn.StudentProfile {
 				Addition:       "developing",
 				Multiplication: "emerging",
 			},
-			AdaptiveSettings: &learn.AdaptiveSettings{
+			AdaptiveRules: &learn.AdaptiveLearningRules{
 				DefaultSessionLengthMinutes: int32(15),
 				MaximumSessionLengthMinutes: int32(30),
 				MaximumActivityLengthMinutes: int32(10),
 				BreakFrequencyMinutes:       int32(10),
-				DifficultyAdjustmentSpeed:   "normal",
 				MaxConsecutiveErrors:        3,
 				MaxConsecutiveCorrect:       5,
 			},
@@ -86,8 +85,6 @@ func generateProfiles(store *MockDataStore) []*learn.StudentProfile {
 				Personality:    []string{personalities[i%len(personalities)]},
 				ShouldDo:       []string{"use_simple_words", "celebrate_effort"},
 				ShouldAvoid:    []string{"time_pressure", "negative_feedback"},
-				SentenceLength: "short",
-				HintStyle:      "visual",
 			},
 		}
 		list = append(list, profile)
