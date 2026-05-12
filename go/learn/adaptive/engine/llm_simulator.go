@@ -66,6 +66,9 @@ func (s *LLMSimulator) generateResponse(promptType learn.LLMPromptType) string {
 	case learn.LLMPromptType_LLM_PROMPT_TYPE_EVAL_IMPORT:
 		return `{"document_type":"simulated","findings":[{"profile_section":"speech","profile_field":"clarity","current_value":"unknown","new_value":"developing","source_text":"Simulated finding","confidence":0.9}],"contradictions":[]}`
 
+	case learn.LLMPromptType_LLM_PROMPT_TYPE_CONTENT_ANALYSIS:
+		return `{"observation":"Simulated: Student engaged well with the lesson theme. Accuracy suggests the difficulty level was appropriate. The student completed the lesson close to the estimated time, indicating good attention. Consider reinforcing the weakest question areas in the next lesson.","themeEffective":true,"conceptsToReinforce":["multi-digit multiplication"],"nextLessonAdjustments":"Maintain current difficulty, try a different theme to test engagement breadth."}`
+
 	case learn.LLMPromptType_LLM_PROMPT_TYPE_SCHEDULE_GENERATION:
 		return `{"blocks":[{"startMinute":540,"durationMinutes":20,"subject":"math","description":"Simulated schedule block"}]}`
 
