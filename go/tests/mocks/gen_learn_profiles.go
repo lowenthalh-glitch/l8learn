@@ -258,7 +258,7 @@ func generateOneProfile(i int, studentId string, now int64) *learn.StudentProfil
 
 		AiTutor: &learn.AITutorSettings{
 			Personality: []string{personalities[i%len(personalities)], personalities[(i+1)%len(personalities)]},
-			ShouldDo:    []string{"use short sentences", "ask one question at a time", "use hints before answers", "use child's interests", "celebrate effort", "redirect gently"},
+			ShouldDo:    []string{"use short sentences", "ask one question at a time", "use hints before answers", "use childs interests", "celebrate effort", "redirect gently"},
 			ShouldAvoid: []string{"long explanations", "shaming mistakes", "moving too fast", "continuing when frustrated", "giving answers immediately"},
 			InstructionStyle: &learn.AIInstructionStyle{
 				SentenceLength:   "short",
@@ -301,7 +301,7 @@ func generateOneProfile(i int, studentId string, now int64) *learn.StudentProfil
 			BasicLearning:  []string{"picture books", "alphabet cards", "magnetic letters", "number cards 1-20", "dice", "counting objects", "crayons", "stickers", "visual timer"},
 			FineMotorOt:    []string{"Play-Doh", "tongs", "tweezers", "clothespins", "pom-poms", "beads", "pipe cleaners", "child-safe scissors", "short crayons", "sand tray"},
 			SpeechLanguage: []string{"picture cards", "toy animals", "action figures", "simple board games", "mirror", "bubbles", "books with clear pictures"},
-			Movement:       []string{"ball", "beanbag", "pillows", "painter's tape", "outdoor chalk", "music speaker"},
+			Movement:       []string{"ball", "beanbag", "pillows", "painters tape", "outdoor chalk", "music speaker"},
 		},
 
 		Goals: &learn.DomainGoals{
@@ -339,7 +339,7 @@ func generateOneProfile(i int, studentId string, now int64) *learn.StudentProfil
 
 		ProgressTracking: &learn.ProgressTracking{
 			TrackDaily:      []string{"session completed", "mood", "attention", "frustration level", "best activity", "screen time"},
-			TrackWeekly:     []string{"skills improved", "skills still hard", "new interests", "avoidance patterns", "next week's goal"},
+			TrackWeekly:     []string{"skills improved", "skills still hard", "new interests", "avoidance patterns", "next weeks goal"},
 			MasteryCriteria: []string{"does skill independently", "does skill with minimal help", "does skill across 3 different days", "does skill in different formats"},
 		},
 

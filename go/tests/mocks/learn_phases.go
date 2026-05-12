@@ -19,6 +19,30 @@ type Client interface {
 func RunAllPhases(client Client) {
 	store := NewMockDataStore()
 
+	// Populate StudentIDs so profile generator has references
+	for i := 0; i < 20; i++ {
+		store.StudentIDs = append(store.StudentIDs, fmt.Sprintf("STU-%04d", i+1))
+	}
+
+	// Only upload StudentProfile mock data
+	fmt.Println("=== Student Profiles ===")
+	profiles := generateProfiles(store)
+	if err := client.Post("/learn/20/Profile", &learn.StudentProfileList{List: profiles}); err != nil {
+		fmt.Printf("  ERROR: %v\n", err)
+	}
+	for _, p := range profiles {
+		store.ProfileIDs = append(store.ProfileIDs, p.ProfileId)
+	}
+	fmt.Printf("  Profiles: %d\n", len(profiles))
+
+	fmt.Printf("\n=== Summary ===\n")
+	fmt.Printf("  Profiles: %d\n", len(store.ProfileIDs))
+}
+
+/*
+func RunAllPhasesFullData(client Client) {
+	store := NewMockDataStore()
+
 	fmt.Println("=== Phase 1: Foundation ===")
 	runPhase1(client, store)
 
@@ -53,6 +77,7 @@ func RunAllPhases(client Client) {
 	fmt.Printf("  EvalImports: %d\n", len(store.EvalImportIDs))
 	fmt.Printf("  GenLessons:  %d\n", len(store.GeneratedLessonIDs))
 }
+*/
 
 func runPhase1(client Client, store *MockDataStore) {
 	districts := generateDistricts()
