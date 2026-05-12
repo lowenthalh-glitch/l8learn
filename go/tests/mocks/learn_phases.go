@@ -19,24 +19,37 @@ type Client interface {
 func RunAllPhases(client Client) {
 	store := NewMockDataStore()
 
-	// Populate StudentIDs so profile generator has references
-	for i := 0; i < 20; i++ {
-		store.StudentIDs = append(store.StudentIDs, fmt.Sprintf("STU-%04d", i+1))
-	}
+	// Create one student and one full-depth profile
+	fmt.Println("=== Demo Student + Profile ===")
 
-	// Only upload StudentProfile mock data
-	fmt.Println("=== Student Profiles ===")
+	student := &learn.Student{
+		StudentId:          "STU-0001",
+		FirstName:          "Luca",
+		LastName:           "Lowenthal",
+		PreferredName:      "Luca",
+		GradeLevel:         1,
+		SchoolId:           "SCH-0001",
+		DistrictId:         "DIST-0001",
+		LanguagePreference: "en",
+		HasIep:             true,
+		AccommodationNotes: "Extended time on assessments, visual aids preferred",
+	}
+	if err := client.Post("/learn/20/Student", &learn.StudentList{List: []*learn.Student{student}}); err != nil {
+		fmt.Printf("  ERROR Student: %v\n", err)
+	}
+	fmt.Println("  Student: Jake Martinez (STU-0001)")
+
+	store.StudentIDs = append(store.StudentIDs, student.StudentId)
+
 	profiles := generateProfiles(store)
 	if err := client.Post("/learn/20/Profile", &learn.StudentProfileList{List: profiles}); err != nil {
-		fmt.Printf("  ERROR: %v\n", err)
-	}
-	for _, p := range profiles {
-		store.ProfileIDs = append(store.ProfileIDs, p.ProfileId)
+		fmt.Printf("  ERROR Profile: %v\n", err)
 	}
 	fmt.Printf("  Profiles: %d\n", len(profiles))
 
 	fmt.Printf("\n=== Summary ===\n")
-	fmt.Printf("  Profiles: %d\n", len(store.ProfileIDs))
+	fmt.Printf("  Student: 1\n")
+	fmt.Printf("  Profiles: %d\n", len(profiles))
 }
 
 /*

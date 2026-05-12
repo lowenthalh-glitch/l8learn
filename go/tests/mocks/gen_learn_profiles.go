@@ -84,15 +84,16 @@ func generateOneProfile(i int, studentId string, now int64) *learn.StudentProfil
 		},
 
 		LearningStyle: &learn.LearningStyle{
-			PreferredModes:           []string{modes[i%len(modes)], "kinesthetic"},
-			BestSessionLengthMinutes: int32(20 + rand.Intn(15)),
+			PreferredModes:            []string{modes[i%len(modes)], "kinesthetic"},
+			BestSessionLengthMinutes:  int32(20 + rand.Intn(15)),
 			BestActivityLengthMinutes: int32(5 + rand.Intn(5)),
-			MaxSeatedWorkMinutes:     int32(5 + rand.Intn(5)),
-			BreakFrequencyMinutes:    int32(5 + rand.Intn(5)),
-			BestTimeOfDay:            times[i%len(times)],
-			BestLearningFormula:      []string{"movement", "visual model", "hands-on task", "break", "repeat", "success"},
-			WorksBestWith:            []string{"movement games", "manipulatives", "adult modeling", "visual supports", "short routines"},
-			WorksPoorlyWith:          []string{"long verbal explanations", "long table work", "noisy environments", "abstract worksheets"},
+			MaxSeatedWorkMinutes:      int32(5 + rand.Intn(5)),
+			BreakFrequencyMinutes:     int32(5 + rand.Intn(5)),
+			BestTimeOfDay:             times[i%len(times)],
+			EffectiveActivityTypes:    []string{"movement games", "object-based learning", "role play", "music and rhythm"},
+			BestLearningFormula:       []string{"movement", "visual model", "hands-on task", "break", "repeat", "success"},
+			WorksBestWith:             []string{"movement games", "manipulatives", "adult modeling", "visual supports", "short routines"},
+			WorksPoorlyWith:           []string{"long verbal explanations", "long table work", "noisy environments", "abstract worksheets"},
 		},
 
 		Attention: &learn.AttentionRegulationProfile{
@@ -129,7 +130,9 @@ func generateOneProfile(i int, studentId string, now int64) *learn.StudentProfil
 			LetterRecognition:   "some uppercase",
 			PhonemicAwareness:   "beginning",
 			Comprehension:       "literal_only",
+			SightWords:          "none yet",
 			BookStaminaMinutes:  int32(5 + rand.Intn(10)),
+			ReadingFluencyWpm:   int32(0),
 			PrimaryNeeds:        []string{"letter recognition", "letter-sound association", "phonological awareness", "rhyming"},
 			PrioritySequence:    []string{"recognize own name", "recognize uppercase letters", "match letters to sounds", "hear and produce rhymes", "clap syllables", "identify beginning sounds"},
 			RecommendedApproach: []string{"daily read-aloud", "picture discussion", "hands-on letters with Play-Doh or magnets", "movement-based letter games"},
@@ -142,6 +145,8 @@ func generateOneProfile(i int, studentId string, now int64) *learn.StudentProfil
 			Counting:             "developing",
 			NumberRecognition:     "1 to 10",
 			OneToOneCorrespondence: "emerging",
+			PreferredTools:       []string{"blocks", "counting bears", "dice", "snacks", "Play-Doh"},
+			ErrorPatterns:        []string{"skips numbers when counting", "confuses 6 and 9"},
 			PrioritySkills:       []string{"counting objects", "one-to-one correspondence", "number recognition 1-10", "more/less", "sorting", "patterns", "shapes"},
 			RecommendedActivities: []string{"count jumps", "count blocks", "number hunt", "build towers matching number cards", "shape building with Play-Doh"},
 			Avoid:                []string{"long paper worksheets", "mental math without objects", "too many problems on a page"},
@@ -169,6 +174,8 @@ func generateOneProfile(i int, studentId string, now int64) *learn.StudentProfil
 				BestSupports: []string{"short directions", "visual supports", "gestures", "one instruction at a time"},
 			},
 			Clarity:        "somewhat_clear",
+			SpeechSounds:   []string{"LL substitution", "trilled R difficulty"},
+			CurrentGoals:   []string{"improve intelligibility", "expand sentence length", "build narrative skills"},
 			HelpfulPrompts: []string{"repeat slowly", "visual cues", "sentence starters"},
 			RecommendedHomeGoals: []*learn.HomeGoal{
 				{Goal: "Follow one-step directions consistently", Examples: []string{"Put the car in the box", "Touch the red block"}},
@@ -219,6 +226,9 @@ func generateOneProfile(i int, studentId string, now int64) *learn.StudentProfil
 
 		SocialEmotional: &learn.SocialEmotionalProfile{
 			Confidence:                   "developing",
+			PeerInteraction:              "interested but needs support with game rules",
+			TurnTaking:                   "emerging with adult support",
+			EmotionNaming:                "can identify happy, sad, angry with picture support",
 			Strengths:                    []string{"social interest", "enjoys adults", "pleasant and engaging", "responds to encouragement"},
 			Needs:                        []string{"frustration tolerance", "transitions support", "help asking for a break"},
 			FrustrationTriggers:          []string{"tasks too long", "tasks too hard", "consecutive errors"},
@@ -226,10 +236,23 @@ func generateOneProfile(i int, studentId string, now int64) *learn.StudentProfil
 			RecommendedEmotionalSupports: []string{"calm adult voice", "predictable routine", "two choices", "praise effort not correctness", "break card", "end with success"},
 		},
 
+		Behavior: &learn.BehaviorProfile{
+			AvoidanceBehaviors:  []string{"avoids long writing tasks", "leaves seat when frustrated", "rushes through to finish quickly"},
+			RedirectStrategies: []string{"offer movement break", "switch to hands-on version", "reduce task size", "use first/then"},
+			SuccessfulSupports: []string{"adult modeling", "visual timer", "choice between two tasks", "end with easy success"},
+		},
+
+		Health: &learn.HealthSafety{
+			MedicalConditions: []string{"none reported"},
+			VisionConcerns:    "no concerns reported",
+			HearingConcerns:   "no concerns reported",
+			SafetyConcerns:    []string{"impulsive near roads", "needs supervision near water"},
+		},
+
 		DailyLiving: &learn.DailyLivingProfile{
 			Toileting: &learn.ToiletingProfile{Urination: "independent", BowelHygiene: "requires assistance"},
 			Hygiene:   &learn.HygieneProfile{HandWashing: "independent", ToothBrushing: "independent with supervision", Bathing: "requires help"},
-			Dressing:  &learn.DressingProfile{LowerBody: "more independent", UpperBody: "inconsistent", Socks: "difficult", Shoes: "velcro", Zippers: "can pull, difficulty starting", Buttons: "not yet independent"},
+			Dressing:  &learn.DressingProfile{LowerBody: "more independent", UpperBody: "inconsistent", Socks: "difficult", Shoes: "velcro", Zippers: "can pull, difficulty starting", Buttons: "not yet independent", BeltBuckle: "not yet independent"},
 			Feeding:   &learn.FeedingProfile{Spoon: "uses but fatigues", Fork: "occasional use", Knife: "not yet used", Preference: "often prefers hands", FoodSelectivity: "history of texture selectivity"},
 			HomePracticeIdeas: []string{"short fork/spoon practice during snack", "button boards", "zipper-start play", "sock practice as game", "visual hygiene sequence"},
 		},
@@ -304,38 +327,8 @@ func generateOneProfile(i int, studentId string, now int64) *learn.StudentProfil
 			Movement:       []string{"ball", "beanbag", "pillows", "painters tape", "outdoor chalk", "music speaker"},
 		},
 
-		Goals: &learn.DomainGoals{
-			ReadingPreReading: []*learn.Goal{
-				{GoalId: fmt.Sprintf("G-%04d-R1", i+1), Description: "Recognize letters in own name", Domain: "reading", Status: "in_progress"},
-				{GoalId: fmt.Sprintf("G-%04d-R2", i+1), Description: "Recognize 5-8 additional uppercase letters", Domain: "reading", Status: "not_started"},
-				{GoalId: fmt.Sprintf("G-%04d-R3", i+1), Description: "Match 5 letters to their sounds", Domain: "reading", Status: "not_started"},
-			},
-			SpeechLanguage: []*learn.Goal{
-				{GoalId: fmt.Sprintf("G-%04d-S1", i+1), Description: "Follow one-step directions consistently", Domain: "speech", Status: "in_progress"},
-				{GoalId: fmt.Sprintf("G-%04d-S2", i+1), Description: "Use simple complete sentences during play", Domain: "speech", Status: "not_started"},
-			},
-			FineMotorOt: []*learn.Goal{
-				{GoalId: fmt.Sprintf("G-%04d-F1", i+1), Description: "Complete Play-Doh or cutting activity 4-5 days per week", Domain: "fine_motor", Status: "in_progress"},
-				{GoalId: fmt.Sprintf("G-%04d-F2", i+1), Description: "Write name using boxed-letter support", Domain: "fine_motor", Status: "not_started"},
-			},
-			Math: []*learn.Goal{
-				{GoalId: fmt.Sprintf("G-%04d-M1", i+1), Description: "Count objects to 10 with one-to-one correspondence", Domain: "math", Status: "in_progress"},
-				{GoalId: fmt.Sprintf("G-%04d-M2", i+1), Description: "Recognize numbers 1-10", Domain: "math", Status: "not_started"},
-			},
-			AttentionRegulation: []*learn.Goal{
-				{GoalId: fmt.Sprintf("G-%04d-A1", i+1), Description: "Complete two short adult-led tasks per session", Domain: "attention", Status: "in_progress"},
-			},
-			DailyLiving: []*learn.Goal{
-				{GoalId: fmt.Sprintf("G-%04d-D1", i+1), Description: "Practice spoon/fork use in short low-pressure snack tasks", Domain: "daily_living", Status: "in_progress"},
-			},
-			MediumTerm: []*learn.Goal{
-				{GoalId: fmt.Sprintf("G-%04d-MT1", i+1), Description: "Recognize most uppercase letters", Domain: "reading", Status: "not_started", TargetDate: now + 90*24*3600},
-				{GoalId: fmt.Sprintf("G-%04d-MT2", i+1), Description: "Count objects to 20", Domain: "math", Status: "not_started", TargetDate: now + 90*24*3600},
-			},
-			LongTerm: []*learn.Goal{
-				{GoalId: fmt.Sprintf("G-%04d-LT1", i+1), Description: "Enter Grade 1 with stronger confidence and readiness", Domain: "general", Status: "not_started", TargetDate: now + 365*24*3600},
-			},
-		},
+		// Goals skipped — ORM bug: DomainGoals has only repeated struct fields
+		// and no scalar fields, producing empty INSERT column list.
 
 		ProgressTracking: &learn.ProgressTracking{
 			TrackDaily:      []string{"session completed", "mood", "attention", "frustration level", "best activity", "screen time"},
