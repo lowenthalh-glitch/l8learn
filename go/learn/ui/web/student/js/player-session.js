@@ -1,6 +1,7 @@
 /*
  * L8Learn Student Player — Session Tracker
- * Manages session lifecycle, interaction recording, and backend sync
+ * Manages session lifecycle, interaction recording, and backend sync.
+ * Works alongside PlayerLesson for AI-generated lessons.
  */
 (function() {
     'use strict';
@@ -47,7 +48,7 @@
             return this.path;
         },
 
-        // Load the next activity from the learning path queue
+        // Load the next activity from the learning path queue (legacy static content)
         async loadNextActivity() {
             if (!this.path || !this.path.upcomingQueue || this.path.upcomingQueue.length === 0) {
                 return null;
@@ -85,19 +86,19 @@
             this.pointsEarned += points;
 
             var interaction = {
-                activityId: this.currentActivity.activityId,
+                activityId: this.currentActivity ? this.currentActivity.activityId : '',
                 questionId: question.questionId,
                 skillId: (question.skillIds && question.skillIds.length > 0) ?
                     question.skillIds[0] : '',
                 timestamp: Math.floor(Date.now() / 1000),
-                result: isCorrect ? 1 : 2, // CORRECT=1, INCORRECT=2
+                result: isCorrect ? 1 : 2,
                 studentAnswer: studentAnswer,
                 correctAnswer: question.correctAnswer || '',
                 timeSpentSeconds: timeSpent,
                 attemptNumber: 1,
                 hintsUsed: this.hintsUsed,
                 pointsAwarded: points,
-                difficulty: this.currentActivity.difficulty
+                difficulty: this.currentActivity ? this.currentActivity.difficulty : 0
             };
 
             this.interactions.push(interaction);
@@ -110,13 +111,14 @@
         // Use a hint for the current question
         useHint(question) {
             this.hintsUsed++;
-            if (question.hintTexts && this.hintsUsed <= question.hintTexts.length) {
-                return question.hintTexts[this.hintsUsed - 1];
+            var hints = question.hintTexts || question.hints || [];
+            if (this.hintsUsed <= hints.length) {
+                return hints[this.hintsUsed - 1];
             }
             return null;
         },
 
-        // Check if the current activity is complete (all questions answered)
+        // Check if the current activity is complete
         isActivityComplete() {
             if (!this.currentActivity || !this.currentActivity.questions) {
                 return true;
@@ -154,25 +156,23 @@
         // Check if an answer is correct
         _checkAnswer(question, studentAnswer) {
             if (!studentAnswer) return false;
-
             switch (question.questionType) {
-                case 1: { // SINGLE_CHOICE
+                case 1: {
                     var correctOpt = question.options.find(function(o) { return o.isCorrect; });
                     return correctOpt && correctOpt.optionId === studentAnswer;
                 }
-                case 2: { // MULTI_CHOICE
+                case 2: {
                     var correctIds = question.options
                         .filter(function(o) { return o.isCorrect; })
                         .map(function(o) { return o.optionId; })
                         .sort().join(',');
                     return studentAnswer.split(',').sort().join(',') === correctIds;
                 }
-                case 3: // NUMERIC
-                case 4: { // TEXT
+                case 3:
+                case 4: {
                     var correct = (question.correctAnswer || '').trim().toLowerCase();
                     var student = studentAnswer.trim().toLowerCase();
                     if (correct === student) return true;
-                    // Try numeric equivalence (basic)
                     var cv = parseFloat(correct);
                     var sv = parseFloat(student);
                     if (!isNaN(cv) && !isNaN(sv) && Math.abs(cv - sv) < 0.001) return true;

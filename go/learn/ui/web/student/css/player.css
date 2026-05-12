@@ -315,6 +315,118 @@ body {
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+/* Lesson Header */
+.lesson-header {
+    margin-bottom: 16px;
+}
+
+.lesson-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--player-primary);
+    margin-bottom: 8px;
+}
+
+.lesson-materials {
+    background: #fef3c7;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    color: #92400e;
+    margin-bottom: 8px;
+}
+
+/* Step Progress */
+.step-progress {
+    font-weight: 600;
+    color: var(--player-primary);
+}
+
+/* Step Type Badges */
+.step-type-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+}
+
+.step-type-badge.physical {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.step-type-badge.worksheet {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.step-type-badge.screen {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* Physical and Worksheet Steps */
+.step-physical, .step-worksheet {
+    text-align: center;
+}
+
+.step-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.step-instructions {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--player-text);
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.step-materials-label {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
+.step-materials {
+    background: #f0fdf4;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    color: #166534;
+    text-align: left;
+    margin-bottom: 12px;
+}
+
+.step-parent-note {
+    background: #eff6ff;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    color: #1e40af;
+    margin-top: 12px;
+}
+
+.step-duration {
+    font-size: 0.9rem;
+    color: var(--player-text-light);
+    margin-top: 12px;
+}
+
+/* Complete Status */
+.complete-status {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
 /* Diagnostic Flow */
 .diagnostic-welcome, .diagnostic-skill-intro, .diagnostic-results, .diagnostic-question {
     text-align: center;

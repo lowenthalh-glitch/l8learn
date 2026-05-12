@@ -32,17 +32,25 @@
 
             <!-- Activity Container (rendered dynamically) -->
             <div class="player-activity hidden" id="activity-container">
+                <!-- Lesson header -->
+                <div class="lesson-header">
+                    <h2 class="lesson-title" id="lesson-title"></h2>
+                    <div class="lesson-materials hidden" id="lesson-materials"></div>
+                </div>
+                <!-- Step navigation -->
                 <div class="activity-header">
                     <span class="activity-skill" id="activity-skill"></span>
+                    <span class="step-progress" id="step-progress"></span>
                     <span class="activity-progress" id="activity-progress"></span>
                 </div>
                 <div class="activity-content" id="activity-content">
-                    <!-- Question/activity rendered here by JS -->
+                    <!-- Step/question rendered here by JS -->
                 </div>
                 <div class="activity-footer">
                     <button class="player-btn-hint hidden" id="btn-hint">Need a hint?</button>
-                    <button class="player-btn-submit" id="btn-submit">Check Answer</button>
+                    <button class="player-btn-submit hidden" id="btn-submit">Check Answer</button>
                     <button class="player-btn-next hidden" id="btn-next">Next</button>
+                    <button class="player-btn-start hidden" id="btn-step-done">Done with this step</button>
                 </div>
             </div>
 
@@ -55,6 +63,7 @@
             <!-- Session Complete -->
             <div class="player-complete hidden" id="complete-screen">
                 <h2>Great job!</h2>
+                <div class="complete-status" id="complete-status"></div>
                 <div class="complete-stats">
                     <div class="complete-stat">
                         <span class="complete-value" id="complete-correct"></span>
@@ -83,8 +92,9 @@
     </div>
 
     <script src="student/js/player-config.js"></script>
-    <script src="student/js/player-session.js"></script>
     <script src="student/js/player-renderer.js"></script>
+    <script src="student/js/player-lesson.js"></script>
+    <script src="student/js/player-session.js"></script>
     <script src="student/js/player-diagnostic.js"></script>
     <script src="student/js/player-app.js"></script>
 </body>
