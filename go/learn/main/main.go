@@ -12,8 +12,12 @@ import (
 	"time"
 
 	"github.com/saichler/l8bus/go/overlay/vnic"
+	"github.com/saichler/l8learn/go/learn/adaptive/engine"
 	"github.com/saichler/l8learn/go/learn/common"
 	learnservices "github.com/saichler/l8learn/go/learn/services"
+	"github.com/saichler/l8learn/go/learn/adaptive/schedules"
+	"github.com/saichler/l8learn/go/learn/students/evalimports"
+	"github.com/saichler/l8learn/go/types/learn"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8utils/go/utils/ipsegment"
 )
@@ -48,8 +52,32 @@ func main() {
 	// Phase 2: AI chat (needs full introspector populated)
 	learnservices.ActivateChatService(DB_CREDS, dbName, nic)
 
+	// Phase 3: Initialize LLM client for eval import pipeline
+	initLLMClient(nic)
+
 	fmt.Println("[l8learn] All services activated!")
 	common.WaitForSignal(res)
+}
+
+func initLLMClient(nic ifs.IVNic) {
+	_, _, apiKey, _, err := nic.Resources().Security().Credential("Anthropic", "API_KEY", nic.Resources())
+	masker := engine.NewPIIMasker()
+	logger := engine.NewPromptLogger(nic)
+	var llmClient engine.LLMClient
+	if err == nil && apiKey != "" {
+		keyPreview := apiKey
+		if len(keyPreview) > 12 {
+			keyPreview = apiKey[:8] + "..." + apiKey[len(apiKey)-4:]
+		}
+		fmt.Printf("[l8learn] API key loaded: %s (len=%d)\n", keyPreview, len(apiKey))
+		llmClient = engine.NewLLMClient(learn.LLMMode_LLM_MODE_LIVE, apiKey, masker, logger)
+		fmt.Println("[l8learn] LLM client initialized in LIVE mode")
+	} else {
+		llmClient = engine.NewLLMClient(learn.LLMMode_LLM_MODE_SIMULATE, "", masker, logger)
+		fmt.Println("[l8learn] No Anthropic API key found, using LLM simulator")
+	}
+	evalimports.SetLLMClient(llmClient, masker)
+	schedules.SetLLMClient(llmClient, masker)
 }
 
 func startDb(nic ifs.IVNic) {

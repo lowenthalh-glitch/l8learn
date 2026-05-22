@@ -15,6 +15,7 @@ message StudentProfile {
     string student_id = 2;
     int64 created_date = 3;
     int64 last_updated = 4;
+    string primary_guardian_id = 39;
 
     // Metadata
     ProfileMetadata metadata = 5;

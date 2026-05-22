@@ -13,6 +13,12 @@ import (
 
 func newStandardMasteryServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.StandardMastery{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.StandardMastery).StandardMasteryId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.StandardMastery).StandardMasteryId }, "StandardMasteryId").
 		Require(func(v interface{}) string { return v.(*learn.StandardMastery).StudentId }, "StudentId").
 		Require(func(v interface{}) string { return v.(*learn.StandardMastery).StandardId }, "StandardId").

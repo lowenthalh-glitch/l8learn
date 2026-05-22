@@ -13,6 +13,12 @@ import (
 
 func newTutorMatchServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.TutorMatch{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.TutorMatch).MatchId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.TutorMatch).MatchId }, "MatchId").
 		Require(func(v interface{}) string { return v.(*learn.TutorMatch).TutorId }, "TutorId").
 		Require(func(v interface{}) string { return v.(*learn.TutorMatch).LearnerId }, "LearnerId").
@@ -21,7 +27,7 @@ func newTutorMatchServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Build()
 }
 
-func onTutorMatchChange(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onTutorMatchChange(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	match := elem.(*learn.TutorMatch)
 
 	if action == ifs.POST {
@@ -43,7 +49,7 @@ func onTutorMatchChange(elem interface{}, action ifs.Action, notify bool, vnic i
 		// 4. Credit tutor with deeper mastery (teaching = highest Bloom's taxonomy)
 	}
 
-	return nil, true, nil
+	return nil
 }
 
 // NOTE: Weekly AI batch job (outside callback) will:

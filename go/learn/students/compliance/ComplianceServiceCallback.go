@@ -13,6 +13,12 @@ import (
 
 func newComplianceServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.StateCompliance{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.StateCompliance).ComplianceId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.StateCompliance).ComplianceId }, "ComplianceId").
 		Require(func(v interface{}) string { return v.(*learn.StateCompliance).FamilyId }, "FamilyId").
 		Require(func(v interface{}) string { return v.(*learn.StateCompliance).StateCode }, "StateCode").

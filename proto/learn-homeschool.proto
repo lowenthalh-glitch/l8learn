@@ -288,6 +288,8 @@ message DailySchedule {
 
     map<string, string> custom_fields = 9;
     l8common.AuditInfo audit_info = 10;
+    int32 lessons_total = 11;                // Total academic blocks needing lessons
+    int32 lessons_generated = 12;            // Count of lessons generated so far
 }
 
 message DailyScheduleList {

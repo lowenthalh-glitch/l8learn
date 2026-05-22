@@ -55,10 +55,14 @@ func (m *TokenMap) Unmask(text string) string {
 
 // Compiled regexes for PII detection (from l8agent/masking/proxy.go)
 var (
-	ssnRegex   = regexp.MustCompile(`\b\d{3}-\d{2}-\d{4}\b`)
-	emailRegex = regexp.MustCompile(`\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b`)
-	phoneRegex = regexp.MustCompile(`\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}`)
-	dobRegex   = regexp.MustCompile(`\b\d{1,2}/\d{1,2}/\d{4}\b`)
+	ssnRegex       = regexp.MustCompile(`\b\d{3}-\d{2}-\d{4}\b`)
+	emailRegex     = regexp.MustCompile(`\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b`)
+	phoneRegex     = regexp.MustCompile(`\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}`)
+	dobRegex       = regexp.MustCompile(`\b\d{1,2}/\d{1,2}/\d{4}\b`)
+	addressRegex   = regexp.MustCompile(`\b\d{1,5}\s+\w+\s+(St|Ave|Blvd|Dr|Rd|Ln|Way|Ct|Pl|Cir|Pkwy)\.?\b`)
+	mrnRegex       = regexp.MustCompile(`(?i)\b(?:MRN|Medical Record|Record #|Patient ID)[:\s#]*[\w\-]+\b`)
+	insuranceRegex = regexp.MustCompile(`(?i)\b(?:Policy|Member ID|Group #|Insurance ID)[:\s#]*[\w\-]+\b`)
+	dateFullRegex  = regexp.MustCompile(`\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}\b`)
 )
 
 // PIIMasker scans and masks PII in text
@@ -104,12 +108,22 @@ func (p *PIIMasker) Scan(text string) *PIIReport {
 	return report
 }
 
-// MaskText replaces PII patterns with tokens
+// MaskText replaces PII patterns with tokens using the instance's knownNames.
 func (p *PIIMasker) MaskText(text string, tokenMap *TokenMap) string {
-	// Mask known student names
-	for _, name := range p.knownNames {
-		if name != "" && strings.Contains(text, name) {
-			token := tokenMap.Mask("STUDENT", name)
+	return maskTextInternal(text, tokenMap, p.knownNames)
+}
+
+// MaskTextWithNames replaces PII patterns using per-request names (thread-safe).
+// Use this instead of SetKnownNames + MaskText when processing concurrently.
+func (p *PIIMasker) MaskTextWithNames(text string, tokenMap *TokenMap, knownNames []string) string {
+	return maskTextInternal(text, tokenMap, knownNames)
+}
+
+func maskTextInternal(text string, tokenMap *TokenMap, knownNames []string) string {
+	// Mask known names (longest first to avoid partial matches)
+	for _, name := range knownNames {
+		if name != "" && len(name) > 1 && strings.Contains(text, name) {
+			token := tokenMap.Mask("PERSON", name)
 			text = strings.ReplaceAll(text, name, token)
 		}
 	}
@@ -129,9 +143,29 @@ func (p *PIIMasker) MaskText(text string, tokenMap *TokenMap) string {
 		return tokenMap.Mask("PHONE", match)
 	})
 
-	// Mask DOB patterns
+	// Mask DOB patterns (MM/DD/YYYY)
 	text = dobRegex.ReplaceAllStringFunc(text, func(match string) string {
 		return tokenMap.Mask("DOB", match)
+	})
+
+	// Mask full date strings (January 15, 2020)
+	text = dateFullRegex.ReplaceAllStringFunc(text, func(match string) string {
+		return tokenMap.Mask("DATE", match)
+	})
+
+	// Mask address patterns
+	text = addressRegex.ReplaceAllStringFunc(text, func(match string) string {
+		return "[MASKED_ADDRESS]"
+	})
+
+	// Mask medical record numbers
+	text = mrnRegex.ReplaceAllStringFunc(text, func(match string) string {
+		return "[MASKED_MRN]"
+	})
+
+	// Mask insurance identifiers
+	text = insuranceRegex.ReplaceAllStringFunc(text, func(match string) string {
+		return "[MASKED_INSURANCE]"
 	})
 
 	return text

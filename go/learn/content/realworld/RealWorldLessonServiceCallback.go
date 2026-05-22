@@ -13,13 +13,19 @@ import (
 
 func newRealWorldLessonServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.RealWorldLesson{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.RealWorldLesson).LessonId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.RealWorldLesson).LessonId }, "LessonId").
 		Require(func(v interface{}) string { return v.(*learn.RealWorldLesson).Name }, "Name").
 		After(onRealWorldComplete).
 		Build()
 }
 
-func onRealWorldComplete(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onRealWorldComplete(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	rwl := elem.(*learn.RealWorldLesson)
 	if action == ifs.PUT {
 		// Real-world lesson logged by parent:
@@ -29,5 +35,5 @@ func onRealWorldComplete(elem interface{}, action ifs.Action, notify bool, vnic 
 		// 4. Store parent-uploaded photos in compliance portfolio
 		_ = rwl
 	}
-	return nil, true, nil
+	return nil
 }

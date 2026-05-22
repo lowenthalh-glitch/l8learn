@@ -13,6 +13,12 @@ import (
 
 func newLLMConfigServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.LLMConfig{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.LLMConfig).ConfigId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.LLMConfig).ConfigId }, "ConfigId").
 		Build()
 }

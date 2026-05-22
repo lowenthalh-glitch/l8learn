@@ -6,30 +6,88 @@
 package mocks
 
 import (
+	_ "embed"
+	"encoding/json"
 	"fmt"
+
 	"github.com/saichler/l8learn/go/types/learn"
 )
+
+//go:embed fixtures/l8learn_schedules.json
+var schedulesFixture []byte
+
+//go:embed fixtures/l8learn_lessons.json
+var lessonsFixture []byte
 
 // Client is the HTTP client interface for posting mock data
 type Client interface {
 	Post(endpoint string, data interface{}) error
+	PostRawJSON(endpoint string, jsonData []byte) error
 }
 
-// RunAllPhases executes all mock data generation in dependency order
+// RunWithMode executes mock data based on the selected mode.
+func RunWithMode(client Client, mode string) {
+	switch mode {
+	case "security":
+		runDemoData(client)
+		RunSecurityTestData(client)
+	case "full":
+		runDemoData(client)
+		RunSecurityTestData(client)
+		// TODO: RunFullTestData(client) — profiles + evals + schedules for all students
+	default: // "demo"
+		runDemoData(client)
+	}
+}
+
+// RunAllPhases is the legacy entry point — runs demo + security.
 func RunAllPhases(client Client) {
+	RunWithMode(client, "security")
+}
+
+func runDemoData(client Client) {
 	store := NewMockDataStore()
 
-	// Create one student and one full-depth profile
-	fmt.Println("=== Demo Student + Profile ===")
+	fmt.Println("=== Demo Data: Student + Guardian + Teacher + Profile ===")
 
+	// Guardian (Luca's parent)
+	guardian := &learn.Guardian{
+		GuardianId: "GRD-0001",
+		FirstName:  "Erica",
+		LastName:   "Lowenthal",
+		Email:      "erica@lowenthal.family",
+		Phone:      "5551234567",
+		Relation:   1, // Parent
+		StudentIds: []string{"STU-0001"},
+	}
+	if err := client.Post("/learn/20/Guardian", &learn.GuardianList{List: []*learn.Guardian{guardian}}); err != nil {
+		fmt.Printf("  ERROR Guardian: %v\n", err)
+	}
+	store.GuardianIDs = append(store.GuardianIDs, guardian.GuardianId)
+	fmt.Printf("  Guardian: %s %s\n", guardian.FirstName, guardian.LastName)
+
+	// Teacher
+	teacher := &learn.Teacher{
+		TeacherId: "TCH-0001",
+		FirstName: "Sarah",
+		LastName:  "Miller",
+		Email:     "sarah.miller@school.edu",
+		Role:      1, // Primary
+	}
+	if err := client.Post("/learn/20/Teacher", &learn.TeacherList{List: []*learn.Teacher{teacher}}); err != nil {
+		fmt.Printf("  ERROR Teacher: %v\n", err)
+	}
+	store.TeacherIDs = append(store.TeacherIDs, teacher.TeacherId)
+	fmt.Printf("  Teacher: %s %s\n", teacher.FirstName, teacher.LastName)
+
+	// Student
 	student := &learn.Student{
 		StudentId:          "STU-0001",
 		FirstName:          "Luca",
 		LastName:           "Lowenthal",
 		PreferredName:      "Luca",
 		GradeLevel:         1,
-		SchoolId:           "SCH-0001",
-		DistrictId:         "DIST-0001",
+		PrimaryGuardianId:  "GRD-0001",
 		LanguagePreference: "en",
 		HasIep:             true,
 		AccommodationNotes: "Extended time on assessments, visual aids preferred",
@@ -37,19 +95,67 @@ func RunAllPhases(client Client) {
 	if err := client.Post("/learn/20/Student", &learn.StudentList{List: []*learn.Student{student}}); err != nil {
 		fmt.Printf("  ERROR Student: %v\n", err)
 	}
-	fmt.Println("  Student: Jake Martinez (STU-0001)")
-
 	store.StudentIDs = append(store.StudentIDs, student.StudentId)
+	fmt.Printf("  Student: %s %s\n", student.FirstName, student.LastName)
 
+	// Profile
 	profiles := generateProfiles(store)
 	if err := client.Post("/learn/20/Profile", &learn.StudentProfileList{List: profiles}); err != nil {
 		fmt.Printf("  ERROR Profile: %v\n", err)
 	}
 	fmt.Printf("  Profiles: %d\n", len(profiles))
 
-	fmt.Printf("\n=== Summary ===\n")
-	fmt.Printf("  Student: 1\n")
-	fmt.Printf("  Profiles: %d\n", len(profiles))
+	// User accounts
+	fmt.Println("\n=== User Accounts ===")
+	createUser(client, guardian.GuardianId, guardian.FirstName+" "+guardian.LastName, guardian.Email, "guardian", "app.html")
+	createUser(client, teacher.TeacherId, teacher.FirstName+" "+teacher.LastName, teacher.Email, "teacher", "app.html")
+	studentEmail := fmt.Sprintf("%s.%s@student.l8learn.local", student.FirstName, student.LastName)
+	createUser(client, student.StudentId, student.FirstName+" "+student.LastName, studentEmail, "student", "app.html")
+
+	// Upload LLM-generated fixtures (schedule + lessons) — embedded, no LLM call needed
+	fmt.Println("\n=== LLM Fixture Data (pre-generated) ===")
+	uploadFixture(client, "/learn/30/Schedule", schedulesFixture, "Schedules")
+	uploadFixture(client, "/learn/10/GenLesson", lessonsFixture, "Lessons")
+
+	fmt.Printf("\n=== Demo Summary ===\n")
+	fmt.Printf("  Guardian:  1 (Erica)\n")
+	fmt.Printf("  Teacher:   1 (Sarah)\n")
+	fmt.Printf("  Student:   1 (Luca)\n")
+	fmt.Printf("  Profiles:  %d\n", len(profiles))
+	fmt.Printf("  Users:     3\n")
+}
+
+func createUser(client Client, userId, fullName, email, role, portal string) {
+	userData := map[string]interface{}{
+		"userId":        userId,
+		"fullName":      fullName,
+		"email":         email,
+		"portal":        portal,
+		"password":      map[string]string{"hash": "12345678"},
+		"accountStatus": "ACCOUNT_STATUS_ACTIVE",
+		"roles":         map[string]bool{role: true},
+	}
+	if err := client.Post("/learn/73/users", userData); err != nil {
+		fmt.Printf("  FAIL %s user (%s): %v\n", role, email, err)
+	} else {
+		fmt.Printf("  Created %s user: %s (%s)\n", role, fullName, email)
+	}
+}
+
+func uploadFixture(client Client, endpoint string, data []byte, label string) {
+	if len(data) == 0 {
+		fmt.Printf("  %s: empty fixture data\n", label)
+		return
+	}
+	if err := client.PostRawJSON(endpoint, data); err != nil {
+		fmt.Printf("  %s: upload failed: %v\n", label, err)
+	} else {
+		var wrapper map[string]json.RawMessage
+		json.Unmarshal(data, &wrapper)
+		var items []json.RawMessage
+		json.Unmarshal(wrapper["list"], &items)
+		fmt.Printf("  %s: %d records uploaded\n", label, len(items))
+	}
 }
 
 /*

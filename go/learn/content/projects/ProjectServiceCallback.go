@@ -13,13 +13,19 @@ import (
 
 func newProjectServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.Project{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.Project).ProjectId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.Project).ProjectId }, "ProjectId").
 		Require(func(v interface{}) string { return v.(*learn.Project).Name }, "Name").
 		After(onProjectUpdate).
 		Build()
 }
 
-func onProjectUpdate(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onProjectUpdate(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	proj := elem.(*learn.Project)
 	if action == ifs.PUT || action == ifs.PATCH {
 		// When milestones completed:
@@ -28,5 +34,5 @@ func onProjectUpdate(elem interface{}, action ifs.Action, notify bool, vnic ifs.
 		// 3. Credit time toward StateCompliance.InstructionHoursLogged
 		_ = proj
 	}
-	return nil, true, nil
+	return nil
 }

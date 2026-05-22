@@ -13,6 +13,12 @@ import (
 
 func newFamilyServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.Family{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.Family).FamilyId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.Family).FamilyId }, "FamilyId").
 		Require(func(v interface{}) string { return v.(*learn.Family).Name }, "Name").
 		Require(func(v interface{}) string { return v.(*learn.Family).PrimaryGuardianId }, "PrimaryGuardianId").
@@ -20,12 +26,12 @@ func newFamilyServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Build()
 }
 
-func onFamilyCreated(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onFamilyCreated(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	family := elem.(*learn.Family)
 	if action == ifs.POST {
 		// 1. Link existing guardians and students by ID
 		// 2. Set up state compliance record for the family's state
 		_ = family
 	}
-	return nil, true, nil
+	return nil
 }

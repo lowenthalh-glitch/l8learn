@@ -13,6 +13,12 @@ import (
 
 func newEnrollmentServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.Enrollment{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.Enrollment).EnrollmentId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.Enrollment).EnrollmentId }, "EnrollmentId").
 		Require(func(v interface{}) string { return v.(*learn.Enrollment).StudentId }, "StudentId").
 		Require(func(v interface{}) string { return v.(*learn.Enrollment).SchoolId }, "SchoolId").
@@ -21,7 +27,7 @@ func newEnrollmentServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Build()
 }
 
-func onEnrollmentChange(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onEnrollmentChange(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	enroll := elem.(*learn.Enrollment)
 
 	if action == ifs.POST {
@@ -61,7 +67,7 @@ func onEnrollmentChange(elem interface{}, action ifs.Action, notify bool, vnic i
 		}
 	}
 
-	return nil, true, nil
+	return nil
 }
 
 func validateConsent(enroll *learn.Enrollment) bool {

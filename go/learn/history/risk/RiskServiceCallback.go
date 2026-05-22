@@ -13,13 +13,19 @@ import (
 
 func newRiskServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.RiskAssessment{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.RiskAssessment).AssessmentId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.RiskAssessment).AssessmentId }, "AssessmentId").
 		Require(func(v interface{}) string { return v.(*learn.RiskAssessment).StudentId }, "StudentId").
 		After(onRiskAssessed).
 		Build()
 }
 
-func onRiskAssessed(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onRiskAssessed(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	assessment := elem.(*learn.RiskAssessment)
 	if action == ifs.POST && assessment.RiskLevel >= learn.RiskLevel_RISK_LEVEL_AT_RISK {
 		// Student flagged at AT_RISK or CRITICAL:
@@ -28,7 +34,7 @@ func onRiskAssessed(elem interface{}, action ifs.Action, notify bool, vnic ifs.I
 		// 3. Add to teacher's dashboard "Needs Attention" list
 		_ = assessment
 	}
-	return nil, true, nil
+	return nil
 }
 
 // NOTE: Risk assessments are COMPUTED by weekly AI batch job:

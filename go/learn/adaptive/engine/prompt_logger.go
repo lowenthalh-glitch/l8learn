@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/saichler/l8common/go/common"
 	"github.com/saichler/l8learn/go/types/learn"
 	"github.com/saichler/l8types/go/ifs"
 )
@@ -53,16 +54,16 @@ func (l *PromptLogger) Log(
 		TriggeredBy:         promptType.String(),
 	}
 
-	// POST to PromptLog service via VNet
+	// POST to PromptLog service
 	if l.vnic != nil {
-		// TODO: Post log record to PromptLog service
-		// For now, just log to console
+		_, err := common.PostEntity("PromptLog", byte(30), log, l.vnic)
+		if err != nil {
+			fmt.Printf("[PromptLogger] Failed to save log: %s\n", err.Error())
+		}
 		fmt.Printf("[PromptLogger] %s | student=%s | pii=%v | tokens=%d+%d | mode=%s\n",
 			promptType.String(), studentId, piiReport.HasPII,
 			log.SystemPromptTokens, log.UserMessageTokens, mode.String())
 	}
-
-	_ = log
 }
 
 // estimateTokens provides a rough token count (~4 chars per token)

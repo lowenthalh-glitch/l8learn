@@ -3,10 +3,12 @@ module github.com/saichler/l8learn/go
 go 1.26.1
 
 require (
+	github.com/ledongthuc/pdf v0.0.0-20250511090121-5959a4027728
 	github.com/saichler/l8bus v0.0.0-20260507121220-fb7db984917c
 	github.com/saichler/l8common v0.0.0-20260505024122-8e5ad212b06b
-	github.com/saichler/l8types v0.0.0-20260505122705-baebc9fce998
-	github.com/saichler/l8utils v0.0.0-20260505131226-f546f8717d26
+	github.com/saichler/l8services v0.0.0-20260507104132-1658bd7baa30
+	github.com/saichler/l8types v0.0.0-20260517162613-bf0348cedf0e
+	github.com/saichler/l8utils v0.0.0-20260517163445-ab88911f8894
 	google.golang.org/protobuf v1.36.11
 )
 
@@ -16,9 +18,8 @@ require (
 	github.com/lib/pq v1.12.3 // indirect
 	github.com/saichler/l8logfusion v0.0.0-20260320120056-3a3617eed28f // indirect
 	github.com/saichler/l8orm v0.0.0-20260510153853-58c11517f1c8 // indirect
-	github.com/saichler/l8ql v0.0.0-20260505111526-897c5e0ff9a4 // indirect
+	github.com/saichler/l8ql v0.0.0-20260514214457-3255783ba023 // indirect
 	github.com/saichler/l8reflect v0.0.0-20260510153526-a40cb00e4db2 // indirect
-	github.com/saichler/l8services v0.0.0-20260507104132-1658bd7baa30 // indirect
 	github.com/saichler/l8srlz v0.0.0-20260322124809-505a0d08f95d // indirect
 	github.com/saichler/l8web v0.0.0-20260508110248-236a0cd55e74 // indirect
 	golang.org/x/sys v0.44.0 // indirect

@@ -13,6 +13,12 @@ import (
 
 func newMasteryServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.SkillMastery{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.SkillMastery).MasteryId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.SkillMastery).MasteryId }, "MasteryId").
 		Require(func(v interface{}) string { return v.(*learn.SkillMastery).StudentId }, "StudentId").
 		Require(func(v interface{}) string { return v.(*learn.SkillMastery).SkillId }, "SkillId").
@@ -20,7 +26,7 @@ func newMasteryServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Build()
 }
 
-func onMasteryChange(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onMasteryChange(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	m := elem.(*learn.SkillMastery)
 	if action == ifs.PATCH || action == ifs.PUT {
 		// 1. Notify guardian via l8notify if mastery level changed
@@ -33,5 +39,5 @@ func onMasteryChange(elem interface{}, action ifs.Action, notify bool, vnic ifs.
 		//    (requires loading the skill and profile for this student)
 		_ = m
 	}
-	return nil, true, nil
+	return nil
 }

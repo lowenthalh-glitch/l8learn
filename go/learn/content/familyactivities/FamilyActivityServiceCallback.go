@@ -13,13 +13,19 @@ import (
 
 func newFamilyActivityServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.FamilyActivity{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.FamilyActivity).FamilyActivityId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.FamilyActivity).FamilyActivityId }, "FamilyActivityId").
 		Require(func(v interface{}) string { return v.(*learn.FamilyActivity).Name }, "Name").
 		After(onFamilyActivityComplete).
 		Build()
 }
 
-func onFamilyActivityComplete(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onFamilyActivityComplete(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	fa := elem.(*learn.FamilyActivity)
 	if action == ifs.PUT {
 		// Activity marked complete by parent:
@@ -29,5 +35,5 @@ func onFamilyActivityComplete(elem interface{}, action ifs.Action, notify bool, 
 		// 4. Log subjects covered to StateCompliance.SubjectsCovered
 		_ = fa
 	}
-	return nil, true, nil
+	return nil
 }

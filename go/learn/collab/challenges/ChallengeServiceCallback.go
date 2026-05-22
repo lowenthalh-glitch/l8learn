@@ -13,6 +13,12 @@ import (
 
 func newChallengeServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.Challenge{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.Challenge).ChallengeId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.Challenge).ChallengeId }, "ChallengeId").
 		Require(func(v interface{}) string { return v.(*learn.Challenge).Name }, "Name").
 		Require(func(v interface{}) string { return v.(*learn.Challenge).ClassroomId }, "ClassroomId").
@@ -20,7 +26,7 @@ func newChallengeServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Build()
 }
 
-func onChallengeCreate(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onChallengeCreate(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	challenge := elem.(*learn.Challenge)
 	if action == ifs.POST {
 		// Challenge created by teacher:
@@ -30,5 +36,5 @@ func onChallengeCreate(elem interface{}, action ifs.Action, notify bool, vnic if
 		// 4. Generate daily leaderboard update schedule
 		_ = challenge
 	}
-	return nil, true, nil
+	return nil
 }

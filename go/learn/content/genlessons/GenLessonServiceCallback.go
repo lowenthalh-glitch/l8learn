@@ -23,13 +23,19 @@ func InitLessonFeedback(vnic ifs.IVNic, llmClient engine.LLMClient, updater *eng
 
 func newGenLessonServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.GeneratedLesson{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.GeneratedLesson).GeneratedLessonId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.GeneratedLesson).GeneratedLessonId }, "GeneratedLessonId").
 		Require(func(v interface{}) string { return v.(*learn.GeneratedLesson).StudentId }, "StudentId").
 		After(onGenLessonChange).
 		Build()
 }
 
-func onGenLessonChange(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onGenLessonChange(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	lesson := elem.(*learn.GeneratedLesson)
 
 	if action == ifs.POST {
@@ -58,5 +64,5 @@ func onGenLessonChange(elem interface{}, action ifs.Action, notify bool, vnic if
 		}
 	}
 
-	return nil, true, nil
+	return nil
 }

@@ -29,6 +29,16 @@ enum EvalFindingStatus {
     EVAL_FINDING_STATUS_EDITED = 4;
 }
 
+enum EvalProcessingStatus {
+    EVAL_PROCESSING_STATUS_UNSPECIFIED = 0;
+    EVAL_PROCESSING_PENDING = 1;
+    EVAL_PROCESSING_EXTRACTING = 2;
+    EVAL_PROCESSING_COMPLETE = 3;
+    EVAL_PROCESSING_FAILED = 4;
+    EVAL_PROCESSING_CLEANED = 5;
+    EVAL_PROCESSING_SUBMITTED = 6;
+}
+
 // @PrimeObject
 message EvalImport {
     string import_id = 1;
@@ -45,6 +55,9 @@ message EvalImport {
     int32 rejected_count = 12;
     bool applied_to_profile = 13;
     l8common.AuditInfo audit_info = 14;
+    EvalProcessingStatus processing_status = 15;
+    string error_message = 16;
+    string primary_guardian_id = 17;
 }
 
 message EvalImportList {

@@ -13,6 +13,12 @@ import (
 
 func newGrowthServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.GrowthRecord{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.GrowthRecord).GrowthId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.GrowthRecord).GrowthId }, "GrowthId").
 		Require(func(v interface{}) string { return v.(*learn.GrowthRecord).StudentId }, "StudentId").
 		Require(func(v interface{}) string { return v.(*learn.GrowthRecord).AcademicYear }, "AcademicYear").

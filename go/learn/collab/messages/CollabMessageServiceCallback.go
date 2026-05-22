@@ -18,6 +18,12 @@ const maxMessagesPerSession = 20
 
 func newCollabMessageServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.CollabMessage{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.CollabMessage).MessageId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.CollabMessage).MessageId }, "MessageId").
 		Require(func(v interface{}) string { return v.(*learn.CollabMessage).GroupId }, "GroupId").
 		Require(func(v interface{}) string { return v.(*learn.CollabMessage).SenderId }, "SenderId").
@@ -57,7 +63,7 @@ func moderateMessage(elem interface{}, vnic ifs.IVNic) error {
 }
 
 // onMessageSent handles post-delivery logic
-func onMessageSent(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onMessageSent(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	msg := elem.(*learn.CollabMessage)
 
 	// If message contains an explanation, award helper points
@@ -79,7 +85,7 @@ func onMessageSent(elem interface{}, action ifs.Action, notify bool, vnic ifs.IV
 	}
 
 	_ = msg
-	return nil, true, nil
+	return nil
 }
 
 func containsPersonalInfo(content string) bool {

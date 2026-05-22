@@ -49,6 +49,8 @@ message GeneratedLesson {
     int64 completed_at = 27;
     map<string, string> custom_fields = 28;
     l8common.AuditInfo audit_info = 29;
+    string schedule_id = 30;
+    string block_id = 31;
 }
 
 message GeneratedLessonList {

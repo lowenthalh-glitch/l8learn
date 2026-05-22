@@ -13,6 +13,12 @@ import (
 
 func newCollabGroupServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.CollabGroup{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.CollabGroup).GroupId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.CollabGroup).GroupId }, "GroupId").
 		Require(func(v interface{}) string { return v.(*learn.CollabGroup).Name }, "Name").
 		Build()

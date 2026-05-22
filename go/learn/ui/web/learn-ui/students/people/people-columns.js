@@ -53,10 +53,10 @@ Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
         StudentProfile: [
             ...col.id('profileId'),
             ...col.col('studentId', 'Student'),
-            ...col.col('overallDescription', 'Description'),
-            ...col.number('readiness.academicReadiness', 'Academic'),
-            ...col.number('readiness.readingReadiness', 'Reading'),
-            ...col.number('readiness.mathReadiness', 'Math'),
+            ...col.col('shortSummary', 'Summary'),
+            ...col.number('scores.overallAcademicReadiness', 'Academic'),
+            ...col.number('scores.readingReadiness', 'Reading'),
+            ...col.number('scores.mathReadiness', 'Math'),
             ...col.date('lastUpdated', 'Last Updated')
         ],
         EvalImport: [
@@ -65,7 +65,13 @@ Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
             ...col.enum('documentType', 'Type', null, render.evalDocType),
             ...col.col('professionalName', 'Professional'),
             ...col.date('evaluationDate', 'Eval Date'),
-            ...col.boolean('allReviewed', 'Reviewed'),
+            ...col.status('processingStatus', 'Status', null, render.evalProcessingStatus),
+            ...col.custom('filePath', 'Document', function(item) {
+                if (!item.filePath) return '-';
+                return '<a href="#" onclick="event.stopPropagation();LearnFileViewer.view(\'' +
+                    item.filePath.replace(/'/g, "\\'") + '\',\'Cleaned Evaluation\');return false;" ' +
+                    'style="color:var(--layer8d-primary);text-decoration:underline;">View</a>';
+            }),
             ...col.number('acceptedCount', 'Accepted'),
             ...col.number('rejectedCount', 'Rejected')
         ]

@@ -65,11 +65,24 @@ func generateEvalImports(store *MockDataStore) []*learn.EvalImport {
 			DocumentType:     docType,
 			ProfessionalName: professionals[i%len(professionals)],
 			EvaluationDate:   now - int64(rand.Intn(180*24*3600)),
+			FilePath:         fmt.Sprintf("/data/l8files/eval-%03d/1/evaluation.pdf", i+1),
 			Findings:         findings,
 			AllReviewed:      i < 5,
 			AcceptedCount:    accepted,
 			RejectedCount:    rejected,
 			AppliedToProfile: i < 3,
+			ProcessingStatus: []learn.EvalProcessingStatus{
+				learn.EvalProcessingStatus_EVAL_PROCESSING_COMPLETE,
+				learn.EvalProcessingStatus_EVAL_PROCESSING_COMPLETE,
+				learn.EvalProcessingStatus_EVAL_PROCESSING_COMPLETE,
+				learn.EvalProcessingStatus_EVAL_PROCESSING_COMPLETE,
+				learn.EvalProcessingStatus_EVAL_PROCESSING_COMPLETE,
+				learn.EvalProcessingStatus_EVAL_PROCESSING_CLEANED,
+				learn.EvalProcessingStatus_EVAL_PROCESSING_CLEANED,
+				learn.EvalProcessingStatus_EVAL_PROCESSING_SUBMITTED,
+				learn.EvalProcessingStatus_EVAL_PROCESSING_FAILED,
+				learn.EvalProcessingStatus_EVAL_PROCESSING_PENDING,
+			}[i%10],
 		})
 	}
 	return list

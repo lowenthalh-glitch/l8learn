@@ -13,6 +13,12 @@ import (
 
 func newContentEffectServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.ContentEffect{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.ContentEffect).EffectId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.ContentEffect).EffectId }, "EffectId").
 		Require(func(v interface{}) string { return v.(*learn.ContentEffect).ContentId }, "ContentId").
 		Require(func(v interface{}) string { return v.(*learn.ContentEffect).ContentType }, "ContentType").

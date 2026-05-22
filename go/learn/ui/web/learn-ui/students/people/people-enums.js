@@ -135,12 +135,26 @@ Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
         3: 'layer8d-status-inactive', 4: 'layer8d-status-pending'
     };
 
+    var EVAL_PROCESSING_STATUS = {
+        0: 'Unknown', 1: 'Pending', 2: 'Extracting', 3: 'Complete', 4: 'Failed',
+        5: 'Cleaned', 6: 'Submitted'
+    };
+
+    var EVAL_PROCESSING_CLASSES = {
+        1: 'layer8d-status-pending', 2: 'layer8d-status-pending',
+        3: 'layer8d-status-active', 4: 'layer8d-status-inactive',
+        5: 'layer8d-status-completed', 6: 'layer8d-status-pending'
+    };
+
     StudentsPeople.enums.EVAL_DOC_TYPE = EVAL_DOC_TYPE;
     StudentsPeople.enums.EVAL_FINDING_STATUS = EVAL_FINDING_STATUS;
     StudentsPeople.enums.EVAL_FINDING_CLASSES = EVAL_FINDING_CLASSES;
+    StudentsPeople.enums.EVAL_PROCESSING_STATUS = EVAL_PROCESSING_STATUS;
+    StudentsPeople.enums.EVAL_PROCESSING_CLASSES = EVAL_PROCESSING_CLASSES;
 
     StudentsPeople.render.evalDocType = function(v) { return EVAL_DOC_TYPE[v] || v; };
     StudentsPeople.render.evalFindingStatus = Layer8DRenderers.createStatusRenderer(EVAL_FINDING_STATUS, EVAL_FINDING_CLASSES);
+    StudentsPeople.render.evalProcessingStatus = Layer8DRenderers.createStatusRenderer(EVAL_PROCESSING_STATUS, EVAL_PROCESSING_CLASSES);
 
     StudentsPeople.primaryKeys = {
         Student: 'studentId',

@@ -26,6 +26,28 @@ type httpClient struct {
 	client   *http.Client
 }
 
+func (c *httpClient) PostRawJSON(endpoint string, jsonData []byte) error {
+	url := c.address + endpoint
+	req, err := http.NewRequest("POST", url, bytes.NewReader(jsonData))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if c.token != "" {
+		req.Header.Set("Authorization", "Bearer "+c.token)
+	}
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return fmt.Errorf("POST %s: %w", endpoint, err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 400 {
+		respBody, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("POST %s: status %d: %s", endpoint, resp.StatusCode, string(respBody))
+	}
+	return nil
+}
+
 func (c *httpClient) Post(endpoint string, data interface{}) error {
 	body, err := json.Marshal(data)
 	if err != nil {
@@ -93,6 +115,7 @@ func main() {
 	user := flag.String("user", "admin", "Username")
 	password := flag.String("password", "admin", "Password")
 	insecure := flag.Bool("insecure", false, "Skip TLS verification")
+	mode := flag.String("mode", "demo", "Data mode: demo, security, full")
 	flag.Parse()
 
 	transport := &http.Transport{}
@@ -108,7 +131,8 @@ func main() {
 	}
 
 	fmt.Printf("L8Learn Mock Data Generator\n")
-	fmt.Printf("Target: %s\n\n", *address)
+	fmt.Printf("Target: %s\n", *address)
+	fmt.Printf("Mode:   %s\n\n", *mode)
 
 	// Authenticate
 	fmt.Println("Authenticating...")
@@ -118,7 +142,7 @@ func main() {
 	}
 	fmt.Println("Authenticated successfully.")
 
-	mocks.RunAllPhases(client)
+	mocks.RunWithMode(client, *mode)
 
 	fmt.Println("\nDone!")
 	os.Exit(0)

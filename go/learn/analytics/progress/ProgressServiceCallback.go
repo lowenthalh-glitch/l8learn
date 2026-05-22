@@ -13,13 +13,19 @@ import (
 
 func newProgressServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.ProgressReport{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.ProgressReport).ReportId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.ProgressReport).ReportId }, "ReportId").
 		Require(func(v interface{}) string { return v.(*learn.ProgressReport).StudentId }, "StudentId").
 		After(onProgressGenerated).
 		Build()
 }
 
-func onProgressGenerated(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onProgressGenerated(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	report := elem.(*learn.ProgressReport)
 	if action == ifs.POST {
 		// After generating a progress report:
@@ -28,5 +34,5 @@ func onProgressGenerated(elem interface{}, action ifs.Action, notify bool, vnic 
 		// 3. Generate AI recommendations (report.AiRecommendations)
 		_ = report
 	}
-	return nil, true, nil
+	return nil
 }

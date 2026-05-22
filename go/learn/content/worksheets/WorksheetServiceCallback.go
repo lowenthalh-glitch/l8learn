@@ -13,6 +13,12 @@ import (
 
 func newWorksheetServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.Worksheet{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.Worksheet).WorksheetId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.Worksheet).WorksheetId }, "WorksheetId").
 		Require(func(v interface{}) string { return v.(*learn.Worksheet).Name }, "Name").
 		Require(func(v interface{}) string { return v.(*learn.Worksheet).TeacherId }, "TeacherId").
@@ -20,7 +26,7 @@ func newWorksheetServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Build()
 }
 
-func onWorksheetChange(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onWorksheetChange(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	ws := elem.(*learn.Worksheet)
 
 	if action == ifs.POST && ws.Status == learn.WorksheetStatus_WORKSHEET_STATUS_DRAFT {
@@ -42,5 +48,5 @@ func onWorksheetChange(elem interface{}, action ifs.Action, notify bool, vnic if
 		// 3. Trigger LearningPath recalculation
 	}
 
-	return nil, true, nil
+	return nil
 }

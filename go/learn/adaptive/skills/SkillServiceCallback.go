@@ -13,6 +13,12 @@ import (
 
 func newSkillServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.Skill{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.Skill).SkillId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.Skill).SkillId }, "SkillId").
 		Require(func(v interface{}) string { return v.(*learn.Skill).Name }, "Name").
 		Build()

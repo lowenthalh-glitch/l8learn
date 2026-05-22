@@ -13,6 +13,12 @@ import (
 
 func newPodServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.LearningPod{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.LearningPod).PodId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.LearningPod).PodId }, "PodId").
 		Require(func(v interface{}) string { return v.(*learn.LearningPod).Name }, "Name").
 		Require(func(v interface{}) string { return v.(*learn.LearningPod).OrganizerGuardianId }, "OrganizerGuardianId").

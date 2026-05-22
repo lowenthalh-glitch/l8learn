@@ -58,71 +58,22 @@ Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
                 ...f.text('stateProvince', 'State/Province')
             ])
         ]),
-        StudentProfile: f.form('Student Profile', [
-            f.section('Summary', [
-                ...f.reference('studentId', 'Student', 'Student'),
-                ...f.textarea('overallDescription', 'Overall Description'),
-                ...f.text('mainStrengths', 'Main Strengths'),
-                ...f.text('mainChallenges', 'Main Challenges'),
-                ...f.text('primaryGoals', 'Primary Goals')
-            ]),
-            f.section('Readiness Scores', [
-                ...f.number('readiness.academicReadiness', 'Academic Readiness'),
-                ...f.number('readiness.readingReadiness', 'Reading Readiness'),
-                ...f.number('readiness.mathReadiness', 'Math Readiness'),
-                ...f.number('readiness.writingFineMotor', 'Writing/Fine Motor'),
-                ...f.number('readiness.speechLanguage', 'Speech/Language'),
-                ...f.number('readiness.attentionStamina', 'Attention Stamina'),
-                ...f.number('readiness.socialEmotional', 'Social-Emotional'),
-                ...f.number('readiness.independence', 'Independence')
-            ]),
-            f.section('Learning Style', [
-                ...f.text('learningStyle.preferredModes', 'Preferred Modes'),
-                ...f.number('learningStyle.bestSessionLengthMinutes', 'Best Session (min)'),
-                ...f.number('learningStyle.bestActivityLengthMinutes', 'Best Activity (min)'),
-                ...f.number('learningStyle.breakFrequencyMinutes', 'Break Frequency (min)'),
-                ...f.text('learningStyle.bestTimeOfDay', 'Best Time of Day')
-            ]),
-            f.section('Attention', [
-                ...f.number('attention.focusPreferredActivityMinutes', 'Focus Preferred Activity (min)'),
-                ...f.number('attention.focusAcademicTaskMinutes', 'Focus Academic Task (min)'),
-                ...f.text('attention.losingFocusSigns', 'Losing Focus Signs'),
-                ...f.text('attention.helpfulSupports', 'Helpful Supports')
-            ]),
-            f.section('Math', [
-                ...f.text('math.level', 'Level'),
-                ...f.text('math.addition', 'Addition'),
-                ...f.text('math.subtraction', 'Subtraction'),
-                ...f.text('math.multiplication', 'Multiplication'),
-                ...f.text('math.division', 'Division'),
-                ...f.text('math.fractions', 'Fractions'),
-                ...f.text('math.errorPatterns', 'Error Patterns')
-            ]),
-            f.section('Literacy', [
-                ...f.text('literacy.readingLevel', 'Reading Level'),
-                ...f.text('literacy.letterRecognition', 'Letter Recognition'),
-                ...f.text('literacy.phonemicAwareness', 'Phonemic Awareness'),
-                ...f.text('literacy.comprehension', 'Comprehension'),
-                ...f.number('literacy.readingFluencyWpm', 'Fluency (WPM)')
-            ]),
-            f.section('AI Tutor Settings', [
-                ...f.text('aiTutor.personality', 'Personality'),
-                ...f.text('aiTutor.shouldDo', 'Should Do'),
-                ...f.text('aiTutor.shouldAvoid', 'Should Avoid'),
-                ...f.text('aiTutor.sentenceLength', 'Sentence Length'),
-                ...f.text('aiTutor.hintStyle', 'Hint Style')
-            ])
-        ]),
+        // StudentProfile form is in people-profile-forms.js
         EvalImport: f.form('Evaluation Import', [
             f.section('Evaluation Info', [
                 ...f.reference('studentId', 'Student', 'Student'),
                 ...f.select('documentType', 'Document Type', enums.EVAL_DOC_TYPE),
                 ...f.text('professionalName', 'Professional Name'),
                 ...f.date('evaluationDate', 'Evaluation Date'),
+                ...f.file('filePath', 'Cleaned Document')
+            ]),
+            f.section('Processing Status', [
+                ...f.select('processingStatus', 'Status', enums.EVAL_PROCESSING_STATUS, false, { readOnly: true }),
+                ...f.text('errorMessage', 'Error', false, { readOnly: true }),
+                ...f.number('acceptedCount', 'Accepted', false, { readOnly: true }),
+                ...f.number('rejectedCount', 'Rejected', false, { readOnly: true }),
                 ...f.checkbox('allReviewed', 'All Reviewed'),
-                ...f.number('acceptedCount', 'Accepted'),
-                ...f.number('rejectedCount', 'Rejected'),
-                ...f.checkbox('appliedToProfile', 'Applied to Profile')
+                ...f.checkbox('appliedToProfile', 'Apply to Profile')
             ])
         ])
     };

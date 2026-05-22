@@ -13,6 +13,12 @@ import (
 
 func newWorksheetScanServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.WorksheetScan{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.WorksheetScan).ScanId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.WorksheetScan).ScanId }, "ScanId").
 		Require(func(v interface{}) string { return v.(*learn.WorksheetScan).WorksheetId }, "WorksheetId").
 		Require(func(v interface{}) string { return v.(*learn.WorksheetScan).TeacherId }, "TeacherId").
@@ -20,7 +26,7 @@ func newWorksheetScanServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 		Build()
 }
 
-func onScanChange(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onScanChange(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	scan := elem.(*learn.WorksheetScan)
 
 	if action == ifs.POST {
@@ -45,5 +51,5 @@ func onScanChange(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVN
 		// 6. Log event (l8events) for audit trail
 	}
 
-	return nil, true, nil
+	return nil
 }

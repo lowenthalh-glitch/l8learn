@@ -13,13 +13,19 @@ import (
 
 func newSessionServiceCallback(vnic ifs.IVNic) ifs.IServiceCallback {
 	return common.NewValidation(&learn.LearningSession{}, vnic).
+		BeforeAction(func(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
+			if action == ifs.POST {
+				common.GenerateID(&elem.(*learn.LearningSession).SessionId)
+			}
+			return nil
+		}).
 		Require(func(v interface{}) string { return v.(*learn.LearningSession).SessionId }, "SessionId").
 		Require(func(v interface{}) string { return v.(*learn.LearningSession).StudentId }, "StudentId").
 		After(onSessionChange).
 		Build()
 }
 
-func onSessionChange(elem interface{}, action ifs.Action, notify bool, vnic ifs.IVNic) (interface{}, bool, error) {
+func onSessionChange(elem interface{}, action ifs.Action, vnic ifs.IVNic) error {
 	session := elem.(*learn.LearningSession)
 
 	if (action == ifs.PUT || action == ifs.PATCH) &&
@@ -34,5 +40,5 @@ func onSessionChange(elem interface{}, action ifs.Action, notify bool, vnic ifs.
 		_ = session
 	}
 
-	return nil, true, nil
+	return nil
 }

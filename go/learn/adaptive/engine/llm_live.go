@@ -23,8 +23,8 @@ import (
 const (
 	anthropicEndpoint   = "https://api.anthropic.com/v1/messages"
 	anthropicAPIVersion = "2023-06-01"
-	defaultModel        = "claude-sonnet-4-6-20250514"
-	defaultMaxTokens    = 4096
+	defaultModel        = "claude-sonnet-4-5-20250929"
+	defaultMaxTokens    = 16384
 )
 
 // LiveClient calls a real LLM API with PII masking and cost tracking
@@ -47,7 +47,7 @@ func NewLiveClient(apiKey string, masker *PIIMasker, logger *PromptLogger) *Live
 		maxTokens:    defaultMaxTokens,
 		masker:       masker,
 		logger:       logger,
-		httpClient:   &http.Client{Timeout: 60 * time.Second},
+		httpClient:   &http.Client{Timeout: 180 * time.Second},
 		maxDailyCall: 1000,
 		lastResetDay: time.Now().YearDay(),
 	}
