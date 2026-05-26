@@ -6,6 +6,7 @@ require (
 	github.com/ledongthuc/pdf v0.0.0-20250511090121-5959a4027728
 	github.com/saichler/l8bus v0.0.0-20260524152159-cc0b5c210821
 	github.com/saichler/l8common v0.0.0-20260505024122-8e5ad212b06b
+	github.com/saichler/l8events v0.0.0-20260526025458-f1445c360635
 	github.com/saichler/l8logfusion v0.0.0-20260320120056-3a3617eed28f
 	github.com/saichler/l8services v0.0.0-20260507104132-1658bd7baa30
 	github.com/saichler/l8types v0.0.0-20260523165750-476130c0d811
