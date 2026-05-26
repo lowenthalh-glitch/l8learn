@@ -24,7 +24,7 @@ spec:
       hostNetwork: true
       containers:
         - name: learn-web
-          image: saichler/learn-web:latest
+          image: saichler/l8learn-web:latest
           imagePullPolicy: Always
           env:
             - name: NODE_IP

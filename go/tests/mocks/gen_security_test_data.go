@@ -113,17 +113,17 @@ func RunSecurityTestData(client Client) {
 	// Create user accounts
 	fmt.Println("  Creating user accounts...")
 
-	// Guardian users (userId = guardianId for deny-scope to work)
-	createUser(client, g1.GuardianId, g1.FirstName+" "+g1.LastName, g1.Email, "guardian", "app.html")
-	createUser(client, g2.GuardianId, g2.FirstName+" "+g2.LastName, g2.Email, "guardian", "app.html")
-	createUser(client, g3.GuardianId, g3.FirstName+" "+g3.LastName, g3.Email, "guardian", "app.html")
+	// Guardian users (userId = guardianId, associateIds = children's studentIds for deny-scope)
+	createUser(client, g1.GuardianId, g1.FirstName+" "+g1.LastName, g1.Email, "guardian", "guardian.html", g1.StudentIds)
+	createUser(client, g2.GuardianId, g2.FirstName+" "+g2.LastName, g2.Email, "guardian", "guardian.html", g2.StudentIds)
+	createUser(client, g3.GuardianId, g3.FirstName+" "+g3.LastName, g3.Email, "guardian", "guardian.html", g3.StudentIds)
 
 	// Student users (userId = studentId for deny-scope to work)
-	createUser(client, s1.StudentId, s1.FirstName+" "+s1.LastName, fmt.Sprintf("%s.%s@student.l8learn.local", s1.FirstName, s1.LastName), "student", "app.html")
-	createUser(client, s2.StudentId, s2.FirstName+" "+s2.LastName, fmt.Sprintf("%s.%s@student.l8learn.local", s2.FirstName, s2.LastName), "student", "app.html")
-	createUser(client, s3.StudentId, s3.FirstName+" "+s3.LastName, fmt.Sprintf("%s.%s@student.l8learn.local", s3.FirstName, s3.LastName), "student", "app.html")
-	createUser(client, s4.StudentId, s4.FirstName+" "+s4.LastName, fmt.Sprintf("%s.%s@student.l8learn.local", s4.FirstName, s4.LastName), "student", "app.html")
-	createUser(client, s5.StudentId, s5.FirstName+" "+s5.LastName, fmt.Sprintf("%s.%s@student.l8learn.local", s5.FirstName, s5.LastName), "student", "app.html")
+	createUser(client, s1.StudentId, s1.FirstName+" "+s1.LastName, fmt.Sprintf("%s.%s@student.l8learn.local", s1.FirstName, s1.LastName), "student", "student.html", nil)
+	createUser(client, s2.StudentId, s2.FirstName+" "+s2.LastName, fmt.Sprintf("%s.%s@student.l8learn.local", s2.FirstName, s2.LastName), "student", "student.html", nil)
+	createUser(client, s3.StudentId, s3.FirstName+" "+s3.LastName, fmt.Sprintf("%s.%s@student.l8learn.local", s3.FirstName, s3.LastName), "student", "student.html", nil)
+	createUser(client, s4.StudentId, s4.FirstName+" "+s4.LastName, fmt.Sprintf("%s.%s@student.l8learn.local", s4.FirstName, s4.LastName), "student", "student.html", nil)
+	createUser(client, s5.StudentId, s5.FirstName+" "+s5.LastName, fmt.Sprintf("%s.%s@student.l8learn.local", s5.FirstName, s5.LastName), "student", "student.html", nil)
 
 	// Upload profiles for all 5 students
 	profiles := generateSecurityProfiles()

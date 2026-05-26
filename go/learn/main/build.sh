@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -e
-docker build --no-cache --platform=linux/amd64 -t saichler/learn:latest .
-docker push saichler/learn:latest
+docker build --no-cache --platform=linux/amd64 -t saichler/l8learn:latest .
+docker push saichler/l8learn:latest

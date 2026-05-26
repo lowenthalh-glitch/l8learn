@@ -1,0 +1,271 @@
+# L8Learn — KIND cluster version
+# KIND ships with rancher/local-path-provisioner pre-installed as StorageClass "standard"
+# No custom StorageClass definition needed.
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: learn-vnet
+  labels:
+    name: learn-vnet
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: learn-vnet
+  name: learn-vnet
+  labels:
+    app: learn-vnet
+spec:
+  serviceName: learn-vnet
+  replicas: 2
+  selector:
+    matchLabels:
+      app: learn-vnet
+  template:
+    metadata:
+      labels:
+        app: learn-vnet
+    spec:
+      hostNetwork: true
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: learn-vnet
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: learn-vnet
+          image: saichler/l8learn-vnet:latest
+          imagePullPolicy: Always
+          env:
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+          volumeMounts:
+            - name: hdata
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: hdata
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 2Gi
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: learn-logs
+  labels:
+    name: learn-logs
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: learn-logs
+  name: learn-logs-vnet
+  labels:
+    app: learn-logs-vnet
+spec:
+  serviceName: learn-logs-vnet
+  replicas: 2
+  selector:
+    matchLabels:
+      app: learn-logs-vnet
+  template:
+    metadata:
+      labels:
+        app: learn-logs-vnet
+    spec:
+      hostNetwork: true
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: learn-logs-vnet
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: learn-logs-vnet
+          image: saichler/l8learn-logs-vnet:latest
+          imagePullPolicy: Always
+          env:
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+          volumeMounts:
+            - name: hdata
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: hdata
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 2Gi
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: learn
+  labels:
+    name: learn
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: learn
+  name: learn
+  labels:
+    app: learn
+spec:
+  serviceName: learn
+  replicas: 1
+  selector:
+    matchLabels:
+      app: learn
+  template:
+    metadata:
+      labels:
+        app: learn
+    spec:
+      containers:
+        - name: learn
+          image: saichler/l8learn:latest
+          imagePullPolicy: Always
+          env:
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+          volumeMounts:
+            - name: hdata
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: hdata
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: learn-web
+  labels:
+    name: learn-web
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: learn-web
+  name: learn-web
+  labels:
+    app: learn-web
+spec:
+  serviceName: learn-web
+  replicas: 2
+  selector:
+    matchLabels:
+      app: learn-web
+  template:
+    metadata:
+      labels:
+        app: learn-web
+    spec:
+      hostNetwork: true
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: learn-web
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: learn-web
+          image: saichler/l8learn-web:latest
+          imagePullPolicy: Always
+          env:
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+          volumeMounts:
+            - name: hdata
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: hdata
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 2Gi
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: learn-log-agent
+  labels:
+    name: learn-log-agent
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: learn-log-agent
+  name: learn-log-agent
+  labels:
+    app: learn-log-agent
+spec:
+  serviceName: learn-log-agent
+  replicas: 2
+  selector:
+    matchLabels:
+      app: learn-log-agent
+  template:
+    metadata:
+      labels:
+        app: learn-log-agent
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: learn-log-agent
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: learn-log-agent
+          image: saichler/l8learn-log-agent:latest
+          imagePullPolicy: Always
+          env:
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: LOGPATH
+              value: /data/logs/l8learn
+          volumeMounts:
+            - name: hdata
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: hdata
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 2Gi

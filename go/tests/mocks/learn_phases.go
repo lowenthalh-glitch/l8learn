@@ -107,10 +107,10 @@ func runDemoData(client Client) {
 
 	// User accounts
 	fmt.Println("\n=== User Accounts ===")
-	createUser(client, guardian.GuardianId, guardian.FirstName+" "+guardian.LastName, guardian.Email, "guardian", "app.html")
-	createUser(client, teacher.TeacherId, teacher.FirstName+" "+teacher.LastName, teacher.Email, "teacher", "app.html")
+	createUser(client, guardian.GuardianId, guardian.FirstName+" "+guardian.LastName, guardian.Email, "guardian", "guardian.html", guardian.StudentIds)
+	createUser(client, teacher.TeacherId, teacher.FirstName+" "+teacher.LastName, teacher.Email, "teacher", "teacher.html", nil)
 	studentEmail := fmt.Sprintf("%s.%s@student.l8learn.local", student.FirstName, student.LastName)
-	createUser(client, student.StudentId, student.FirstName+" "+student.LastName, studentEmail, "student", "app.html")
+	createUser(client, student.StudentId, student.FirstName+" "+student.LastName, studentEmail, "student", "student.html", nil)
 
 	// Upload LLM-generated fixtures (schedule + lessons) — embedded, no LLM call needed
 	fmt.Println("\n=== LLM Fixture Data (pre-generated) ===")
@@ -125,7 +125,7 @@ func runDemoData(client Client) {
 	fmt.Printf("  Users:     3\n")
 }
 
-func createUser(client Client, userId, fullName, email, role, portal string) {
+func createUser(client Client, userId, fullName, email, role, portal string, associateIds []string) {
 	userData := map[string]interface{}{
 		"userId":        userId,
 		"fullName":      fullName,
@@ -134,6 +134,9 @@ func createUser(client Client, userId, fullName, email, role, portal string) {
 		"password":      map[string]string{"hash": "12345678"},
 		"accountStatus": "ACCOUNT_STATUS_ACTIVE",
 		"roles":         map[string]bool{role: true},
+	}
+	if len(associateIds) > 0 {
+		userData["associateIds"] = associateIds
 	}
 	if err := client.Post("/learn/73/users", userData); err != nil {
 		fmt.Printf("  FAIL %s user (%s): %v\n", role, email, err)

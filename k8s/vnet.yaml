@@ -24,7 +24,7 @@ spec:
       hostNetwork: true
       containers:
         - name: learn-vnet
-          image: saichler/learn-vnet:latest
+          image: saichler/l8learn-vnet:latest
           imagePullPolicy: Always
           env:
             - name: NODE_IP
