@@ -1,14 +1,418 @@
+<!--
+© 2025 Sharon Aicler (saichler@gmail.com)
+
+Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+You may obtain a copy of the License at:
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0ea5e9">
     <title>L8Learn</title>
-    <!-- TODO: Phase 2+ — add l8ui mobile CSS and JS per mobile-script-loading-order.md -->
+
+    <!-- CSS: Theme -->
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-theme-tokens.css">
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-theme.css">
+
+    <!-- CSS: App Layout -->
+    <link rel="stylesheet" href="css/app-base.css">
+    <link rel="stylesheet" href="css/app-header.css">
+    <link rel="stylesheet" href="css/app-sidebar.css">
+    <link rel="stylesheet" href="css/app-nav.css">
+
+    <!-- CSS: L8UI Mobile Components -->
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-popup.css">
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-confirm.css">
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-table.css">
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-edit-table.css">
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-forms.css">
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-datepicker.css">
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-reference-picker.css">
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-portal-switcher.css">
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-nav-cards.css">
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-notification.css">
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-widget.css">
+    <link rel="stylesheet" href="../l8ui/m/css/layer8m-theme-switcher.css">
+
+    <!-- CSS: Section Layout -->
+    <link rel="stylesheet" href="../l8ui/shared/layer8-section-layout.css">
+    <link rel="stylesheet" href="../l8ui/shared/layer8-section-responsive.css">
+
+    <!-- CSS: View System -->
+    <link rel="stylesheet" href="../l8ui/shared/layer8-view-switcher.css">
+    <link rel="stylesheet" href="../l8ui/chart/layer8d-chart.css">
+    <link rel="stylesheet" href="../l8ui/kanban/layer8d-kanban.css">
+    <link rel="stylesheet" href="../l8ui/timeline/layer8d-timeline.css">
+    <link rel="stylesheet" href="../l8ui/calendar/layer8d-calendar.css">
+    <link rel="stylesheet" href="../l8ui/gantt/layer8d-gantt.css">
+    <link rel="stylesheet" href="../l8ui/tree_grid/layer8d-tree-grid.css">
+    <link rel="stylesheet" href="../l8ui/wizard/layer8d-wizard.css">
+    <link rel="stylesheet" href="../l8ui/dashboard/layer8d-widget.css">
+
+    <!-- CSS: Markdown -->
+    <link rel="stylesheet" href="../l8ui/shared/layer8-markdown.css">
+
+    <!-- CSS: File Upload -->
+    <link rel="stylesheet" href="../l8ui/shared/layer8-file-upload.css">
+
+    <!-- CSS: SYS Module -->
+    <link rel="stylesheet" href="../l8ui/sys/l8sys.css">
+    <link rel="stylesheet" href="../l8ui/sys/health/l8health.css">
+    <link rel="stylesheet" href="../l8ui/sys/modules/l8sys-modules.css">
+    <link rel="stylesheet" href="../l8ui/sys/logs/l8logs.css">
+    <link rel="stylesheet" href="../l8ui/sys/dataimport/l8dataimport.css">
 </head>
 <body>
-    <div id="app">
-        <!-- Mobile portal — card-based navigation via Layer8MNav -->
+    <div class="app-container">
+        <!-- Mobile Header -->
+        <header class="mobile-header" id="mobile-header">
+            <button class="menu-toggle" id="menu-toggle" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="header-title">
+                <span class="header-logo-text">L8Learn</span>
+            </div>
+            <div class="header-actions">
+                <button class="header-action-btn" id="refresh-btn" aria-label="Refresh">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                </button>
+                <div class="header-user" id="header-user">
+                    <span class="user-avatar" id="user-avatar">A</span>
+                    <span class="user-name" id="user-name">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Sidebar -->
+        <nav class="mobile-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <img src="../l8ui/images/logo.gif" alt="L8Learn Logo">
+                    <span class="sidebar-logo-text">L8Learn</span>
+                </div>
+            </div>
+
+            <div class="sidebar-nav">
+                <!-- Main Navigation -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Navigation</div>
+                    <a href="#dashboard" class="sidebar-item active" data-section="dashboard">
+                        <span class="sidebar-item-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="14" width="7" height="7"></rect>
+                                <rect x="3" y="14" width="7" height="7"></rect>
+                            </svg>
+                        </span>
+                        Dashboard
+                    </a>
+                </div>
+
+                <!-- Modules -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Modules</div>
+
+                    <a href="#dashboard" class="sidebar-item" data-section="dashboard" data-module="content">
+                        <span class="sidebar-item-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                            </svg>
+                        </span>
+                        Content
+                    </a>
+
+                    <a href="#dashboard" class="sidebar-item" data-section="dashboard" data-module="students">
+                        <span class="sidebar-item-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </span>
+                        Students
+                    </a>
+
+                    <a href="#dashboard" class="sidebar-item" data-section="dashboard" data-module="learning">
+                        <span class="sidebar-item-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                                <polyline points="2 17 12 22 22 17"></polyline>
+                                <polyline points="2 12 12 17 22 12"></polyline>
+                            </svg>
+                        </span>
+                        Learning
+                    </a>
+
+                    <a href="#dashboard" class="sidebar-item" data-section="dashboard" data-module="assessment">
+                        <span class="sidebar-item-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </span>
+                        Assessment
+                    </a>
+
+                    <a href="#dashboard" class="sidebar-item" data-section="dashboard" data-module="analytics">
+                        <span class="sidebar-item-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="20" x2="18" y2="10"></line>
+                                <line x1="12" y1="20" x2="12" y2="4"></line>
+                                <line x1="6" y1="20" x2="6" y2="14"></line>
+                            </svg>
+                        </span>
+                        Analytics
+                    </a>
+
+                    <a href="#dashboard" class="sidebar-item" data-section="dashboard" data-module="history">
+                        <span class="sidebar-item-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </span>
+                        History
+                    </a>
+
+                    <a href="#dashboard" class="sidebar-item" data-section="dashboard" data-module="collab">
+                        <span class="sidebar-item-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </span>
+                        Collaboration
+                    </a>
+
+                    <a href="#dashboard" class="sidebar-item" data-section="dashboard" data-module="aimonitor">
+                        <span class="sidebar-item-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2a4 4 0 0 1 4 4v1h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2V6a4 4 0 0 1 4-4z"></path>
+                                <circle cx="9" cy="14" r="1"></circle>
+                                <circle cx="15" cy="14" r="1"></circle>
+                            </svg>
+                        </span>
+                        AI Monitor
+                    </a>
+                </div>
+
+                <!-- System -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">System</div>
+                    <a href="#system" class="sidebar-item" data-section="system">
+                        <span class="sidebar-item-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                        </span>
+                        System
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sidebar User -->
+            <div class="sidebar-user">
+                <div class="sidebar-user-info">
+                    <div class="sidebar-avatar" id="sidebar-avatar">A</div>
+                    <div class="sidebar-user-details">
+                        <div class="sidebar-user-name" id="sidebar-user-name">Admin</div>
+                        <div class="sidebar-user-role">User</div>
+                    </div>
+                </div>
+                <button class="sidebar-logout-btn" onclick="MobileApp.logout()">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" id="main-content">
+            <div id="content-area"></div>
+        </main>
     </div>
+
+    <!-- JS: Theme Switcher -->
+    <script src="../l8ui/m/js/layer8m-theme-switcher.js"></script>
+
+    <!-- JS: Layer8 Mobile Core -->
+    <script src="../l8ui/m/js/layer8m-config.js"></script>
+    <!-- JS: Portal Switcher -->
+    <script src="../l8ui/m/js/layer8m-portal-switcher.js"></script>
+    <!-- JS: Layer8 Mobile Auth & Utils -->
+    <script src="../l8ui/m/js/layer8m-auth.js"></script>
+    <script src="../l8ui/m/js/layer8m-utils.js"></script>
+
+    <!-- JS: Notification -->
+    <script src="../l8ui/m/js/layer8m-notification.js"></script>
+
+    <!-- JS: Input Formatter -->
+    <script src="../l8ui/m/js/layer8m-input-formatter.js"></script>
+
+    <!-- JS: Shared Desktop Utilities -->
+    <script src="../l8ui/shared/layer8d-config.js"></script>
+    <script src="../l8ui/shared/layer8d-utils.js"></script>
+    <script src="../l8ui/shared/layer8d-renderers.js"></script>
+    <script src="../l8ui/shared/layer8d-reference-registry.js"></script>
+
+    <!-- JS: Factory Components -->
+    <script src="../l8ui/shared/layer8-enum-factory.js"></script>
+    <script src="../l8ui/shared/layer8-ref-factory.js"></script>
+    <script src="../l8ui/shared/layer8-column-factory.js"></script>
+    <script src="../l8ui/shared/layer8-form-factory.js"></script>
+
+    <!-- JS: Mobile Module Registry Factory -->
+    <script src="../l8ui/m/js/layer8m-module-registry.js"></script>
+
+    <!-- JS: Layer8 Mobile Components -->
+    <script src="../l8ui/m/js/layer8m-popup.js"></script>
+    <script src="../l8ui/m/js/layer8m-confirm.js"></script>
+    <script src="../l8ui/m/js/layer8m-table.js"></script>
+    <script src="../l8ui/m/js/layer8m-edit-table.js"></script>
+    <script src="../l8ui/m/js/layer8m-forms-fields.js"></script>
+    <script src="../l8ui/m/js/layer8m-forms-fields-ext.js"></script>
+    <script src="../l8ui/m/js/layer8m-forms-fields-reference.js"></script>
+    <script src="../l8ui/m/js/layer8m-forms.js"></script>
+    <script src="../l8ui/m/js/layer8m-forms-inline.js"></script>
+    <script src="../l8ui/m/js/layer8m-datepicker.js"></script>
+    <script src="../l8ui/m/js/layer8m-reference-registry.js"></script>
+
+    <!-- JS: L8Learn Reference Registry -->
+    <script src="js/layer8m-reference-registry-learn.js"></script>
+
+    <script src="../l8ui/m/js/layer8m-reference-picker.js"></script>
+    <script src="../l8ui/m/js/layer8m-renderers.js"></script>
+    <script src="../l8ui/m/js/layer8m-data-source.js"></script>
+
+    <!-- JS: Shared Utilities -->
+    <script src="../l8ui/shared/layer8-markdown.js"></script>
+    <script src="../l8ui/shared/layer8-file-upload.js"></script>
+    <script src="../l8ui/shared/layer8-csv-export.js"></script>
+
+    <!-- JS: L8Learn Module Data - Content -->
+    <script src="js/content/curriculum-enums.js"></script>
+    <script src="js/content/curriculum-columns.js"></script>
+    <script src="js/content/curriculum-forms.js"></script>
+    <script src="js/content/generated-enums.js"></script>
+    <script src="js/content/generated-columns.js"></script>
+    <script src="js/content/generated-forms.js"></script>
+    <script src="js/content/content-index.js"></script>
+
+    <!-- JS: L8Learn Module Data - Students -->
+    <script src="js/students/people-enums.js"></script>
+    <script src="js/students/people-columns.js"></script>
+    <script src="js/students/people-forms.js"></script>
+    <script src="js/students/students-index.js"></script>
+
+    <!-- JS: L8Learn Module Data - Learning -->
+    <script src="js/learning/adaptive-enums.js"></script>
+    <script src="js/learning/adaptive-columns.js"></script>
+    <script src="js/learning/adaptive-forms.js"></script>
+    <script src="js/learning/learning-index.js"></script>
+
+    <!-- JS: L8Learn Module Data - Assessment -->
+    <script src="js/assessment/results-enums.js"></script>
+    <script src="js/assessment/results-columns.js"></script>
+    <script src="js/assessment/results-forms.js"></script>
+    <script src="js/assessment/assessment-index.js"></script>
+
+    <!-- JS: L8Learn Module Data - Analytics -->
+    <script src="js/analytics/reports-enums.js"></script>
+    <script src="js/analytics/reports-columns.js"></script>
+    <script src="js/analytics/reports-forms.js"></script>
+    <script src="js/analytics/analytics-index.js"></script>
+
+    <!-- JS: L8Learn Module Data - History -->
+    <script src="js/history/data-enums.js"></script>
+    <script src="js/history/data-columns.js"></script>
+    <script src="js/history/data-forms.js"></script>
+    <script src="js/history/history-index.js"></script>
+
+    <!-- JS: L8Learn Module Data - Collaboration -->
+    <script src="js/collab/groups-enums.js"></script>
+    <script src="js/collab/groups-columns.js"></script>
+    <script src="js/collab/groups-forms.js"></script>
+    <script src="js/collab/collab-index.js"></script>
+
+    <!-- JS: L8Learn Module Data - AI Monitor -->
+    <script src="js/aimonitor/data-enums.js"></script>
+    <script src="js/aimonitor/data-columns.js"></script>
+    <script src="js/aimonitor/data-forms.js"></script>
+    <script src="js/aimonitor/aimonitor-index.js"></script>
+
+    <!-- JS: SYS Security -->
+    <script src="../l8ui/sys/security/l8security-enums.js"></script>
+    <script src="../l8ui/sys/security/l8security-columns.js"></script>
+    <script src="../l8ui/sys/security/l8security-forms.js"></script>
+
+    <!-- JS: Shared Toggle Tree + Module Filter -->
+    <script src="../l8ui/shared/layer8d-toggle-tree.js"></script>
+    <script src="../l8ui/shared/layer8d-module-filter.js"></script>
+    <script src="../l8ui/sys/modules/l8sys-dependency-graph.js"></script>
+    <script src="../l8ui/sys/modules/l8sys-modules-map.js"></script>
+    <script src="../l8ui/sys/modules/l8sys-modules.js"></script>
+
+    <!-- JS: Data Import -->
+    <script src="../l8ui/sys/dataimport/l8dataimport.js"></script>
+    <script src="../l8ui/sys/dataimport/l8dataimport-templates.js"></script>
+    <script src="../l8ui/sys/dataimport/l8dataimport-transfer.js"></script>
+    <script src="../l8ui/sys/dataimport/l8dataimport-execute.js"></script>
+
+    <!-- JS: Navigation Core -->
+    <script src="../l8ui/m/js/layer8m-nav-crud.js"></script>
+    <script src="../l8ui/m/js/layer8m-nav-data.js"></script>
+    <script src="../l8ui/m/js/layer8m-nav.js"></script>
+
+    <!-- JS: L8Learn Navigation Config -->
+    <script src="js/learn-nav-config.js"></script>
+
+    <!-- JS: Mobile View System -->
+    <script src="../l8ui/m/js/layer8m-view-factory.js"></script>
+    <script src="../l8ui/shared/layer8-view-switcher.js"></script>
+    <script src="../l8ui/m/js/layer8m-chart.js"></script>
+    <script src="../l8ui/m/js/layer8m-kanban.js"></script>
+    <script src="../l8ui/m/js/layer8m-calendar.js"></script>
+    <script src="../l8ui/m/js/layer8m-timeline.js"></script>
+    <script src="../l8ui/m/js/layer8m-gantt.js"></script>
+    <script src="../l8ui/m/js/layer8m-tree-grid.js"></script>
+    <script src="../l8ui/m/js/layer8m-wizard.js"></script>
+
+    <!-- JS: Mobile Widget -->
+    <script src="../l8ui/m/js/layer8m-widget.js"></script>
+
+    <!-- JS: App Core -->
+    <script src="js/app-core.js"></script>
 </body>
 </html>

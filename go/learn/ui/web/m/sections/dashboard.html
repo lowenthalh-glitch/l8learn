@@ -1,0 +1,191 @@
+<!--
+© 2025 Sharon Aicler (saichler@gmail.com)
+
+Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+You may obtain a copy of the License at:
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<div class="section-container" id="dashboard-section">
+    <!-- Dashboard Stats -->
+    <div id="nav-stats" class="nav-stats-grid">
+        <!-- Students KPI -->
+        <div class="nav-stat-card">
+            <div class="nav-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <div class="nav-stat-content">
+                <div class="nav-stat-value" id="stat-students">-</div>
+                <div class="nav-stat-label">Students</div>
+            </div>
+        </div>
+
+        <!-- Courses KPI -->
+        <div class="nav-stat-card">
+            <div class="nav-stat-icon success">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
+            <div class="nav-stat-content">
+                <div class="nav-stat-value" id="stat-courses">-</div>
+                <div class="nav-stat-label">Courses</div>
+            </div>
+        </div>
+
+        <!-- Lessons KPI -->
+        <div class="nav-stat-card">
+            <div class="nav-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+            </div>
+            <div class="nav-stat-content">
+                <div class="nav-stat-value" id="stat-lessons">-</div>
+                <div class="nav-stat-label">Lessons</div>
+            </div>
+        </div>
+
+        <!-- Activities KPI -->
+        <div class="nav-stat-card">
+            <div class="nav-stat-icon warning">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+            </div>
+            <div class="nav-stat-content">
+                <div class="nav-stat-value" id="stat-activities">-</div>
+                <div class="nav-stat-label">Activities</div>
+            </div>
+        </div>
+
+        <!-- Skills KPI -->
+        <div class="nav-stat-card">
+            <div class="nav-stat-icon success">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                    <polyline points="17 6 23 6 23 12"></polyline>
+                </svg>
+            </div>
+            <div class="nav-stat-content">
+                <div class="nav-stat-value" id="stat-skills">-</div>
+                <div class="nav-stat-label">Skills</div>
+            </div>
+        </div>
+
+        <!-- Scores KPI -->
+        <div class="nav-stat-card">
+            <div class="nav-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <div class="nav-stat-content">
+                <div class="nav-stat-value" id="stat-scores">-</div>
+                <div class="nav-stat-label">Scores</div>
+            </div>
+        </div>
+
+        <!-- Benchmarks KPI -->
+        <div class="nav-stat-card">
+            <div class="nav-stat-icon warning">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+            </div>
+            <div class="nav-stat-content">
+                <div class="nav-stat-value" id="stat-benchmarks">-</div>
+                <div class="nav-stat-label">Benchmarks</div>
+            </div>
+        </div>
+
+        <!-- Groups KPI -->
+        <div class="nav-stat-card">
+            <div class="nav-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <div class="nav-stat-content">
+                <div class="nav-stat-value" id="stat-groups">-</div>
+                <div class="nav-stat-label">Groups</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dynamic Navigation Content -->
+    <div id="nav-content"></div>
+</div>
+
+<style>
+    #dashboard-section {
+    }
+
+    #nav-stats {
+        margin-bottom: var(--spacing-lg);
+    }
+</style>
+
+<script>
+function initMobileDashboard() {
+    loadDashboardStats();
+    Layer8MNav.showHome();
+}
+
+async function loadDashboardStats() {
+    var kpis = [
+        { id: 'stat-students', endpoint: '/20/Student', query: 'select * from Student limit 1 page 0' },
+        { id: 'stat-courses', endpoint: '/10/Course', query: 'select * from Course limit 1 page 0' },
+        { id: 'stat-lessons', endpoint: '/10/Lesson', query: 'select * from Lesson limit 1 page 0' },
+        { id: 'stat-activities', endpoint: '/10/Activity', query: 'select * from Activity limit 1 page 0' },
+        { id: 'stat-skills', endpoint: '/30/Skill', query: 'select * from Skill limit 1 page 0' },
+        { id: 'stat-scores', endpoint: '/40/Score', query: 'select * from Score limit 1 page 0' },
+        { id: 'stat-benchmarks', endpoint: '/40/Benchmark', query: 'select * from Benchmark limit 1 page 0' },
+        { id: 'stat-groups', endpoint: '/70/Collab', query: 'select * from CollabGroup limit 1 page 0' }
+    ];
+
+    await Promise.all(kpis.map(function(kpi) { return loadKPI(kpi); }));
+}
+
+async function loadKPI(kpi) {
+    try {
+        var body = encodeURIComponent(JSON.stringify({ text: kpi.query }));
+        var response = await Layer8MAuth.get(Layer8MConfig.resolveEndpoint(kpi.endpoint) + '?body=' + body);
+
+        var element = document.getElementById(kpi.id);
+        if (element) {
+            if (response && response.metadata && response.metadata.keyCount && response.metadata.keyCount.counts) {
+                element.textContent = response.metadata.keyCount.counts.Total || 0;
+            } else {
+                element.textContent = '0';
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load KPI ' + kpi.id + ':', error);
+        var el = document.getElementById(kpi.id);
+        if (el) {
+            el.textContent = '0';
+        }
+    }
+}
+</script>

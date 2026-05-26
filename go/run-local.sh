@@ -60,7 +60,7 @@ EXTERNAL_IP=$(ip route get 1.1.1.1 | grep -oP 'src \K[0-9.]+')
 echo "Mock data modes: demo (default), security, full"
 read -p "Enter mode [demo]: " MOCK_MODE
 MOCK_MODE=${MOCK_MODE:-demo}
-./mocks_demo --address https://${EXTERNAL_IP}:2773 --user admin --password admin --insecure --mode ${MOCK_MODE} 2>&1 | tee -a $LOGFILE
+./mocks_demo --address https://${EXTERNAL_IP}:6969 --user admin --password admin --insecure --mode ${MOCK_MODE} 2>&1 | tee -a $LOGFILE
 
 read -p "Press Enter to kill the demo"
 ./kill_demo.sh

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/saichler/l8bus/go/overlay/vnic"
+	evtservices "github.com/saichler/l8events/go/services"
 	"github.com/saichler/l8learn/go/learn/adaptive/engine"
 	"github.com/saichler/l8learn/go/learn/common"
 	learnservices "github.com/saichler/l8learn/go/learn/services"
@@ -48,6 +49,7 @@ func main() {
 
 	// Phase 1: All CRUD services (parallel)
 	learnservices.ActivateAllServices(DB_CREDS, dbName, nic)
+	evtservices.ActivateEvents(DB_CREDS, dbName, nic)
 
 	// Phase 2: AI chat (needs full introspector populated)
 	learnservices.ActivateChatService(DB_CREDS, dbName, nic)

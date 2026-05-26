@@ -1,0 +1,626 @@
+{
+  "credentials": {
+    "postgres": {
+      "aside": "admin",
+      "yside": "5432",
+      "zside": "admin"
+    }
+  },
+  "key": "l8learn-aes-encryption-key-32b!",
+  "secret": "l8learn-shared-secret",
+  "roles": {
+    "admin": {
+      "rules": {
+        "admin-full-access": {
+          "ruleId": "admin-full-access",
+          "elemType": "*",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        }
+      }
+    },
+    "district-admin": {
+      "rules": {
+        "district-admin-full-access": {
+          "ruleId": "district-admin-full-access",
+          "elemType": "*",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "district-admin-deny-security-write": {
+          "ruleId": "district-admin-deny-security-write",
+          "elemType": "L8User",
+          "allowed": false,
+          "actions": { "1": true, "2": true, "3": true, "4": true },
+          "attributes": {}
+        },
+        "district-admin-deny-role-write": {
+          "ruleId": "district-admin-deny-role-write",
+          "elemType": "L8Role",
+          "allowed": false,
+          "actions": { "1": true, "2": true, "3": true, "4": true },
+          "attributes": {}
+        },
+        "district-admin-deny-cred-write": {
+          "ruleId": "district-admin-deny-cred-write",
+          "elemType": "L8Credentials",
+          "allowed": false,
+          "actions": { "1": true, "2": true, "3": true, "4": true },
+          "attributes": {}
+        }
+      }
+    },
+    "school-admin": {
+      "rules": {
+        "school-admin-full-access": {
+          "ruleId": "school-admin-full-access",
+          "elemType": "*",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "school-admin-deny-security-write": {
+          "ruleId": "school-admin-deny-security-write",
+          "elemType": "L8User",
+          "allowed": false,
+          "actions": { "1": true, "2": true, "3": true, "4": true },
+          "attributes": {}
+        },
+        "school-admin-deny-role-write": {
+          "ruleId": "school-admin-deny-role-write",
+          "elemType": "L8Role",
+          "allowed": false,
+          "actions": { "1": true, "2": true, "3": true, "4": true },
+          "attributes": {}
+        },
+        "school-admin-deny-cred-write": {
+          "ruleId": "school-admin-deny-cred-write",
+          "elemType": "L8Credentials",
+          "allowed": false,
+          "actions": { "1": true, "2": true, "3": true, "4": true },
+          "attributes": {}
+        }
+      }
+    },
+    "teacher": {
+      "rules": {
+        "teacher-crud-assessment": {
+          "ruleId": "teacher-crud-assessment",
+          "elemType": "Worksheet",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "teacher-crud-scan": {
+          "ruleId": "teacher-crud-scan",
+          "elemType": "WorksheetScan",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "teacher-crud-session": {
+          "ruleId": "teacher-crud-session",
+          "elemType": "LearningSession",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "teacher-crud-score": {
+          "ruleId": "teacher-crud-score",
+          "elemType": "Score",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "teacher-crud-collab": {
+          "ruleId": "teacher-crud-collab",
+          "elemType": "CollabGroup",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "teacher-crud-message": {
+          "ruleId": "teacher-crud-message",
+          "elemType": "CollabMessage",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "teacher-crud-challenge": {
+          "ruleId": "teacher-crud-challenge",
+          "elemType": "Challenge",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "teacher-crud-tutor": {
+          "ruleId": "teacher-crud-tutor",
+          "elemType": "TutorMatch",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "teacher-crud-schedule": {
+          "ruleId": "teacher-crud-schedule",
+          "elemType": "DailySchedule",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "teacher-get-all": {
+          "ruleId": "teacher-get-all",
+          "elemType": "*",
+          "allowed": true,
+          "actions": { "5": true },
+          "attributes": { "*": "*" }
+        },
+        "teacher-deny-security": {
+          "ruleId": "teacher-deny-security",
+          "elemType": "L8User",
+          "allowed": false,
+          "actions": { "-999": true },
+          "attributes": {}
+        },
+        "teacher-deny-role": {
+          "ruleId": "teacher-deny-role",
+          "elemType": "L8Role",
+          "allowed": false,
+          "actions": { "-999": true },
+          "attributes": {}
+        },
+        "teacher-deny-cred": {
+          "ruleId": "teacher-deny-cred",
+          "elemType": "L8Credentials",
+          "allowed": false,
+          "actions": { "-999": true },
+          "attributes": {}
+        },
+        "teacher-deny-sensitive-fields": {
+          "ruleId": "teacher-deny-sensitive-fields",
+          "elemType": "Student",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "student.accommodationNotes": "",
+            "student.hasIep": "",
+            "student.has504Plan": ""
+          }
+        }
+      }
+    },
+    "content-author": {
+      "rules": {
+        "author-crud-course": {
+          "ruleId": "author-crud-course",
+          "elemType": "Course",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "author-crud-unit": {
+          "ruleId": "author-crud-unit",
+          "elemType": "Unit",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "author-crud-lesson": {
+          "ruleId": "author-crud-lesson",
+          "elemType": "Lesson",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "author-crud-activity": {
+          "ruleId": "author-crud-activity",
+          "elemType": "Activity",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "author-crud-skill": {
+          "ruleId": "author-crud-skill",
+          "elemType": "Skill",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "author-crud-worksheet": {
+          "ruleId": "author-crud-worksheet",
+          "elemType": "Worksheet",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "author-crud-benchmark": {
+          "ruleId": "author-crud-benchmark",
+          "elemType": "Benchmark",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "author-crud-generated": {
+          "ruleId": "author-crud-generated",
+          "elemType": "GeneratedLesson",
+          "allowed": true,
+          "actions": { "-999": true },
+          "attributes": { "*": "*" }
+        },
+        "author-get-analytics": {
+          "ruleId": "author-get-analytics",
+          "elemType": "ContentEffect",
+          "allowed": true,
+          "actions": { "5": true },
+          "attributes": { "*": "*" }
+        },
+        "author-get-cohort": {
+          "ruleId": "author-get-cohort",
+          "elemType": "CohortSnapshot",
+          "allowed": true,
+          "actions": { "5": true },
+          "attributes": { "*": "*" }
+        },
+        "author-deny-security": {
+          "ruleId": "author-deny-security",
+          "elemType": "L8User",
+          "allowed": false,
+          "actions": { "-999": true },
+          "attributes": {}
+        },
+        "author-deny-role": {
+          "ruleId": "author-deny-role",
+          "elemType": "L8Role",
+          "allowed": false,
+          "actions": { "-999": true },
+          "attributes": {}
+        },
+        "author-deny-cred": {
+          "ruleId": "author-deny-cred",
+          "elemType": "L8Credentials",
+          "allowed": false,
+          "actions": { "-999": true },
+          "attributes": {}
+        }
+      }
+    },
+    "guardian": {
+      "rules": {
+        "guardian-get-student-data": {
+          "ruleId": "guardian-get-student-data",
+          "elemType": "*",
+          "allowed": true,
+          "actions": { "5": true },
+          "attributes": { "*": "*" }
+        },
+        "guardian-crud-family": {
+          "ruleId": "guardian-crud-family",
+          "elemType": "Family",
+          "allowed": true,
+          "actions": { "1": true, "2": true, "5": true },
+          "attributes": { "*": "*" }
+        },
+        "guardian-crud-compliance": {
+          "ruleId": "guardian-crud-compliance",
+          "elemType": "StateCompliance",
+          "allowed": true,
+          "actions": { "1": true, "2": true, "5": true },
+          "attributes": { "*": "*" }
+        },
+        "guardian-put-enrollment": {
+          "ruleId": "guardian-put-enrollment",
+          "elemType": "Enrollment",
+          "allowed": true,
+          "actions": { "2": true, "5": true },
+          "attributes": { "*": "*" }
+        },
+        "guardian-deny-security": {
+          "ruleId": "guardian-deny-security",
+          "elemType": "L8User",
+          "allowed": false,
+          "actions": { "-999": true },
+          "attributes": {}
+        },
+        "guardian-deny-role": {
+          "ruleId": "guardian-deny-role",
+          "elemType": "L8Role",
+          "allowed": false,
+          "actions": { "-999": true },
+          "attributes": {}
+        },
+        "guardian-deny-cred": {
+          "ruleId": "guardian-deny-cred",
+          "elemType": "L8Credentials",
+          "allowed": false,
+          "actions": { "-999": true },
+          "attributes": {}
+        },
+        "guardian-deny-student-scope": {
+          "ruleId": "guardian-deny-student-scope",
+          "elemType": "Student",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "Student": "select * from Student where studentId not in ${associateIds}",
+            "student.accommodationNotes": "",
+            "student.hasIep": "",
+            "student.has504Plan": ""
+          }
+        },
+        "guardian-deny-profile-scope": {
+          "ruleId": "guardian-deny-profile-scope",
+          "elemType": "StudentProfile",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "StudentProfile": "select * from StudentProfile where studentId not in ${associateIds}"
+          }
+        },
+        "guardian-deny-eval-scope": {
+          "ruleId": "guardian-deny-eval-scope",
+          "elemType": "EvalImport",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "EvalImport": "select * from EvalImport where studentId not in ${associateIds}"
+          }
+        },
+        "guardian-deny-path-scope": {
+          "ruleId": "guardian-deny-path-scope",
+          "elemType": "LearningPath",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "LearningPath": "select * from LearningPath where studentId not in ${associateIds}"
+          }
+        },
+        "guardian-deny-mastery-scope": {
+          "ruleId": "guardian-deny-mastery-scope",
+          "elemType": "SkillMastery",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "SkillMastery": "select * from SkillMastery where studentId not in ${associateIds}"
+          }
+        },
+        "guardian-deny-session-scope": {
+          "ruleId": "guardian-deny-session-scope",
+          "elemType": "LearningSession",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "LearningSession": "select * from LearningSession where studentId not in ${associateIds}"
+          }
+        },
+        "guardian-deny-score-scope": {
+          "ruleId": "guardian-deny-score-scope",
+          "elemType": "Score",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "Score": "select * from Score where studentId not in ${associateIds}"
+          }
+        },
+        "guardian-deny-progress-scope": {
+          "ruleId": "guardian-deny-progress-scope",
+          "elemType": "ProgressReport",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "ProgressReport": "select * from ProgressReport where studentId not in ${associateIds}"
+          }
+        },
+        "guardian-deny-engagement-scope": {
+          "ruleId": "guardian-deny-engagement-scope",
+          "elemType": "EngagementMetric",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "EngagementMetric": "select * from EngagementMetric where studentId not in ${associateIds}"
+          }
+        },
+        "guardian-deny-growth-scope": {
+          "ruleId": "guardian-deny-growth-scope",
+          "elemType": "GrowthRecord",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "GrowthRecord": "select * from GrowthRecord where studentId not in ${associateIds}"
+          }
+        },
+        "guardian-deny-risk-scope": {
+          "ruleId": "guardian-deny-risk-scope",
+          "elemType": "RiskAssessment",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "RiskAssessment": "select * from RiskAssessment where studentId not in ${associateIds}"
+          }
+        },
+        "guardian-deny-standard-scope": {
+          "ruleId": "guardian-deny-standard-scope",
+          "elemType": "StandardMastery",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "StandardMastery": "select * from StandardMastery where studentId not in ${associateIds}"
+          }
+        },
+        "guardian-deny-generated-scope": {
+          "ruleId": "guardian-deny-generated-scope",
+          "elemType": "GeneratedLesson",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "GeneratedLesson": "select * from GeneratedLesson where studentId not in ${associateIds}"
+          }
+        },
+        "guardian-deny-self-scope": {
+          "ruleId": "guardian-deny-self-scope",
+          "elemType": "Guardian",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "Guardian": "select * from Guardian where guardianId!=${userId}"
+          }
+        },
+        "guardian-deny-family-scope": {
+          "ruleId": "guardian-deny-family-scope",
+          "elemType": "Family",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "Family": "select * from Family where primaryGuardianId!=${userId}"
+          }
+        }
+      }
+    },
+    "student": {
+      "rules": {
+        "student-get-own-data": {
+          "ruleId": "student-get-own-data",
+          "elemType": "*",
+          "allowed": true,
+          "actions": { "5": true },
+          "attributes": { "*": "*" }
+        },
+        "student-crud-session": {
+          "ruleId": "student-crud-session",
+          "elemType": "LearningSession",
+          "allowed": true,
+          "actions": { "1": true, "2": true, "5": true },
+          "attributes": { "*": "*" }
+        },
+        "student-crud-message": {
+          "ruleId": "student-crud-message",
+          "elemType": "CollabMessage",
+          "allowed": true,
+          "actions": { "1": true, "5": true },
+          "attributes": { "*": "*" }
+        },
+        "student-deny-security": {
+          "ruleId": "student-deny-security",
+          "elemType": "L8User",
+          "allowed": false,
+          "actions": { "-999": true },
+          "attributes": {}
+        },
+        "student-deny-role": {
+          "ruleId": "student-deny-role",
+          "elemType": "L8Role",
+          "allowed": false,
+          "actions": { "-999": true },
+          "attributes": {}
+        },
+        "student-deny-cred": {
+          "ruleId": "student-deny-cred",
+          "elemType": "L8Credentials",
+          "allowed": false,
+          "actions": { "-999": true },
+          "attributes": {}
+        },
+        "student-deny-student-scope": {
+          "ruleId": "student-deny-student-scope",
+          "elemType": "Student",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "Student": "select * from Student where studentId!=${userId}",
+            "student.accommodationNotes": "",
+            "student.hasIep": "",
+            "student.has504Plan": "",
+            "student.primaryGuardianId": ""
+          }
+        },
+        "student-deny-path-scope": {
+          "ruleId": "student-deny-path-scope",
+          "elemType": "LearningPath",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "LearningPath": "select * from LearningPath where studentId!=${userId}"
+          }
+        },
+        "student-deny-mastery-scope": {
+          "ruleId": "student-deny-mastery-scope",
+          "elemType": "SkillMastery",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "SkillMastery": "select * from SkillMastery where studentId!=${userId}"
+          }
+        },
+        "student-deny-session-scope": {
+          "ruleId": "student-deny-session-scope",
+          "elemType": "LearningSession",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "LearningSession": "select * from LearningSession where studentId!=${userId}"
+          }
+        },
+        "student-deny-score-scope": {
+          "ruleId": "student-deny-score-scope",
+          "elemType": "Score",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "Score": "select * from Score where studentId!=${userId}"
+          }
+        },
+        "student-deny-progress-scope": {
+          "ruleId": "student-deny-progress-scope",
+          "elemType": "ProgressReport",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "ProgressReport": "select * from ProgressReport where studentId!=${userId}"
+          }
+        },
+        "student-deny-engagement-scope": {
+          "ruleId": "student-deny-engagement-scope",
+          "elemType": "EngagementMetric",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "EngagementMetric": "select * from EngagementMetric where studentId!=${userId}"
+          }
+        },
+        "student-deny-growth-scope": {
+          "ruleId": "student-deny-growth-scope",
+          "elemType": "GrowthRecord",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "GrowthRecord": "select * from GrowthRecord where studentId!=${userId}"
+          }
+        },
+        "student-deny-generated-scope": {
+          "ruleId": "student-deny-generated-scope",
+          "elemType": "GeneratedLesson",
+          "allowed": false,
+          "actions": {},
+          "attributes": {
+            "GeneratedLesson": "select * from GeneratedLesson where studentId!=${userId}"
+          }
+        }
+      }
+    }
+  },
+  "users": {
+    "admin": {
+      "userName": "admin",
+      "password": "admin",
+      "roles": { "admin": true },
+      "portal": "app.html"
+    }
+  },
+  "sysconfig": {
+    "dataStoreConfig": { "name": "admin", "type": "postgres" },
+    "rxQueueSize": "100000",
+    "txQueueSize": "100000",
+    "vnetPort": 10005,
+    "webConfig": { "endPointPrefix": "/web/", "webPort": 2774 }
+  }
+}

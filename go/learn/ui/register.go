@@ -6,7 +6,9 @@
 package ui
 
 import (
+	l8c "github.com/saichler/l8common/go/common"
 	"github.com/saichler/l8types/go/ifs"
+	l8events "github.com/saichler/l8types/go/types/l8events"
 )
 
 func RegisterTypes(resources ifs.IResources) {
@@ -17,4 +19,5 @@ func RegisterTypes(resources ifs.IResources) {
 	registerAnalyticsTypes(resources)
 	registerHistoryTypes(resources)
 	registerCollabTypes(resources)
+	l8c.RegisterType(resources, &l8events.EventRecord{}, &l8events.EventRecordList{}, "EventId")
 }
