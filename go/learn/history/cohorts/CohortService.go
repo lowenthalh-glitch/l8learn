@@ -17,10 +17,7 @@ const (
 )
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	common.ActivateService(common.ServiceConfig{
-		ServiceName: ServiceName,
-		ServiceArea: ServiceArea,
-		PrimaryKey:  "SnapshotId",
-		Callback:    newCohortServiceCallback(vnic),
-	}, &learn.CohortSnapshot{}, &learn.CohortSnapshotList{}, creds, dbname, vnic)
+	sla := common.NewOrmSLA(ServiceName, ServiceArea, "SnapshotId", newCohortServiceCallback(vnic),
+		&learn.CohortSnapshot{}, &learn.CohortSnapshotList{})
+	common.ActivateService(sla, creds, dbname, vnic)
 }

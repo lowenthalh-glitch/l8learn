@@ -17,10 +17,7 @@ const (
 )
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	common.ActivateService(common.ServiceConfig{
-		ServiceName: ServiceName,
-		ServiceArea: ServiceArea,
-		PrimaryKey:  "ConfigId",
-		Callback:    newLLMConfigServiceCallback(vnic),
-	}, &learn.LLMConfig{}, &learn.LLMConfigList{}, creds, dbname, vnic)
+	sla := common.NewOrmSLA(ServiceName, ServiceArea, "ConfigId", newLLMConfigServiceCallback(vnic),
+		&learn.LLMConfig{}, &learn.LLMConfigList{})
+	common.ActivateService(sla, creds, dbname, vnic)
 }

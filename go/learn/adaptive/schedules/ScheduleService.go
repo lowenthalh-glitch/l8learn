@@ -17,10 +17,7 @@ const (
 )
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	common.ActivateService(common.ServiceConfig{
-		ServiceName: ServiceName,
-		ServiceArea: ServiceArea,
-		PrimaryKey:  "ScheduleId",
-		Callback:    newScheduleServiceCallback(vnic),
-	}, &learn.DailySchedule{}, &learn.DailyScheduleList{}, creds, dbname, vnic)
+	sla := common.NewOrmSLA(ServiceName, ServiceArea, "ScheduleId", newScheduleServiceCallback(vnic),
+		&learn.DailySchedule{}, &learn.DailyScheduleList{})
+	common.ActivateService(sla, creds, dbname, vnic)
 }

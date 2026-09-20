@@ -17,12 +17,9 @@ const (
 )
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	common.ActivateService(common.ServiceConfig{
-		ServiceName: ServiceName,
-		ServiceArea: ServiceArea,
-		PrimaryKey:  "WorksheetId",
-		Callback:    newWorksheetServiceCallback(vnic),
-	}, &learn.Worksheet{}, &learn.WorksheetList{}, creds, dbname, vnic)
+	sla := common.NewOrmSLA(ServiceName, ServiceArea, "WorksheetId", newWorksheetServiceCallback(vnic),
+		&learn.Worksheet{}, &learn.WorksheetList{})
+	common.ActivateService(sla, creds, dbname, vnic)
 }
 
 func Worksheets(vnic ifs.IVNic) (ifs.IServiceHandler, bool) {

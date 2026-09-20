@@ -17,12 +17,9 @@ const (
 )
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	common.ActivateService(common.ServiceConfig{
-		ServiceName: ServiceName,
-		ServiceArea: ServiceArea,
-		PrimaryKey:  "LessonId",
-		Callback:    newLessonServiceCallback(vnic),
-	}, &learn.Lesson{}, &learn.LessonList{}, creds, dbname, vnic)
+	sla := common.NewOrmSLA(ServiceName, ServiceArea, "LessonId", newLessonServiceCallback(vnic),
+		&learn.Lesson{}, &learn.LessonList{})
+	common.ActivateService(sla, creds, dbname, vnic)
 }
 
 func Lessons(vnic ifs.IVNic) (ifs.IServiceHandler, bool) {

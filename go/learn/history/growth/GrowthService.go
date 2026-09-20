@@ -17,10 +17,7 @@ const (
 )
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	common.ActivateService(common.ServiceConfig{
-		ServiceName: ServiceName,
-		ServiceArea: ServiceArea,
-		PrimaryKey:  "GrowthId",
-		Callback:    newGrowthServiceCallback(vnic),
-	}, &learn.GrowthRecord{}, &learn.GrowthRecordList{}, creds, dbname, vnic)
+	sla := common.NewOrmSLA(ServiceName, ServiceArea, "GrowthId", newGrowthServiceCallback(vnic),
+		&learn.GrowthRecord{}, &learn.GrowthRecordList{})
+	common.ActivateService(sla, creds, dbname, vnic)
 }

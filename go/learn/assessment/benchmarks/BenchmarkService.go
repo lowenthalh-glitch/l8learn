@@ -17,10 +17,7 @@ const (
 )
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	common.ActivateService(common.ServiceConfig{
-		ServiceName: ServiceName,
-		ServiceArea: ServiceArea,
-		PrimaryKey:  "BenchmarkId",
-		Callback:    newBenchmarkServiceCallback(vnic),
-	}, &learn.Benchmark{}, &learn.BenchmarkList{}, creds, dbname, vnic)
+	sla := common.NewOrmSLA(ServiceName, ServiceArea, "BenchmarkId", newBenchmarkServiceCallback(vnic),
+		&learn.Benchmark{}, &learn.BenchmarkList{})
+	common.ActivateService(sla, creds, dbname, vnic)
 }

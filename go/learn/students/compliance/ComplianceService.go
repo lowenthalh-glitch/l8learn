@@ -17,10 +17,7 @@ const (
 )
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	common.ActivateService(common.ServiceConfig{
-		ServiceName: ServiceName,
-		ServiceArea: ServiceArea,
-		PrimaryKey:  "ComplianceId",
-		Callback:    newComplianceServiceCallback(vnic),
-	}, &learn.StateCompliance{}, &learn.StateComplianceList{}, creds, dbname, vnic)
+	sla := common.NewOrmSLA(ServiceName, ServiceArea, "ComplianceId", newComplianceServiceCallback(vnic),
+		&learn.StateCompliance{}, &learn.StateComplianceList{})
+	common.ActivateService(sla, creds, dbname, vnic)
 }

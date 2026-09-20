@@ -17,10 +17,7 @@ const (
 )
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	common.ActivateService(common.ServiceConfig{
-		ServiceName: ServiceName,
-		ServiceArea: ServiceArea,
-		PrimaryKey:  "MatchId",
-		Callback:    newTutorMatchServiceCallback(vnic),
-	}, &learn.TutorMatch{}, &learn.TutorMatchList{}, creds, dbname, vnic)
+	sla := common.NewOrmSLA(ServiceName, ServiceArea, "MatchId", newTutorMatchServiceCallback(vnic),
+		&learn.TutorMatch{}, &learn.TutorMatchList{})
+	common.ActivateService(sla, creds, dbname, vnic)
 }

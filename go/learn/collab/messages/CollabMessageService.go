@@ -17,10 +17,7 @@ const (
 )
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	common.ActivateService(common.ServiceConfig{
-		ServiceName: ServiceName,
-		ServiceArea: ServiceArea,
-		PrimaryKey:  "MessageId",
-		Callback:    newCollabMessageServiceCallback(vnic),
-	}, &learn.CollabMessage{}, &learn.CollabMessageList{}, creds, dbname, vnic)
+	sla := common.NewOrmSLA(ServiceName, ServiceArea, "MessageId", newCollabMessageServiceCallback(vnic),
+		&learn.CollabMessage{}, &learn.CollabMessageList{})
+	common.ActivateService(sla, creds, dbname, vnic)
 }

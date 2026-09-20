@@ -17,10 +17,7 @@ const (
 )
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	common.ActivateService(common.ServiceConfig{
-		ServiceName: ServiceName,
-		ServiceArea: ServiceArea,
-		PrimaryKey:  "FamilyId",
-		Callback:    newFamilyServiceCallback(vnic),
-	}, &learn.Family{}, &learn.FamilyList{}, creds, dbname, vnic)
+	sla := common.NewOrmSLA(ServiceName, ServiceArea, "FamilyId", newFamilyServiceCallback(vnic),
+		&learn.Family{}, &learn.FamilyList{})
+	common.ActivateService(sla, creds, dbname, vnic)
 }

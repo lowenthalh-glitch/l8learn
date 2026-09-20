@@ -17,12 +17,9 @@ const (
 )
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	common.ActivateService(common.ServiceConfig{
-		ServiceName: ServiceName,
-		ServiceArea: ServiceArea,
-		PrimaryKey:  "PathId",
-		Callback:    newPathServiceCallback(vnic),
-	}, &learn.LearningPath{}, &learn.LearningPathList{}, creds, dbname, vnic)
+	sla := common.NewOrmSLA(ServiceName, ServiceArea, "PathId", newPathServiceCallback(vnic),
+		&learn.LearningPath{}, &learn.LearningPathList{})
+	common.ActivateService(sla, creds, dbname, vnic)
 }
 
 func Paths(vnic ifs.IVNic) (ifs.IServiceHandler, bool) {

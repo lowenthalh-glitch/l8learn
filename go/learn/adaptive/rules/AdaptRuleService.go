@@ -17,10 +17,7 @@ const (
 )
 
 func Activate(creds, dbname string, vnic ifs.IVNic) {
-	common.ActivateService(common.ServiceConfig{
-		ServiceName: ServiceName,
-		ServiceArea: ServiceArea,
-		PrimaryKey:  "RuleId",
-		Callback:    newAdaptRuleServiceCallback(vnic),
-	}, &learn.AdaptationRule{}, &learn.AdaptationRuleList{}, creds, dbname, vnic)
+	sla := common.NewOrmSLA(ServiceName, ServiceArea, "RuleId", newAdaptRuleServiceCallback(vnic),
+		&learn.AdaptationRule{}, &learn.AdaptationRuleList{})
+	common.ActivateService(sla, creds, dbname, vnic)
 }
