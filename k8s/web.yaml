@@ -22,9 +22,11 @@ spec:
         app: learn-web
     spec:
       hostNetwork: true
+      imagePullSecrets:
+        - name: harbor-pull
       containers:
         - name: learn-web
-          image: saichler/l8learn-web:latest
+          image: registry.layer-8.dev:44443/l8learn/l8learn-web:latest
           imagePullPolicy: Always
           env:
             - name: NODE_IP

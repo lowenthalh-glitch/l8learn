@@ -23,9 +23,11 @@ spec:
       labels:
         app: learn
     spec:
+      imagePullSecrets:
+        - name: harbor-pull
       containers:
         - name: learn
-          image: saichler/learn:latest
+          image: registry.layer-8.dev:44443/l8learn/learn:latest
           imagePullPolicy: Always
           env:
             - name: NODE_IP

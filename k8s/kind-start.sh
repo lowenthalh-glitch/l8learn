@@ -56,11 +56,11 @@ kubectl wait --for=condition=Ready nodes --all --timeout=120s
 
 echo "Loading Docker images into KIND cluster..."
 IMAGES=(
-  saichler/l8learn-vnet:latest
-  saichler/l8learn-logs-vnet:latest
-  saichler/l8learn:latest
-  saichler/l8learn-web:latest
-  saichler/l8learn-log-agent:latest
+  registry.layer-8.dev:44443/l8learn/l8learn-vnet:latest
+  registry.layer-8.dev:44443/l8learn/l8learn-logs-vnet:latest
+  registry.layer-8.dev:44443/l8learn/l8learn:latest
+  registry.layer-8.dev:44443/l8learn/l8learn-web:latest
+  registry.layer-8.dev:44443/l8learn/l8learn-log-agent:latest
 )
 
 for img in "${IMAGES[@]}"; do

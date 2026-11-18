@@ -49,9 +49,11 @@ spec:
         app: learn-vnet
     spec:
       hostNetwork: true
+      imagePullSecrets:
+        - name: harbor-pull
       containers:
         - name: learn-vnet
-          image: saichler/l8learn-vnet:latest
+          image: registry.layer-8.dev:44443/l8learn/l8learn-vnet:latest
           imagePullPolicy: Always
           env:
             - name: NODE_IP
@@ -90,9 +92,11 @@ spec:
         app: learn-logs-vnet
     spec:
       hostNetwork: true
+      imagePullSecrets:
+        - name: harbor-pull
       containers:
         - name: learn-logs-vnet
-          image: saichler/l8learn-logs-vnet:latest
+          image: registry.layer-8.dev:44443/l8learn/l8learn-logs-vnet:latest
           imagePullPolicy: Always
           env:
             - name: NODE_IP
@@ -132,9 +136,11 @@ spec:
       labels:
         app: learn
     spec:
+      imagePullSecrets:
+        - name: harbor-pull
       containers:
         - name: learn
-          image: saichler/l8learn:latest
+          image: registry.layer-8.dev:44443/l8learn/l8learn:latest
           imagePullPolicy: Always
           env:
             - name: NODE_IP
@@ -173,9 +179,11 @@ spec:
         app: learn-web
     spec:
       hostNetwork: true
+      imagePullSecrets:
+        - name: harbor-pull
       containers:
         - name: learn-web
-          image: saichler/l8learn-web:latest
+          image: registry.layer-8.dev:44443/l8learn/l8learn-web:latest
           imagePullPolicy: Always
           env:
             - name: NODE_IP
@@ -213,9 +221,11 @@ spec:
       labels:
         app: learn-log-agent
     spec:
+      imagePullSecrets:
+        - name: harbor-pull
       containers:
         - name: learn-log-agent
-          image: saichler/l8learn-log-agent:latest
+          image: registry.layer-8.dev:44443/l8learn/l8learn-log-agent:latest
           imagePullPolicy: Always
           env:
             - name: NODE_IP

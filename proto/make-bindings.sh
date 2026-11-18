@@ -6,18 +6,18 @@ wget https://raw.githubusercontent.com/saichler/l8types/refs/heads/main/proto/ap
 wget https://raw.githubusercontent.com/saichler/l8common/refs/heads/main/proto/l8common.proto
 
 # Generate bindings for all learn proto files
-docker run --user "$(id -u):$(id -g)" -e PROTO=learn-content.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
-docker run --user "$(id -u):$(id -g)" -e PROTO=learn-students.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
-docker run --user "$(id -u):$(id -g)" -e PROTO=learn-adaptive.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
-docker run --user "$(id -u):$(id -g)" -e PROTO=learn-assessment.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
-docker run --user "$(id -u):$(id -g)" -e PROTO=learn-analytics.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
-docker run --user "$(id -u):$(id -g)" -e PROTO=learn-history.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
-docker run --user "$(id -u):$(id -g)" -e PROTO=learn-homeschool.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
-docker run --user "$(id -u):$(id -g)" -e PROTO=learn-collab.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
-docker run --user "$(id -u):$(id -g)" -e PROTO=learn-profile.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
-docker run --user "$(id -u):$(id -g)" -e PROTO=learn-llm.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
-docker run --user "$(id -u):$(id -g)" -e PROTO=learn-eval.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
-docker run --user "$(id -u):$(id -g)" -e PROTO=learn-generated.proto --mount type=bind,source="$PWD",target=/home/proto/ -i saichler/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-content.proto --mount type=bind,source="$PWD",target=/home/proto/ -i registry.layer-8.dev:44443/library/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-students.proto --mount type=bind,source="$PWD",target=/home/proto/ -i registry.layer-8.dev:44443/library/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-adaptive.proto --mount type=bind,source="$PWD",target=/home/proto/ -i registry.layer-8.dev:44443/library/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-assessment.proto --mount type=bind,source="$PWD",target=/home/proto/ -i registry.layer-8.dev:44443/library/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-analytics.proto --mount type=bind,source="$PWD",target=/home/proto/ -i registry.layer-8.dev:44443/library/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-history.proto --mount type=bind,source="$PWD",target=/home/proto/ -i registry.layer-8.dev:44443/library/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-homeschool.proto --mount type=bind,source="$PWD",target=/home/proto/ -i registry.layer-8.dev:44443/library/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-collab.proto --mount type=bind,source="$PWD",target=/home/proto/ -i registry.layer-8.dev:44443/library/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-profile.proto --mount type=bind,source="$PWD",target=/home/proto/ -i registry.layer-8.dev:44443/library/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-llm.proto --mount type=bind,source="$PWD",target=/home/proto/ -i registry.layer-8.dev:44443/library/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-eval.proto --mount type=bind,source="$PWD",target=/home/proto/ -i registry.layer-8.dev:44443/library/protoc:latest
+docker run --user "$(id -u):$(id -g)" -e PROTO=learn-generated.proto --mount type=bind,source="$PWD",target=/home/proto/ -i registry.layer-8.dev:44443/library/protoc:latest
 
 rm api.proto l8common.proto
 
